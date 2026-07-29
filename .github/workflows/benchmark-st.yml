@@ -1,0 +1,95 @@
+name: Benchmark ST renderer
+
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths:
+      - .github/workflows/benchmark-st.yml
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout optimization branch
+        uses: actions/checkout@v4
+        with:
+          path: opt
+
+      - name: Checkout recovered VM source
+        uses: actions/checkout@v4
+        with:
+          ref: 3c16c71f3a172eb9c22164e42e22f34a67179e17
+          path: source
+
+      - name: Restore benchmark scripts
+        shell: bash
+        run: |
+          mkdir -p bench
+          base64 -d opt/vm-port/ci-minimal-full-ab.py.gz.b64 | gzip -d > bench/minimal_full_ab.py
+          base64 -d opt/vm-port/ci-run-minimal-ab.mjs.gz.b64 | gzip -d > bench/run_minimal_ab.mjs
+          base64 -d opt/vm-port/ci-st-renderer-patch.py.gz.b64 | gzip -d > bench/st_renderer_patch.py
+          chmod +x bench/minimal_full_ab.py
+
+      - name: Download installed DOS demo
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, urllib.parse, urllib.request
+          page = 'https://www.dosgamesarchive.com/download/out-of-this-world/'
+          request = urllib.request.Request(page, headers={'User-Agent': 'Mozilla/5.0'})
+          html = urllib.request.urlopen(request).read().decode('utf-8', 'replace')
+          links = re.findall(r'href=["\']([^"\']*awdemo-box[^"\']*)', html, re.I)
+          if not links:
+              raise SystemExit('awdemo-box link not found')
+          url = urllib.parse.urljoin(page, links[0])
+          print('downloading', url)
+          request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+          pathlib.Path('awdemo.zip').write_bytes(urllib.request.urlopen(request).read())
+          PY
+          file awdemo.zip
+          unzip -q awdemo.zip -d awdemo
+          find awdemo -iname memlist.bin -print
+
+      - name: Build sjasmplus
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/z00m128/sjasmplus.git
+          make -C sjasmplus -j2
+
+      - name: Build JSSpeccy core
+        shell: bash
+        run: |
+          git clone https://github.com/gasman/jsspeccy3.git
+          cd jsspeccy3
+          git checkout cf886f39c2a72752a0bd49568fef398b141c11f2
+          npm ci
+          npm run build:core
+          npm run build:wasm:release
+
+      - name: Build and run baseline/ST snapshots
+        shell: bash
+        run: |
+          DATA_DIR=$(find awdemo -iname memlist.bin -printf '%h\n' | head -1)
+          python3 bench/minimal_full_ab.py \
+            --source-dir source/vm-port \
+            --patch-dir bench \
+            --data-dir "$DATA_DIR" \
+            --sjasmplus "$PWD/sjasmplus/sjasmplus" \
+            --out "$PWD/out"
+          node bench/run_minimal_ab.mjs \
+            "$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
+            "$PWD/out"
+          cat out/minimal-manifest.json
+          cat out/minimal-ab-result.json
+
+      - name: Upload benchmark result
+        uses: actions/upload-artifact@v4
+        with:
+          name: st-renderer-ab-result
+          path: |
+            out/minimal-manifest.json
+            out/minimal-ab-result.json
+            out/renderer-baseline.bin
+            out/renderer-st.bin
