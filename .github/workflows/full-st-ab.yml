@@ -1,4 +1,4 @@
-name: Combined draw elimination plus ST A/B
+name: Viewport and coordinate-table benchmark
 on:
   push:
     branches: [st-span-optimizations]
@@ -6,6 +6,7 @@ on:
       - .github/workflows/full-st-ab.yml
       - vm-port/generate_optimizer_trace.mjs
       - vm-port/st_renderer_patch.py
+      - vm-port/viewport_renderer_patch.py
       - vm-port/patch_ab_resources.py
   pull_request:
     branches: [main]
@@ -40,7 +41,7 @@ jobs:
       - name: Generate exact ownership mask and event runs
         shell: bash
         run: |
-          mkdir -p opt/vm-port/build-full bench
+          mkdir -p opt/vm-port/build-full bench variants result
           node opt/vm-port/generate_optimizer_trace.mjs \
             game-data/ootwdemo.js game-data/another.min.js \
             opt/vm-port/build-full/optimizer-trace.log
@@ -78,6 +79,7 @@ jobs:
               text=pathlib.Path(src).read_text()
               encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
               pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          shutil.copy2('opt/vm-port/st_renderer_patch.py','bench/st_renderer_patch_base.py')
           shutil.copy2('opt/vm-port/st_renderer_patch.py','bench/st_renderer_patch.py')
           PY
           python3 opt/vm-port/patch_ab_resources.py bench/minimal_full_ab.py
@@ -121,7 +123,7 @@ jobs:
           npm run build:core
           npm run build:wasm:release
 
-      - name: Build and run combined baseline/ST snapshots
+      - name: Build current combined ST reference
         shell: bash
         run: |
           python3 bench/minimal_full_ab.py \
@@ -129,28 +131,77 @@ jobs:
             --patch-dir bench \
             --resource-js game-data/ootwdemo.js \
             --sjasmplus "$PWD/sjasmplus/sjasmplus" \
-            --out "$PWD/out"
-          node bench/run_minimal_ab.mjs \
-            "$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
-            "$PWD/out"
-          cat opt/vm-port/build-full/draw-optimization.json
-          cat out/minimal-manifest.json
-          cat out/minimal-ab-result.json
+            --out "$PWD/out-current"
+          cp out-current/st.sna variants/current-st.sna
+          cp out-current/minimal-manifest.json result/current-st-manifest.json
 
-      - name: Collect result
-        if: always()
+      - name: Enable fixed-bank lookup tables
         shell: bash
         run: |
-          mkdir -p result
-          cp -f out/minimal-ab-result.json result/combined-st-ab-result.json 2>/dev/null || true
-          cp -f out/minimal-manifest.json result/combined-st-ab-manifest.json 2>/dev/null || true
-          cp -f opt/vm-port/build-full/draw-optimization.json result/ 2>/dev/null || true
-          cp -f bench/event-runs.bin result/ 2>/dev/null || true
-          cp -f out/baseline.sna out/st.sna result/ 2>/dev/null || true
+          cp opt/vm-port/viewport_renderer_patch.py bench/st_renderer_patch.py
+          python3 - <<'PY'
+          import pathlib
+          p=pathlib.Path('bench/minimal_full_ab.py')
+          s=p.read_text()
+          old='from st_renderer_patch import patch_renderer'
+          new='from st_renderer_patch import patch_renderer, viewport_tables, TABLE_BANK2_OFFSET'
+          if old not in s:
+              raise SystemExit('patch import changed')
+          s=s.replace(old,new,1)
+          old='    pages = [bytearray(0x4000) for _ in range(8)]'
+          new=old+'\n    put(pages[2], TABLE_BANK2_OFFSET, viewport_tables(), "coordinate tables")'
+          if old not in s:
+              raise SystemExit('snapshot page allocation changed')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          for viewport in 256x192 224x176 224x160; do
+            AW_VIEWPORT="$viewport" PYTHONPATH=bench python3 - <<'PY'
+          import os
+          from st_renderer_patch import viewport_tables, selected_viewport
+          width,height=selected_viewport()
+          table=viewport_tables()
+          assert len(table)==520
+          print({'viewport':os.environ['AW_VIEWPORT'],'width':width,'height':height,'table_bytes':len(table)})
+          PY
+          done
 
-      - name: Upload measured combined result
+      - name: Build lookup and smaller viewport variants
+        shell: bash
+        run: |
+          for viewport in 256x192 224x176 224x160; do
+            out="out-${viewport}"
+            AW_VIEWPORT="$viewport" python3 bench/minimal_full_ab.py \
+              --source-dir opt/vm-port \
+              --patch-dir bench \
+              --resource-js game-data/ootwdemo.js \
+              --sjasmplus "$PWD/sjasmplus/sjasmplus" \
+              --out "$PWD/$out"
+            cp "$out/st.sna" "variants/${viewport}.sna"
+            cp "$out/minimal-manifest.json" "result/${viewport}-manifest.json"
+          done
+
+      - name: Run complete comparisons
+        shell: bash
+        run: |
+          wasm="$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm"
+          for viewport in 256x192 224x176 224x160; do
+            dir="$PWD/compare-${viewport}"
+            mkdir -p "$dir"
+            cp variants/current-st.sna "$dir/baseline.sna"
+            cp "variants/${viewport}.sna" "$dir/st.sna"
+            node bench/run_minimal_ab.mjs "$wasm" "$dir"
+            cp "$dir/minimal-ab-result.json" "result/${viewport}-result.json"
+            echo "===== ${viewport} ====="
+            cat "result/${viewport}-result.json"
+          done
+          cp opt/vm-port/build-full/draw-optimization.json result/
+          cp bench/event-runs.bin result/
+          cp variants/*.sna result/
+
+      - name: Upload measured viewport results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: combined-st-ab-result
+          name: viewport-st-results
           path: result/
