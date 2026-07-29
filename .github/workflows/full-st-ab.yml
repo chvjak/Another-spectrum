@@ -47,8 +47,8 @@ jobs:
               b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
               pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(b)))
 
-          # another_js stores a shortened palette payload. Pad only missing tail
-          # bytes so both baseline and ST snapshots use identical 2 KiB tables.
+          # another_js stores a shortened palette payload. Pad the missing tail
+          # so both snapshots use identical 2 KiB palette input.
           p=pathlib.Path('bench/minimal_full_ab.py')
           s=p.read_text()
           pattern=r'(?m)^(\s*)if len\((\w+)\) != expected:\s*$'
@@ -61,6 +61,13 @@ jobs:
           if n != 1:
               raise SystemExit('failed to patch resource length guard')
           p.write_text(s)
+
+          # One recovered local label has a leading blank accepted by zxasm but
+          # parsed as an instruction by sjasmplus. Normalize local labels only.
+          for asm in pathlib.Path('source/vm-port').glob('*.asm'):
+              text=asm.read_text()
+              text=re.sub(r'(?m)^\s+(\.[A-Za-z_][A-Za-z0-9_]*:)\s*$', r'\1', text)
+              asm.write_text(text)
           PY
 
       - name: Checkout embedded DOS demo resources
