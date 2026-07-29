@@ -1,0 +1,92 @@
+name: Full ST renderer A/B
+
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths: [.github/workflows/full-st-ab.yml]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout optimization branch
+        uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+          path: opt
+
+      - name: Checkout recovered VM source
+        uses: actions/checkout@v4
+        with:
+          ref: 3c16c71f3a172eb9c22164e42e22f34a67179e17
+          path: source
+
+      - name: Restore full A/B harness from branch history
+        shell: bash
+        run: |
+          mkdir -p bench
+          cd opt
+          git show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-minimal-full-ab.py.gz.b64 > ../bench/minimal.b64
+          git show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-run-minimal-ab.mjs.gz.b64 > ../bench/runner.b64
+          git show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-st-renderer-patch.py.gz.b64 > ../bench/patch.b64
+          cd ..
+          python3 - <<'PY'
+          import base64, gzip, pathlib, re
+          for src, dst in [
+              ('bench/minimal.b64','bench/minimal_full_ab.py'),
+              ('bench/runner.b64','bench/run_minimal_ab.mjs'),
+              ('bench/patch.b64','bench/st_renderer_patch.py')]:
+              s=pathlib.Path(src).read_text()
+              b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
+              pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(b)))
+          PY
+
+      - name: Checkout embedded DOS demo resources
+        uses: actions/checkout@v4
+        with:
+          repository: cyxx/another_js
+          ref: gh-pages
+          path: game-data
+          sparse-checkout: ootwdemo.js
+          sparse-checkout-cone-mode: false
+
+      - name: Build sjasmplus
+        shell: bash
+        run: |
+          git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/z00m128/sjasmplus.git
+          make -C sjasmplus -j2
+
+      - name: Build JSSpeccy core
+        shell: bash
+        run: |
+          git clone https://github.com/gasman/jsspeccy3.git
+          cd jsspeccy3
+          git checkout cf886f39c2a72752a0bd49568fef398b141c11f2
+          npm ci
+          npm run build:core
+          npm run build:wasm:release
+
+      - name: Build and run complete baseline/ST snapshots
+        shell: bash
+        run: |
+          python3 bench/minimal_full_ab.py \
+            --source-dir source/vm-port \
+            --patch-dir bench \
+            --resource-js game-data/ootwdemo.js \
+            --sjasmplus "$PWD/sjasmplus/sjasmplus" \
+            --out "$PWD/out"
+          node bench/run_minimal_ab.mjs \
+            "$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
+            "$PWD/out"
+          echo '=== MANIFEST ==='
+          cat out/minimal-manifest.json
+          echo '=== RESULT ==='
+          cat out/minimal-ab-result.json
+
+      - name: Upload measured result
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-st-ab-result
+          path: out/
