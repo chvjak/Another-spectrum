@@ -3,7 +3,9 @@ name: Full ST renderer A/B
 on:
   push:
     branches: [st-span-optimizations]
-    paths: [.github/workflows/full-st-ab.yml]
+    paths:
+      - .github/workflows/full-st-ab.yml
+      - vm-port/patch_ab_resources.py
   pull_request:
     branches: [main]
 
@@ -28,7 +30,7 @@ jobs:
           ref: 3c16c71f3a172eb9c22164e42e22f34a67179e17
           path: source
 
-      - name: Restore and fix full A/B harness
+      - name: Restore full A/B harness
         shell: bash
         run: |
           mkdir -p bench
@@ -46,16 +48,10 @@ jobs:
               text=pathlib.Path(src).read_text()
               encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
               pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(encoded)))
-
-          decoder_b64='CmRlZiBleHRyYWN0X2pzX3Jlc291cmNlcyhwYXRoKToKICAgIHRleHQgPSBwYXRoLnJlYWRfdGV4dChlbmNvZGluZz0idXRmLTgiKQogICAgZGVmIGJlMzIoYnVmLCBvZmZzZXQpOgogICAgICAgIHJldHVybiBpbnQuZnJvbV9ieXRlcyhidWZbb2Zmc2V0Om9mZnNldCArIDRdLCAiYmlnIikKICAgIGRlZiB1bnBhY2tfYnl0ZWtpbGxlcihzcmMsIGV4cGVjdGVkKToKICAgICAgICBzcmNfb2Zmc2V0ID0gbGVuKHNyYykgLSA0CiAgICAgICAgcmVtYWluaW5nID0gYmUzMihzcmMsIHNyY19vZmZzZXQpOyBzcmNfb2Zmc2V0IC09IDQKICAgICAgICBpZiByZW1haW5pbmcgIT0gZXhwZWN0ZWQ6CiAgICAgICAgICAgIHJhaXNlIFJ1bnRpbWVFcnJvcihmIkJ5dGVLaWxsZXIgc2l6ZSB7cmVtYWluaW5nfSwgZXhwZWN0ZWQge2V4cGVjdGVkfSIpCiAgICAgICAgZHN0ID0gYnl0ZWFycmF5KHJlbWFpbmluZyk7IGRzdF9vZmZzZXQgPSByZW1haW5pbmcgLSAxCiAgICAgICAgY3JjID0gYmUzMihzcmMsIHNyY19vZmZzZXQpOyBzcmNfb2Zmc2V0IC09IDQKICAgICAgICBiaXRzID0gYmUzMihzcmMsIHNyY19vZmZzZXQpOyBzcmNfb2Zmc2V0IC09IDQKICAgICAgICBjcmMgXj0gYml0cwogICAgICAgIGRlZiBuZXh0X2JpdCgpOgogICAgICAgICAgICBub25sb2NhbCBiaXRzLCBjcmMsIHNyY19vZmZzZXQKICAgICAgICAgICAgY2FycnkgPSBiaXRzICYgMTsgYml0cyA+Pj0gMQogICAgICAgICAgICBpZiBiaXRzID09IDA6CiAgICAgICAgICAgICAgICBpZiBzcmNfb2Zmc2V0IDwgMDoKICAgICAgICAgICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoIkJ5dGVLaWxsZXIgc291cmNlIHVuZGVycnVuIikKICAgICAgICAgICAgICAgIGJpdHMgPSBiZTMyKHNyYywgc3JjX29mZnNldCk7IHNyY19vZmZzZXQgLT0gNAogICAgICAgICAgICAgICAgY3JjIF49IGJpdHMKICAgICAgICAgICAgICAgIGNhcnJ5ID0gYml0cyAmIDEKICAgICAgICAgICAgICAgIGJpdHMgPSAweDgwMDAwMDAwIHwgKGJpdHMgPj4gMSkKICAgICAgICAgICAgcmV0dXJuIGNhcnJ5CiAgICAgICAgZGVmIGdldF9iaXRzKGNvdW50KToKICAgICAgICAgICAgdmFsdWUgPSAwCiAgICAgICAgICAgIGZvciBfIGluIHJhbmdlKGNvdW50KToKICAgICAgICAgICAgICAgIHZhbHVlID0gKHZhbHVlIDw8IDEpIHwgbmV4dF9iaXQoKQogICAgICAgICAgICByZXR1cm4gdmFsdWUKICAgICAgICBkZWYgY29weV9saXRlcmFsKGJpdHNfY291bnQsIGV4dHJhKToKICAgICAgICAgICAgbm9ubG9jYWwgcmVtYWluaW5nLCBkc3Rfb2Zmc2V0CiAgICAgICAgICAgIGNvdW50ID0gZ2V0X2JpdHMoYml0c19jb3VudCkgKyBleHRyYSArIDEKICAgICAgICAgICAgcmVtYWluaW5nIC09IGNvdW50CiAgICAgICAgICAgIGlmIHJlbWFpbmluZyA8IDA6CiAgICAgICAgICAgICAgICBjb3VudCArPSByZW1haW5pbmc7IHJlbWFpbmluZyA9IDAKICAgICAgICAgICAgZm9yIGkgaW4gcmFuZ2UoY291bnQpOgogICAgICAgICAgICAgICAgZHN0W2RzdF9vZmZzZXQgLSBpXSA9IGdldF9iaXRzKDgpCiAgICAgICAgICAgIGRzdF9vZmZzZXQgLT0gY291bnQKICAgICAgICBkZWYgY29weV9yZWZlcmVuY2UoYml0c19jb3VudCwgY291bnQpOgogICAgICAgICAgICBub25sb2NhbCByZW1haW5pbmcsIGRzdF9vZmZzZXQKICAgICAgICAgICAgcmVtYWluaW5nIC09IGNvdW50CiAgICAgICAgICAgIGlmIHJlbWFpbmluZyA8IDA6CiAgICAgICAgICAgICAgICBjb3VudCArPSByZW1haW5pbmc7IHJlbWFpbmluZyA9IDAKICAgICAgICAgICAgb2Zmc2V0ID0gZ2V0X2JpdHMoYml0c19jb3VudCkKICAgICAgICAgICAgZm9yIGkgaW4gcmFuZ2UoY291bnQpOgogICAgICAgICAgICAgICAgZHN0W2RzdF9vZmZzZXQgLSBpXSA9IGRzdFtkc3Rfb2Zmc2V0IC0gaSArIG9mZnNldF0KICAgICAgICAgICAgZHN0X29mZnNldCAtPSBjb3VudAogICAgICAgIHdoaWxlIHJlbWFpbmluZyA+IDA6CiAgICAgICAgICAgIGlmIG5vdCBuZXh0X2JpdCgpOgogICAgICAgICAgICAgICAgaWYgbm90IG5leHRfYml0KCk6IGNvcHlfbGl0ZXJhbCgzLCAwKQogICAgICAgICAgICAgICAgZWxzZTogY29weV9yZWZlcmVuY2UoOCwgMikKICAgICAgICAgICAgZWxzZToKICAgICAgICAgICAgICAgIGNvZGUgPSBnZXRfYml0cygyKQogICAgICAgICAgICAgICAgaWYgY29kZSA9PSAzOiBjb3B5X2xpdGVyYWwoOCwgOCkKICAgICAgICAgICAgICAgIGVsaWYgY29kZSA9PSAyOiBjb3B5X3JlZmVyZW5jZSgxMiwgZ2V0X2JpdHMoOCkgKyAxKQogICAgICAgICAgICAgICAgZWxpZiBjb2RlID09IDE6IGNvcHlfcmVmZXJlbmNlKDEwLCA0KQogICAgICAgICAgICAgICAgZWxzZTogY29weV9yZWZlcmVuY2UoOSwgMykKICAgICAgICBpZiBjcmMgIT0gMDoKICAgICAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKGYiQnl0ZUtpbGxlciBDUkMge2NyYzojeH0iKQogICAgICAgIHJldHVybiBieXRlcyhkc3QpCiAgICByZXNvdXJjZXMgPSB7fQogICAgZm9yIG51bWJlciBpbiAoUkVTT1VSQ0VfUEFMRVRURSwgUkVTT1VSQ0VfQllURUNPREUsIFJFU09VUkNFX1NIQVBFUyk6CiAgICAgICAgaGV4X2lkID0gZiJ7bnVtYmVyOjAyeH0iCiAgICAgICAgZGF0YV9tYXRjaCA9IHJlLnNlYXJjaChyZidjb25zdCBkYXRhe2hleF9pZH0gPSAiKFtBLVphLXowLTkrLz1dKykiOycsIHRleHQpCiAgICAgICAgc2l6ZV9tYXRjaCA9IHJlLnNlYXJjaChyZidjb25zdCBzaXple2hleF9pZH0gPSAoXFxkKyk7JywgdGV4dCkKICAgICAgICBpZiBkYXRhX21hdGNoIGlzIE5vbmUgb3Igc2l6ZV9tYXRjaCBpcyBOb25lOgogICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoZiJyZXNvdXJjZSB7bnVtYmVyOiN4fSBtaXNzaW5nIGZyb20ge3BhdGh9IikKICAgICAgICBwYXlsb2FkID0gYmFzZTY0LmI2NGRlY29kZShkYXRhX21hdGNoLmdyb3VwKDEpLCB2YWxpZGF0ZT1UcnVlKQogICAgICAgIGV4cGVjdGVkID0gaW50KHNpemVfbWF0Y2guZ3JvdXAoMSkpCiAgICAgICAgaWYgbGVuKHBheWxvYWQpICE9IGV4cGVjdGVkOgogICAgICAgICAgICBwYXlsb2FkID0gdW5wYWNrX2J5dGVraWxsZXIocGF5bG9hZCwgZXhwZWN0ZWQpCiAgICAgICAgcmVzb3VyY2VzW251bWJlcl0gPSBwYXlsb2FkCiAgICByZXR1cm4gcmVzb3VyY2VzW1JFU09VUkNFX0JZVEVDT0RFXSwgcmVzb3VyY2VzW1JFU09VUkNFX1NIQVBFU10sIHJlc291cmNlc1tSRVNPVVJDRV9QQUxFVFRFXQo='
-          decoder=base64.b64decode(decoder_b64).decode()
-          helper=pathlib.Path('bench/minimal_full_ab.py')
-          source=helper.read_text()
-          marker='\nif __name__ == "__main__":'
-          if marker not in source:
-              raise SystemExit('helper main marker missing')
-          helper.write_text(source.replace(marker,decoder+marker,1))
-
+          PY
+          python3 opt/vm-port/patch_ab_resources.py bench/minimal_full_ab.py
+          python3 - <<'PY'
+          import pathlib, re
           for asm in pathlib.Path('source/vm-port').glob('*.asm'):
               text=asm.read_text()
               text=re.sub(r'(?m)^\s+(\.[A-Za-z_][A-Za-z0-9_]*:)\s*$',r'\1',text)
@@ -116,6 +112,7 @@ jobs:
           git push origin HEAD:st-span-optimizations
 
       - name: Upload measured result
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-st-ab-result
