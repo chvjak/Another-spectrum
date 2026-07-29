@@ -5,6 +5,9 @@ on:
     branches: [st-span-optimizations]
     paths: [.github/workflows/full-st-ab.yml]
 
+permissions:
+  contents: write
+
 jobs:
   benchmark:
     runs-on: ubuntu-latest
@@ -80,10 +83,20 @@ jobs:
           node bench/run_minimal_ab.mjs \
             "$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
             "$PWD/out"
-          echo '=== MANIFEST ==='
           cat out/minimal-manifest.json
-          echo '=== RESULT ==='
           cat out/minimal-ab-result.json
+
+      - name: Commit measured result to benchmark branch
+        shell: bash
+        run: |
+          cp out/minimal-manifest.json opt/vm-port/full-st-ab-manifest.json
+          cp out/minimal-ab-result.json opt/vm-port/full-st-ab-result.json
+          cd opt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add vm-port/full-st-ab-manifest.json vm-port/full-st-ab-result.json
+          git commit -m "Record measured full ST renderer A/B" || exit 0
+          git push origin HEAD:st-span-optimizations
 
       - name: Upload measured result
         uses: actions/upload-artifact@v4
