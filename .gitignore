@@ -1,0 +1,22 @@
+# Locally supplied inputs
+rawgl/
+data/
+rom-*.bin
+*.wasm
+
+# Generated output
+build/
+build-full/
+full-speccy-*/
+frames-*/
+*.sna
+*.scr
+*.mp4
+*.wav
+*.bin
+reels.csv
+
+# Tool caches
+__pycache__/
+*.pyc
+node_modules/
