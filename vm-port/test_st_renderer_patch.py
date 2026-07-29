@@ -6,7 +6,6 @@ from __future__ import annotations
 import random
 import unittest
 
-import st_renderer_patch
 from st_renderer_patch import EDGE_PATCH_TAG, PATCH_TAG, patch_renderer
 
 FIRST_MASKS = (0xFF, 0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01)
@@ -175,9 +174,22 @@ suffix
                     baseline_right[minimum : maximum + 1],
                 )
 
-    def test_scale_x_reference_is_exact(self) -> None:
-        values = [x - x // 5 for x in range(320)]
-        self.assertEqual(values, [x - x // 5 for x in range(320)])
+    def test_scale_x_compact_division_is_exact(self) -> None:
+        for x in range(320):
+            remainder = x
+            quotient = 0
+            for threshold, bit in (
+                (160, 32),
+                (80, 16),
+                (40, 8),
+                (20, 4),
+                (10, 2),
+                (5, 1),
+            ):
+                if remainder >= threshold:
+                    remainder -= threshold
+                    quotient |= bit
+            self.assertEqual(x - quotient, x - x // 5)
 
 
 if __name__ == "__main__":
