@@ -1,0 +1,16 @@
+{
+  "events": 9648,
+  "sampled_presentations": 301,
+  "live_events": 1117,
+  "removed_events": 8531,
+  "categories": {
+    "static_survivor": 241,
+    "overwritten_before_sample": 4703,
+    "dynamic_survivor": 651,
+    "clipped_or_zero_area": 1984,
+    "subpixel_point": 2069,
+    "checkpoint_baked": 125
+  },
+  "event_mask_bytes_uncompressed": 1206,
+  "note": "Owner analysis is exact for opaque painter-order survival. Text uses a conservative 8x8 box. COL_ALPHA/COL_PAGE events remain candidates for byte-level ablation before runtime removal."
+}
