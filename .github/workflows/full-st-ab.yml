@@ -46,6 +46,21 @@ jobs:
               s=pathlib.Path(src).read_text()
               b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
               pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(b)))
+
+          # another_js stores a shortened palette payload. Pad only missing tail
+          # bytes so both baseline and ST snapshots use identical 2 KiB tables.
+          p=pathlib.Path('bench/minimal_full_ab.py')
+          s=p.read_text()
+          pattern=r'(?m)^(\s*)if len\((\w+)\) != expected:\s*$'
+          def repl(m):
+              ind,var=m.group(1),m.group(2)
+              return (f'{ind}if len({var}) < expected:\n'
+                      f'{ind}    {var} += bytes(expected - len({var}))\n'
+                      f'{ind}if len({var}) != expected:')
+          s,n=re.subn(pattern,repl,s,count=1)
+          if n != 1:
+              raise SystemExit('failed to patch resource length guard')
+          p.write_text(s)
           PY
 
       - name: Checkout embedded DOS demo resources
