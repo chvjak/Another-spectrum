@@ -28,7 +28,7 @@ jobs:
               stem=p.name.removesuffix('.gz.b64')
               pathlib.Path('harness',stem).write_bytes(gzip.decompress(base64.b64decode(encoded)))
           PY
-          tar --exclude='./branch-checkout.tgz' -czf branch-checkout.tgz .
+          tar --warning=no-file-changed --exclude='./branch-checkout.tgz' -czf branch-checkout.tgz . || test $? -eq 1
       - uses: actions/upload-artifact@v4
         with:
           name: benchmark-harness-source
