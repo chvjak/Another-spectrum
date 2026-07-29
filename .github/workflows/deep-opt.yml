@@ -34,6 +34,7 @@ jobs:
           cat opt/vm-port/deep-python.part-* | base64 -d | tar -xz -C opt/vm-port
           git -C opt apply vm-port/deep-v2.patch
           git -C opt apply vm-port/deep-build-rle.patch
+          git -C opt apply vm-port/deep-v3.patch
 
       - name: Checkout embedded DOS intro and JS engine
         uses: actions/checkout@v4
