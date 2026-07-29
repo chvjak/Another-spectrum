@@ -3,6 +3,8 @@ on:
   push:
     branches: [st-span-optimizations]
     paths: [.github/workflows/inspect-ab-helper.yml]
+  pull_request:
+    branches: [main]
 jobs:
   inspect:
     runs-on: ubuntu-latest
