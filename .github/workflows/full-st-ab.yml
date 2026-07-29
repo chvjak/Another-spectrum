@@ -49,10 +49,10 @@ jobs:
 
           p=pathlib.Path('bench/minimal_full_ab.py')
           s=p.read_text()
-          old='        hex_id = f"{number:02x}"'
-          new='        hex_id = str(number)'
+          old='''        payload = base64.b64decode(data_match.group(1), validate=True)\n        expected = int(size_match.group(1))\n        if len(payload) != expected:\n'''
+          new='''        payload = base64.b64decode(data_match.group(1), validate=True)\n        expected = int(size_match.group(1))\n        if len(payload) != expected:\n            import zlib\n            for wbits in (-15, 15, 31):\n                try:\n                    decoded = zlib.decompress(payload, wbits)\n                except zlib.error:\n                    continue\n                if len(decoded) == expected:\n                    payload = decoded\n                    break\n        if len(payload) != expected:\n'''
           if old not in s:
-              raise SystemExit('resource parser baseline changed')
+              raise SystemExit('resource decoder baseline changed')
           p.write_text(s.replace(old,new,1))
 
           # Normalize one recovered local label that sjasmplus otherwise parses
