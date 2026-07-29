@@ -6,6 +6,7 @@ on:
       - .github/workflows/ega-pr.yml
       - vm-port/ega-run-trigger.txt
       - vm-port/ega-source.part-*
+      - vm-port/ega-profile-relocate.patch
       - vm-port/run_ega_ci.sh
 permissions:
   contents: read
@@ -20,7 +21,19 @@ jobs:
           fetch-depth: 0
           path: opt
       - name: Run EGA matrix, profile and capture
-        run: bash opt/vm-port/run_ega_ci.sh
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('opt/vm-port/run_ega_ci.sh')
+          s=p.read_text()
+          marker='cat "$OPT"/vm-port/ega-source.part-* | base64 -d | tar -xz -C "$OPT"\n'
+          if marker not in s:
+              raise SystemExit('runner extraction marker changed')
+          s=s.replace(marker, marker + 'git -C "$OPT" apply vm-port/ega-profile-relocate.patch\n', 1)
+          p.write_text(s)
+          PY
+          bash opt/vm-port/run_ega_ci.sh
       - name: Upload EGA profile and viewable intro
         if: always()
         uses: actions/upload-artifact@v4
