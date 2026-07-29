@@ -47,10 +47,21 @@ jobs:
               b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
               pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(b)))
 
-          # another_js stores a shortened palette payload. Pad the missing tail
-          # so both snapshots use identical 2 KiB palette input.
           p=pathlib.Path('bench/minimal_full_ab.py')
           s=p.read_text()
+
+          # ootwdemo.js names resources by decimal number. AW resources $17/$18/$19
+          # are therefore data23/data24/data25, not data17/data18/data19.
+          s,nfmt=re.subn(
+              r'\{([A-Za-z_][A-Za-z0-9_]*):02[xX]\}',
+              r'{\1}',
+              s,
+          )
+          if nfmt == 0:
+              raise SystemExit('failed to patch JS resource number formatting')
+
+          # Keep a defensive tail pad for any shortened optional payload; the
+          # real bytecode and shapes must still meet their declared sizes.
           pattern=r'(?m)^(\s*)if len\((\w+)\) != expected:\s*$'
           def repl(m):
               ind,var=m.group(1),m.group(2)
@@ -62,8 +73,8 @@ jobs:
               raise SystemExit('failed to patch resource length guard')
           p.write_text(s)
 
-          # One recovered local label has a leading blank accepted by zxasm but
-          # parsed as an instruction by sjasmplus. Normalize local labels only.
+          # Normalize one recovered local label that sjasmplus otherwise parses
+          # as an instruction because of a leading blank.
           for asm in pathlib.Path('source/vm-port').glob('*.asm'):
               text=asm.read_text()
               text=re.sub(r'(?m)^\s+(\.[A-Za-z_][A-Za-z0-9_]*:)\s*$', r'\1', text)
