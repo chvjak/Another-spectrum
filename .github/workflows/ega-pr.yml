@@ -7,6 +7,7 @@ on:
       - vm-port/ega-run-trigger.txt
       - vm-port/ega-source.part-*
       - vm-port/ega-profile-relocate.patch
+      - vm-port/capture_ega_intro_framebuffer.mjs
       - vm-port/run_ega_ci.sh
 permissions:
   contents: read
@@ -34,7 +35,11 @@ jobs:
           marker='cat "$OPT"/vm-port/ega-source.part-* | base64 -d | tar -xz -C "$OPT"\n'
           if marker not in s:
               raise SystemExit('runner extraction marker changed')
-          s=s.replace(marker, marker + 'git -C "$OPT" apply vm-port/ega-profile-relocate.patch\n', 1)
+          post=(
+              'git -C "$OPT" apply vm-port/ega-profile-relocate.patch\n'
+              'cp "$OPT/vm-port/capture_ega_intro_framebuffer.mjs" "$OPT/vm-port/capture_ega_intro.mjs"\n'
+          )
+          s=s.replace(marker, marker + post, 1)
           p.write_text(s)
           PY
           bash opt/vm-port/run_ega_ci.sh
