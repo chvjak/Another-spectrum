@@ -25,8 +25,8 @@ jobs:
           import base64,gzip,pathlib,re
           for p in pathlib.Path('harness').glob('*.b64'):
               encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',p.read_text()))
-              out=p.with_suffix('').with_suffix('').with_suffix('')
-              out.write_bytes(gzip.decompress(base64.b64decode(encoded)))
+              stem=p.name.removesuffix('.gz.b64')
+              pathlib.Path('harness',stem).write_bytes(gzip.decompress(base64.b64decode(encoded)))
           PY
       - uses: actions/upload-artifact@v4
         with:
