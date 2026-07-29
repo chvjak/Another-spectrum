@@ -30,9 +30,19 @@ jobs:
         shell: bash
         run: |
           mkdir -p bench
-          base64 --ignore-garbage -d opt/vm-port/ci-minimal-full-ab.py.gz.b64 | gzip -d > bench/minimal_full_ab.py
-          base64 --ignore-garbage -d opt/vm-port/ci-run-minimal-ab.mjs.gz.b64 | gzip -d > bench/run_minimal_ab.mjs
-          base64 --ignore-garbage -d opt/vm-port/ci-st-renderer-patch.py.gz.b64 | gzip -d > bench/st_renderer_patch.py
+          python3 - <<'PY'
+          import base64, gzip, pathlib, re
+          files = (
+              ('opt/vm-port/ci-minimal-full-ab.py.gz.b64', 'bench/minimal_full_ab.py'),
+              ('opt/vm-port/ci-run-minimal-ab.mjs.gz.b64', 'bench/run_minimal_ab.mjs'),
+              ('opt/vm-port/ci-st-renderer-patch.py.gz.b64', 'bench/st_renderer_patch.py'),
+          )
+          for source, destination in files:
+              text = pathlib.Path(source).read_text()
+              encoded = ''.join(re.findall(r'[A-Za-z0-9+/=]', text))
+              encoded += '=' * ((4 - len(encoded) % 4) % 4)
+              pathlib.Path(destination).write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
           chmod +x bench/minimal_full_ab.py
 
       - name: Download installed DOS demo
