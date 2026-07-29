@@ -1,0 +1,25 @@
+name: Inspect A/B helper
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths: [.github/workflows/inspect-ab-helper.yml]
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+      - shell: bash
+        run: |
+          git show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-minimal-full-ab.py.gz.b64 > /tmp/helper.b64
+          python3 - <<'PY'
+          import base64,gzip,pathlib,re
+          s=pathlib.Path('/tmp/helper.b64').read_text()
+          b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
+          t=gzip.decompress(base64.b64decode(b)).decode()
+          a=t.index('def extract_js_resources')
+          z=t.index('\ndef ',a+1)
+          print(t[a:z])
+          PY
