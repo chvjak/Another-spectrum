@@ -6,6 +6,7 @@ OPT="$ROOT/opt"
 mkdir -p "$ROOT/game-data" "$ROOT/bench" "$ROOT/deep-data" "$ROOT/out" "$ROOT/result" "$OPT/vm-port/build-full"
 
 cat "$OPT"/vm-port/ega-source.part-* | base64 -d | tar -xz -C "$OPT"
+sed -i 's/jr nz,ega_restore_not_full/jp nz,ega_restore_not_full/' "$OPT/vm-port/ega_renderer_patch.py"
 python3 -m py_compile "$OPT/vm-port/ega_renderer_patch.py" "$OPT/vm-port/ega_build_variants.py"
 node --check "$OPT/vm-port/run_ega_profile.mjs"
 node --check "$OPT/vm-port/capture_ega_intro.mjs"
