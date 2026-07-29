@@ -29,9 +29,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p bench
-          base64 -d opt/vm-port/ci-minimal-full-ab.py.gz.b64 | gzip -d > bench/minimal_full_ab.py
-          base64 -d opt/vm-port/ci-run-minimal-ab.mjs.gz.b64 | gzip -d > bench/run_minimal_ab.mjs
-          base64 -d opt/vm-port/ci-st-renderer-patch.py.gz.b64 | gzip -d > bench/st_renderer_patch.py
+          base64 --ignore-garbage -d opt/vm-port/ci-minimal-full-ab.py.gz.b64 | gzip -d > bench/minimal_full_ab.py
+          base64 --ignore-garbage -d opt/vm-port/ci-run-minimal-ab.mjs.gz.b64 | gzip -d > bench/run_minimal_ab.mjs
+          base64 --ignore-garbage -d opt/vm-port/ci-st-renderer-patch.py.gz.b64 | gzip -d > bench/st_renderer_patch.py
           chmod +x bench/minimal_full_ab.py
 
       - name: Download installed DOS demo
