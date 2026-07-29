@@ -58,7 +58,8 @@ jobs:
       - name: Build sjasmplus
         shell: bash
         run: |
-          git clone --depth 1 https://github.com/z00m128/sjasmplus.git
+          git clone --depth 1 --recurse-submodules --shallow-submodules \
+            https://github.com/z00m128/sjasmplus.git
           make -C sjasmplus -j2
 
       - name: Build JSSpeccy core
