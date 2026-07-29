@@ -11,13 +11,19 @@ python3 - <<'PY'
 from pathlib import Path
 p=Path('opt/vm-port/ega_renderer_patch.py')
 s=p.read_text()
-old='jr nz,ega_restore_not_full'
-print({'long_jump_occurrences_before': s.count(old)})
-if old not in s:
-    raise SystemExit('expected long restore jump not found')
-s=s.replace(old,'jp nz,ega_restore_not_full')
+replacements={
+    'jr nz,ega_restore_not_full':'jp nz,ega_restore_not_full',
+    'jr ega_restore_next_row':'jp ega_restore_next_row',
+}
+for old,new in replacements.items():
+    print({old: s.count(old)})
+    if old not in s:
+        raise SystemExit(f'expected restore jump not found: {old}')
+    s=s.replace(old,new)
 p.write_text(s)
-print({'long_jump_occurrences_after': p.read_text().count(old)})
+for old in replacements:
+    if old in p.read_text():
+        raise SystemExit(f'unpatched restore jump remains: {old}')
 PY
 python3 -m py_compile "$OPT/vm-port/ega_renderer_patch.py" "$OPT/vm-port/ega_build_variants.py"
 node --check "$OPT/vm-port/run_ega_profile.mjs"
