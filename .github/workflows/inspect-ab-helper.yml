@@ -22,17 +22,22 @@ jobs:
           sparse-checkout-cone-mode: false
       - shell: bash
         run: |
-          python3 - <<'PY'
-          import base64,pathlib,re,zlib
-          text=pathlib.Path('game-data/ootwdemo.js').read_text()
-          m=re.search(r'const data17 = "([A-Za-z0-9+/=]+)";',text)
-          s=re.search(r'const size17 = (\d+);',text)
-          payload=base64.b64decode(m.group(1),validate=True)
-          print('compressed',len(payload),'expected',s.group(1),'head',payload[:32].hex())
-          for w in (-15,15,31,0,47):
-              try:
-                  out=zlib.decompress(payload,w)
-                  print('wbits',w,'ok',len(out),out[:16].hex())
-              except Exception as e:
-                  print('wbits',w,'fail',repr(e))
-          PY
+          npm init -y >/dev/null
+          npm install pako@1.0.11 >/dev/null
+          node - <<'JS'
+          const fs=require('fs');
+          const pako=require('pako');
+          const text=fs.readFileSync('game-data/ootwdemo.js','utf8');
+          const data=text.match(/const data17 = "([A-Za-z0-9+/=]+)";/)[1];
+          const expected=+text.match(/const size17 = (\d+);/)[1];
+          const bytes=Buffer.from(data,'base64');
+          console.log('compressed',bytes.length,'expected',expected,'head',bytes.subarray(0,32).toString('hex'));
+          for (const input of [bytes, bytes.toString('binary')]) {
+            try {
+              const out=pako.inflate(input);
+              console.log('pako ok',typeof input,input.constructor?.name,out.length,Buffer.from(out).subarray(0,16).toString('hex'));
+            } catch(e) {
+              console.log('pako fail',typeof input,input.constructor?.name,String(e));
+            }
+          }
+          JS
