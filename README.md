@@ -1,0 +1,3 @@
+# Another Spectrum
+
+Dummy README.
