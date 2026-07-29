@@ -1,0 +1,15 @@
+{
+  "mode": "real DOS bytecode/shapes, optimized draw ownership, neutral visual assets",
+  "resource_sizes": {
+    "bytecode": 9842,
+    "shapes": 65156,
+    "palette": 2048
+  },
+  "vm_bytes": 2141,
+  "baseline_renderer_bytes": 3585,
+  "st_renderer_bytes": 3775,
+  "renderer_growth_bytes": 190,
+  "renderer_gap_remaining": 33,
+  "event_runs_bytes": 802,
+  "bank7_end": 7142
+}
