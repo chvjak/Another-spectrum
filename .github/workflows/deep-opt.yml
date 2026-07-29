@@ -32,15 +32,7 @@ jobs:
         shell: bash
         run: |
           cat opt/vm-port/deep-python.part-* | base64 -d | tar -xz -C opt/vm-port
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('opt/vm-port/deep_source_patch.py')
-          s=p.read_text()
-          s=s.replace('        ORG 0x8900\n','        ASSERT $ <= 0x8900\n        defs 0x8900-$,0\n        ORG 0x8900\n',1)
-          s=s.replace('        call RENDERER_DEEP_PREP\n','        call 0x5D47\n')
-          s=s.replace('        call RENDERER_FILL_SPAN\n','        call 0x5D4A\n')
-          p.write_text(s)
-          PY
+          git -C opt apply vm-port/deep-v2.patch
 
       - name: Checkout embedded DOS intro and JS engine
         uses: actions/checkout@v4
