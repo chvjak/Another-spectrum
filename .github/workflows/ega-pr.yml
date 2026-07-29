@@ -1,0 +1,29 @@
+name: EGA framebuffer profile PR
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/ega-pr.yml
+      - vm-port/ega-run-trigger.txt
+      - vm-port/ega-source.part-*
+      - vm-port/run_ega_ci.sh
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+          path: opt
+      - name: Run EGA matrix, profile and capture
+        run: bash opt/vm-port/run_ega_ci.sh
+      - name: Upload EGA profile and viewable intro
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ega-framebuffer-results
+          path: result/
