@@ -13,15 +13,26 @@ jobs:
         with:
           ref: st-span-optimizations
           fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: cyxx/another_js
+          ref: gh-pages
+          path: game-data
+          sparse-checkout: ootwdemo.js
+          sparse-checkout-cone-mode: false
       - shell: bash
         run: |
-          git show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-minimal-full-ab.py.gz.b64 > /tmp/helper.b64
           python3 - <<'PY'
-          import base64,gzip,pathlib,re
-          s=pathlib.Path('/tmp/helper.b64').read_text()
-          b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
-          t=gzip.decompress(base64.b64decode(b)).decode()
-          a=t.index('def extract_js_resources')
-          z=t.index('\ndef ',a+1)
-          print(t[a:z])
+          import base64,pathlib,re,zlib
+          text=pathlib.Path('game-data/ootwdemo.js').read_text()
+          m=re.search(r'const data17 = "([A-Za-z0-9+/=]+)";',text)
+          s=re.search(r'const size17 = (\d+);',text)
+          payload=base64.b64decode(m.group(1),validate=True)
+          print('compressed',len(payload),'expected',s.group(1),'head',payload[:32].hex())
+          for w in (-15,15,31,0,47):
+              try:
+                  out=zlib.decompress(payload,w)
+                  print('wbits',w,'ok',len(out),out[:16].hex())
+              except Exception as e:
+                  print('wbits',w,'fail',repr(e))
           PY
