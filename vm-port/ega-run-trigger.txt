@@ -1,0 +1,2 @@
+EGA framebuffer profile run 2026-07-30T00:50+02:00
+source bundle sha256 a03464976c40e5182ae3f9e7f071834dd89b961c59dcf626ed8eb449cab72797
