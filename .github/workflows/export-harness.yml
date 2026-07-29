@@ -1,0 +1,34 @@
+name: Export benchmark harness
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths: [.github/workflows/export-harness.yml]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+      - shell: bash
+        run: |
+          mkdir harness
+          for name in ci-minimal-full-ab.py.gz.b64 ci-run-minimal-ab.mjs.gz.b64; do
+            git show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/$name > harness/$name
+          done
+          python3 - <<'PY'
+          import base64,gzip,pathlib,re
+          for p in pathlib.Path('harness').glob('*.b64'):
+              encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',p.read_text()))
+              out=p.with_suffix('').with_suffix('').with_suffix('')
+              out.write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-harness-source
+          path: harness/
