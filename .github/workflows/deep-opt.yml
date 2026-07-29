@@ -1,0 +1,149 @@
+name: Child culling and hot-root templates
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths:
+      - .github/workflows/deep-opt.yml
+      - vm-port/generate_deep_trace.mjs
+      - vm-port/deep_optimize.py
+      - vm-port/deep_source_patch.py
+      - vm-port/deep_build_variants.py
+      - vm-port/run_deep_ab.mjs
+      - vm-port/viewport_renderer_patch.py
+      - vm-port/st_renderer_patch.py
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout optimization branch
+        uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+          path: opt
+
+      - name: Checkout embedded DOS intro and JS engine
+        uses: actions/checkout@v4
+        with:
+          repository: cyxx/another_js
+          ref: gh-pages
+          path: game-data
+          sparse-checkout: |
+            ootwdemo.js
+            another.min.js
+          sparse-checkout-cone-mode: false
+
+      - name: Install analysis dependencies
+        run: python3 -m pip install --user numpy pillow
+
+      - name: Generate top-level and child ownership data
+        shell: bash
+        run: |
+          mkdir -p opt/vm-port/build-full bench deep-data out result
+          node opt/vm-port/generate_optimizer_trace.mjs \
+            game-data/ootwdemo.js game-data/another.min.js \
+            opt/vm-port/build-full/optimizer-trace.log
+          python3 opt/vm-port/optimize_draws.py
+          python3 - <<'PY'
+          from pathlib import Path
+          packed=Path('opt/vm-port/build-full/draw-event-keep-mask.bin').read_bytes()
+          count=9648
+          bits=[(packed[i>>3]>>(i&7))&1 for i in range(count)]
+          out=bytearray([bits[0]])
+          current=bits[0]
+          run=0
+          for bit in bits:
+              if bit==current and run<255:
+                  run+=1
+                  continue
+              out.append(run)
+              if bit==current:
+                  out.append(0)
+              current=bit
+              run=1
+          out.append(run)
+          Path('bench/event-runs.bin').write_bytes(out)
+          print({'events':count,'kept':sum(bits),'event_runs_bytes':len(out)})
+          PY
+          node opt/vm-port/generate_deep_trace.mjs \
+            game-data/ootwdemo.js game-data/another.min.js deep-data/deep-trace.log
+          python3 opt/vm-port/deep_optimize.py \
+            --trace deep-data/deep-trace.log \
+            --event-mask opt/vm-port/build-full/draw-event-keep-mask.bin \
+            --out deep-data
+
+      - name: Restore benchmark builder
+        shell: bash
+        run: |
+          git -C opt show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-minimal-full-ab.py.gz.b64 > bench/minimal.b64
+          python3 - <<'PY'
+          import base64,gzip,pathlib,re
+          text=pathlib.Path('bench/minimal.b64').read_text()
+          encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
+          pathlib.Path('bench/minimal_full_ab.py').write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          python3 opt/vm-port/patch_ab_resources.py bench/minimal_full_ab.py
+
+      - name: Build sjasmplus
+        shell: bash
+        run: |
+          git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/z00m128/sjasmplus.git
+          make -C sjasmplus -j2
+
+      - name: Build JSSpeccy core
+        shell: bash
+        run: |
+          git clone https://github.com/gasman/jsspeccy3.git
+          cd jsspeccy3
+          git checkout cf886f39c2a72752a0bd49568fef398b141c11f2
+          npm ci
+          npm run build:core
+          npm run build:wasm:release
+
+      - name: Build current child template and combined snapshots
+        shell: bash
+        run: |
+          python3 opt/vm-port/deep_build_variants.py \
+            --source-dir opt/vm-port \
+            --helper bench/minimal_full_ab.py \
+            --resource-js game-data/ootwdemo.js \
+            --event-runs bench/event-runs.bin \
+            --deep-data deep-data \
+            --sjasmplus "$PWD/sjasmplus/sjasmplus" \
+            --out "$PWD/out"
+
+      - name: Run complete emulator matrix and visual regression
+        shell: bash
+        run: |
+          node opt/vm-port/run_deep_ab.mjs \
+            "$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
+            "$PWD/out"
+          cat deep-data/deep-report.json
+          cat out/deep-build-manifest.json
+          cat out/deep-ab-result.json
+
+      - name: Collect measured results
+        if: always()
+        shell: bash
+        run: |
+          cp -f out/deep-ab-result.json result/ 2>/dev/null || true
+          cp -f out/deep-build-manifest.json result/ 2>/dev/null || true
+          cp -f deep-data/deep-report.json result/ 2>/dev/null || true
+          cp -f deep-data/deep-*-report.json result/ 2>/dev/null || true
+          cp -f deep-data/deep-*.bin deep-data/deep-*.inc result/ 2>/dev/null || true
+          cp -f out/current.sna out/child.sna out/template.sna out/both.sna result/ 2>/dev/null || true
+          cp -f out/renderer-current.bin out/renderer-deep.bin result/ 2>/dev/null || true
+          cp -f out/vm-current.bin out/vm-child.bin out/vm-template.bin out/vm-both.bin result/ 2>/dev/null || true
+          cp -f opt/vm-port/build-full/draw-optimization.json result/ 2>/dev/null || true
+
+      - name: Upload measured deep optimization results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-optimization-results
+          path: result/
