@@ -5,6 +5,8 @@ on:
     branches: [st-span-optimizations]
     paths:
       - .github/workflows/benchmark-st.yml
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
