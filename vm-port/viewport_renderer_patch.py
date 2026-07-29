@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""ST renderer variant with fixed-bank coordinate lookup tables.
+"""ST renderer variants with fixed-bank coordinate lookup tables.
 
 AW_VIEWPORT selects one of 256x192, 224x176 or 224x160. Smaller modes keep
 all original 320x200 coordinates, scale them into a centred rectangle, and
 leave a border around the dynamic polygon viewport.
+
+Set AW_FAST_DEGENERATE=1 to bypass generic edge-table construction for polygons
+that collapse to one horizontal or vertical span after Spectrum scaling.
 """
 
 from __future__ import annotations
@@ -23,6 +26,56 @@ VIEWPORTS = {
 }
 
 POLYGON_MARKER = "; ---------------------------------------------------------------------------\n; Polygon edge construction and scanline fill"
+DEGENERATE_MARKER = '''        call prepare_color_decisions
+        call mark_polygon_dirty
+
+        ld hl,(BBOX_WIDTH)'''
+
+FAST_DEGENERATE = r'''        call prepare_color_decisions
+        call mark_polygon_dirty
+
+        ; Polygons which collapse after coordinate scaling need no edge tables.
+        ld a,(MIN_Y)
+        ld b,a
+        ld a,(MAX_Y)
+        cp b
+        jr nz,.st_check_vertical
+        ld a,(MIN_X)
+        ld (SPAN_LEFT),a
+        ld a,(MAX_X)
+        ld (SPAN_RIGHT),a
+        ld a,b
+        ld (SPAN_Y),a
+        call map_destination
+        call fill_span
+        ret
+
+.st_check_vertical:
+        ld a,(MIN_X)
+        ld b,a
+        ld a,(MAX_X)
+        cp b
+        jr nz,.st_normal_primitive
+        ld a,b
+        ld (SPAN_LEFT),a
+        ld (SPAN_RIGHT),a
+        ld a,(MIN_Y)
+        ld (SPAN_Y),a
+        call map_destination
+.st_vertical_loop:
+        call fill_span
+        ld a,(SPAN_Y)
+        ld b,a
+        ld a,(MAX_Y)
+        cp b
+        ret z
+        ld a,b
+        inc a
+        ld (SPAN_Y),a
+        jr .st_vertical_loop
+
+.st_normal_primitive:
+        ld hl,(BBOX_WIDTH)'''
 
 
 def selected_viewport() -> tuple[int, int]:
@@ -114,4 +167,10 @@ def patch_renderer(source: str) -> str:
     width, height = selected_viewport()
     start = patched.index("scale_x_clamped:\n")
     end = patched.index(POLYGON_MARKER, start)
-    return patched[:start] + _lookup_routines(width, height) + "\n" + patched[end:]
+    patched = patched[:start] + _lookup_routines(width, height) + "\n" + patched[end:]
+
+    if os.environ.get("AW_FAST_DEGENERATE") == "1":
+        if patched.count(DEGENERATE_MARKER) != 1:
+            raise ValueError("primitive dispatch marker changed")
+        patched = patched.replace(DEGENERATE_MARKER, FAST_DEGENERATE, 1)
+    return patched
