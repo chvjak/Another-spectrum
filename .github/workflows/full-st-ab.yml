@@ -43,122 +43,22 @@ jobs:
               ('bench/minimal.b64','bench/minimal_full_ab.py'),
               ('bench/runner.b64','bench/run_minimal_ab.mjs'),
               ('bench/patch.b64','bench/st_renderer_patch.py')]:
-              s=pathlib.Path(src).read_text()
-              b=''.join(re.findall(r'[A-Za-z0-9+/=]',s))
-              pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(b)))
+              text=pathlib.Path(src).read_text()
+              encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
+              pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(encoded)))
 
-          p=pathlib.Path('bench/minimal_full_ab.py')
-          s=p.read_text()
+          decoder_b64='CmRlZiBleHRyYWN0X2pzX3Jlc291cmNlcyhwYXRoKToKICAgIHRleHQgPSBwYXRoLnJlYWRfdGV4dChlbmNvZGluZz0idXRmLTgiKQogICAgZGVmIGJlMzIoYnVmLCBvZmZzZXQpOgogICAgICAgIHJldHVybiBpbnQuZnJvbV9ieXRlcyhidWZbb2Zmc2V0Om9mZnNldCArIDRdLCAiYmlnIikKICAgIGRlZiB1bnBhY2tfYnl0ZWtpbGxlcihzcmMsIGV4cGVjdGVkKToKICAgICAgICBzcmNfb2Zmc2V0ID0gbGVuKHNyYykgLSA0CiAgICAgICAgcmVtYWluaW5nID0gYmUzMihzcmMsIHNyY19vZmZzZXQpOyBzcmNfb2Zmc2V0IC09IDQKICAgICAgICBpZiByZW1haW5pbmcgIT0gZXhwZWN0ZWQ6CiAgICAgICAgICAgIHJhaXNlIFJ1bnRpbWVFcnJvcihmIkJ5dGVLaWxsZXIgc2l6ZSB7cmVtYWluaW5nfSwgZXhwZWN0ZWQge2V4cGVjdGVkfSIpCiAgICAgICAgZHN0ID0gYnl0ZWFycmF5KHJlbWFpbmluZyk7IGRzdF9vZmZzZXQgPSByZW1haW5pbmcgLSAxCiAgICAgICAgY3JjID0gYmUzMihzcmMsIHNyY19vZmZzZXQpOyBzcmNfb2Zmc2V0IC09IDQKICAgICAgICBiaXRzID0gYmUzMihzcmMsIHNyY19vZmZzZXQpOyBzcmNfb2Zmc2V0IC09IDQKICAgICAgICBjcmMgXj0gYml0cwogICAgICAgIGRlZiBuZXh0X2JpdCgpOgogICAgICAgICAgICBub25sb2NhbCBiaXRzLCBjcmMsIHNyY19vZmZzZXQKICAgICAgICAgICAgY2FycnkgPSBiaXRzICYgMTsgYml0cyA+Pj0gMQogICAgICAgICAgICBpZiBiaXRzID09IDA6CiAgICAgICAgICAgICAgICBpZiBzcmNfb2Zmc2V0IDwgMDoKICAgICAgICAgICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoIkJ5dGVLaWxsZXIgc291cmNlIHVuZGVycnVuIikKICAgICAgICAgICAgICAgIGJpdHMgPSBiZTMyKHNyYywgc3JjX29mZnNldCk7IHNyY19vZmZzZXQgLT0gNAogICAgICAgICAgICAgICAgY3JjIF49IGJpdHMKICAgICAgICAgICAgICAgIGNhcnJ5ID0gYml0cyAmIDEKICAgICAgICAgICAgICAgIGJpdHMgPSAweDgwMDAwMDAwIHwgKGJpdHMgPj4gMSkKICAgICAgICAgICAgcmV0dXJuIGNhcnJ5CiAgICAgICAgZGVmIGdldF9iaXRzKGNvdW50KToKICAgICAgICAgICAgdmFsdWUgPSAwCiAgICAgICAgICAgIGZvciBfIGluIHJhbmdlKGNvdW50KToKICAgICAgICAgICAgICAgIHZhbHVlID0gKHZhbHVlIDw8IDEpIHwgbmV4dF9iaXQoKQogICAgICAgICAgICByZXR1cm4gdmFsdWUKICAgICAgICBkZWYgY29weV9saXRlcmFsKGJpdHNfY291bnQsIGV4dHJhKToKICAgICAgICAgICAgbm9ubG9jYWwgcmVtYWluaW5nLCBkc3Rfb2Zmc2V0CiAgICAgICAgICAgIGNvdW50ID0gZ2V0X2JpdHMoYml0c19jb3VudCkgKyBleHRyYSArIDEKICAgICAgICAgICAgcmVtYWluaW5nIC09IGNvdW50CiAgICAgICAgICAgIGlmIHJlbWFpbmluZyA8IDA6CiAgICAgICAgICAgICAgICBjb3VudCArPSByZW1haW5pbmc7IHJlbWFpbmluZyA9IDAKICAgICAgICAgICAgZm9yIGkgaW4gcmFuZ2UoY291bnQpOgogICAgICAgICAgICAgICAgZHN0W2RzdF9vZmZzZXQgLSBpXSA9IGdldF9iaXRzKDgpCiAgICAgICAgICAgIGRzdF9vZmZzZXQgLT0gY291bnQKICAgICAgICBkZWYgY29weV9yZWZlcmVuY2UoYml0c19jb3VudCwgY291bnQpOgogICAgICAgICAgICBub25sb2NhbCByZW1haW5pbmcsIGRzdF9vZmZzZXQKICAgICAgICAgICAgcmVtYWluaW5nIC09IGNvdW50CiAgICAgICAgICAgIGlmIHJlbWFpbmluZyA8IDA6CiAgICAgICAgICAgICAgICBjb3VudCArPSByZW1haW5pbmc7IHJlbWFpbmluZyA9IDAKICAgICAgICAgICAgb2Zmc2V0ID0gZ2V0X2JpdHMoYml0c19jb3VudCkKICAgICAgICAgICAgZm9yIGkgaW4gcmFuZ2UoY291bnQpOgogICAgICAgICAgICAgICAgZHN0W2RzdF9vZmZzZXQgLSBpXSA9IGRzdFtkc3Rfb2Zmc2V0IC0gaSArIG9mZnNldF0KICAgICAgICAgICAgZHN0X29mZnNldCAtPSBjb3VudAogICAgICAgIHdoaWxlIHJlbWFpbmluZyA+IDA6CiAgICAgICAgICAgIGlmIG5vdCBuZXh0X2JpdCgpOgogICAgICAgICAgICAgICAgaWYgbm90IG5leHRfYml0KCk6IGNvcHlfbGl0ZXJhbCgzLCAwKQogICAgICAgICAgICAgICAgZWxzZTogY29weV9yZWZlcmVuY2UoOCwgMikKICAgICAgICAgICAgZWxzZToKICAgICAgICAgICAgICAgIGNvZGUgPSBnZXRfYml0cygyKQogICAgICAgICAgICAgICAgaWYgY29kZSA9PSAzOiBjb3B5X2xpdGVyYWwoOCwgOCkKICAgICAgICAgICAgICAgIGVsaWYgY29kZSA9PSAyOiBjb3B5X3JlZmVyZW5jZSgxMiwgZ2V0X2JpdHMoOCkgKyAxKQogICAgICAgICAgICAgICAgZWxpZiBjb2RlID09IDE6IGNvcHlfcmVmZXJlbmNlKDEwLCA0KQogICAgICAgICAgICAgICAgZWxzZTogY29weV9yZWZlcmVuY2UoOSwgMykKICAgICAgICBpZiBjcmMgIT0gMDoKICAgICAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKGYiQnl0ZUtpbGxlciBDUkMge2NyYzojeH0iKQogICAgICAgIHJldHVybiBieXRlcyhkc3QpCiAgICByZXNvdXJjZXMgPSB7fQogICAgZm9yIG51bWJlciBpbiAoUkVTT1VSQ0VfUEFMRVRURSwgUkVTT1VSQ0VfQllURUNPREUsIFJFU09VUkNFX1NIQVBFUyk6CiAgICAgICAgaGV4X2lkID0gZiJ7bnVtYmVyOjAyeH0iCiAgICAgICAgZGF0YV9tYXRjaCA9IHJlLnNlYXJjaChyZidjb25zdCBkYXRhe2hleF9pZH0gPSAiKFtBLVphLXowLTkrLz1dKykiOycsIHRleHQpCiAgICAgICAgc2l6ZV9tYXRjaCA9IHJlLnNlYXJjaChyZidjb25zdCBzaXple2hleF9pZH0gPSAoXFxkKyk7JywgdGV4dCkKICAgICAgICBpZiBkYXRhX21hdGNoIGlzIE5vbmUgb3Igc2l6ZV9tYXRjaCBpcyBOb25lOgogICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoZiJyZXNvdXJjZSB7bnVtYmVyOiN4fSBtaXNzaW5nIGZyb20ge3BhdGh9IikKICAgICAgICBwYXlsb2FkID0gYmFzZTY0LmI2NGRlY29kZShkYXRhX21hdGNoLmdyb3VwKDEpLCB2YWxpZGF0ZT1UcnVlKQogICAgICAgIGV4cGVjdGVkID0gaW50KHNpemVfbWF0Y2guZ3JvdXAoMSkpCiAgICAgICAgaWYgbGVuKHBheWxvYWQpICE9IGV4cGVjdGVkOgogICAgICAgICAgICBwYXlsb2FkID0gdW5wYWNrX2J5dGVraWxsZXIocGF5bG9hZCwgZXhwZWN0ZWQpCiAgICAgICAgcmVzb3VyY2VzW251bWJlcl0gPSBwYXlsb2FkCiAgICByZXR1cm4gcmVzb3VyY2VzW1JFU09VUkNFX0JZVEVDT0RFXSwgcmVzb3VyY2VzW1JFU09VUkNFX1NIQVBFU10sIHJlc291cmNlc1tSRVNPVVJDRV9QQUxFVFRFXQo='
+          decoder=base64.b64decode(decoder_b64).decode()
+          helper=pathlib.Path('bench/minimal_full_ab.py')
+          source=helper.read_text()
           marker='\nif __name__ == "__main__":'
-          if marker not in s:
+          if marker not in source:
               raise SystemExit('helper main marker missing')
-          decoder=r'''
-def extract_js_resources(path):
-    """Extract and ByteKiller-decompress intro palette, bytecode and shapes."""
-    text = path.read_text(encoding="utf-8")
+          helper.write_text(source.replace(marker,decoder+marker,1))
 
-    def be32(buf, offset):
-        return int.from_bytes(buf[offset:offset + 4], "big")
-
-    def unpack_bytekiller(src, expected):
-        src_offset = len(src) - 4
-        remaining = be32(src, src_offset)
-        src_offset -= 4
-        if remaining != expected:
-            raise RuntimeError(f"ByteKiller size {remaining}, expected {expected}")
-        dst = bytearray(remaining)
-        dst_offset = remaining - 1
-        crc = be32(src, src_offset)
-        src_offset -= 4
-        bits = be32(src, src_offset)
-        src_offset -= 4
-        crc ^= bits
-
-        def next_bit():
-            nonlocal bits, crc, src_offset
-            carry = bits & 1
-            bits >>= 1
-            if bits == 0:
-                if src_offset < 0:
-                    raise RuntimeError("ByteKiller source underrun")
-                bits = be32(src, src_offset)
-                src_offset -= 4
-                crc ^= bits
-                carry = bits & 1
-                bits = 0x80000000 | (bits >> 1)
-            return carry
-
-        def get_bits(count):
-            value = 0
-            for _ in range(count):
-                value = (value << 1) | next_bit()
-            return value
-
-        def copy_literal(bits_count, extra):
-            nonlocal remaining, dst_offset
-            count = get_bits(bits_count) + extra + 1
-            remaining -= count
-            if remaining < 0:
-                count += remaining
-                remaining = 0
-            for i in range(count):
-                dst[dst_offset - i] = get_bits(8)
-            dst_offset -= count
-
-        def copy_reference(bits_count, count):
-            nonlocal remaining, dst_offset
-            remaining -= count
-            if remaining < 0:
-                count += remaining
-                remaining = 0
-            offset = get_bits(bits_count)
-            for i in range(count):
-                dst[dst_offset - i] = dst[dst_offset - i + offset]
-            dst_offset -= count
-
-        while remaining > 0:
-            if not next_bit():
-                if not next_bit():
-                    copy_literal(3, 0)
-                else:
-                    copy_reference(8, 2)
-            else:
-                code = get_bits(2)
-                if code == 3:
-                    copy_literal(8, 8)
-                elif code == 2:
-                    copy_reference(12, get_bits(8) + 1)
-                elif code == 1:
-                    copy_reference(10, 4)
-                else:
-                    copy_reference(9, 3)
-        if crc != 0:
-            raise RuntimeError(f"ByteKiller CRC {crc:#x}")
-        return bytes(dst)
-
-    resources = {}
-    for number in (RESOURCE_PALETTE, RESOURCE_BYTECODE, RESOURCE_SHAPES):
-        hex_id = f"{number:02x}"
-        data_match = re.search(rf'const data{hex_id} = "([A-Za-z0-9+/=]+)";', text)
-        size_match = re.search(rf'const size{hex_id} = (\d+);', text)
-        if data_match is None or size_match is None:
-            raise RuntimeError(f"resource {number:#x} missing from {path}")
-        payload = base64.b64decode(data_match.group(1), validate=True)
-        expected = int(size_match.group(1))
-        if len(payload) != expected:
-            payload = unpack_bytekiller(payload, expected)
-        if len(payload) != expected:
-            raise RuntimeError(f"resource {number:#x}: {len(payload)} != {expected}")
-        resources[number] = payload
-    return resources[RESOURCE_BYTECODE], resources[RESOURCE_SHAPES], resources[RESOURCE_PALETTE]
-'''
-          p.write_text(s.replace(marker, decoder + marker, 1))
-
-          # Normalize one recovered local label that sjasmplus otherwise parses
-          # as an instruction because of a leading blank.
           for asm in pathlib.Path('source/vm-port').glob('*.asm'):
               text=asm.read_text()
-              text=re.sub(r'(?m)^\s+(\.[A-Za-z_][A-Za-z0-9_]*:)\s*$', r'\1', text)
+              text=re.sub(r'(?m)^\s+(\.[A-Za-z_][A-Za-z0-9_]*:)\s*$',r'\1',text)
               asm.write_text(text)
           PY
 
