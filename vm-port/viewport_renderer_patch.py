@@ -13,7 +13,13 @@ from __future__ import annotations
 
 import os
 
-from st_renderer_patch_base import patch_renderer as patch_st_renderer
+try:
+    # The benchmark harness keeps the original patcher under this name while
+    # loading this module as st_renderer_patch.
+    from st_renderer_patch_base import patch_renderer as patch_st_renderer
+except ImportError:
+    # Normal repository use imports this module by its own filename.
+    from st_renderer_patch import patch_renderer as patch_st_renderer
 
 X_SCALE_TABLE = 0xB800
 Y_SCALE_TABLE = 0xB940
