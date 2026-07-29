@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ST renderer variant with fixed-bank coordinate lookup tables.
 
-AW_VIEWPORT selects one of 256x192, 224x176 or 224x160.  Smaller modes keep
+AW_VIEWPORT selects one of 256x192, 224x176 or 224x160. Smaller modes keep
 all original 320x200 coordinates, scale them into a centred rectangle, and
 leave a border around the dynamic polygon viewport.
 """
@@ -44,7 +44,9 @@ def viewport_tables() -> bytes:
     top = (192 - height) // 2
 
     if (width, height) == (256, 192):
-        # Preserve the existing renderer semantics exactly for the control case.
+        # Preserve the existing renderer semantics exactly for the control case,
+        # including the unused x=319/y=199 endpoint values that wrap/overflow
+        # the nominal destination bounds in the original arithmetic routines.
         xs = [(x - x // 5) & 0xFF for x in range(320)]
         ys = [(y - y // 25) & 0xFF for y in range(200)]
     else:
@@ -53,7 +55,10 @@ def viewport_tables() -> bytes:
 
     assert len(xs) == 320 and len(ys) == 200
     assert all(0 <= value <= 255 for value in xs)
-    assert all(0 <= value <= 191 for value in ys)
+    assert all(0 <= value <= 255 for value in ys)
+    if (width, height) != (256, 192):
+        assert all(left <= value < left + width for value in xs)
+        assert all(top <= value < top + height for value in ys)
     return bytes(xs + ys)
 
 
