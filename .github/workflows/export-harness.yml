@@ -28,8 +28,10 @@ jobs:
               stem=p.name.removesuffix('.gz.b64')
               pathlib.Path('harness',stem).write_bytes(gzip.decompress(base64.b64decode(encoded)))
           PY
+          tar --exclude='./branch-checkout.tgz' -czf branch-checkout.tgz .
       - uses: actions/upload-artifact@v4
         with:
           name: benchmark-harness-source
-          path: harness/
-# trigger-pr-2
+          path: |
+            harness/
+            branch-checkout.tgz
