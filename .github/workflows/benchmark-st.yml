@@ -5,6 +5,7 @@ on:
     branches: [st-span-optimizations]
     paths:
       - .github/workflows/benchmark-st.yml
+      - vm-port/ci-minimal-full-ab.py.gz.b64
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -45,16 +46,14 @@ jobs:
           PY
           chmod +x bench/minimal_full_ab.py
 
-      - name: Download installed DOS demo
-        shell: bash
-        run: |
-          curl --fail --location --retry 3 \
-            --user-agent 'Mozilla/5.0' \
-            --output awdemo.zip \
-            https://dosgames.com/files/DOSBOX_OOTW.ZIP
-          file awdemo.zip
-          unzip -q awdemo.zip -d awdemo
-          find awdemo -iname memlist.bin -print
+      - name: Checkout embedded DOS demo resources
+        uses: actions/checkout@v4
+        with:
+          repository: cyxx/another_js
+          ref: gh-pages
+          path: game-data
+          sparse-checkout: ootwdemo.js
+          sparse-checkout-cone-mode: false
 
       - name: Build sjasmplus
         shell: bash
@@ -75,11 +74,10 @@ jobs:
       - name: Build and run baseline/ST snapshots
         shell: bash
         run: |
-          DATA_DIR=$(find awdemo -iname memlist.bin -printf '%h\n' | head -1)
           python3 bench/minimal_full_ab.py \
             --source-dir source/vm-port \
             --patch-dir bench \
-            --data-dir "$DATA_DIR" \
+            --resource-js game-data/ootwdemo.js \
             --sjasmplus "$PWD/sjasmplus/sjasmplus" \
             --out "$PWD/out"
           node bench/run_minimal_ab.mjs \
