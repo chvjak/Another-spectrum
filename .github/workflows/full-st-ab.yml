@@ -163,7 +163,7 @@ jobs:
           PY
           done
 
-      - name: Build lookup and smaller viewport variants
+      - name: Build lookup, viewport and collapsed-polygon variants
         shell: bash
         run: |
           for viewport in 256x192 224x176 224x160; do
@@ -176,21 +176,31 @@ jobs:
               --out "$PWD/$out"
             cp "$out/st.sna" "variants/${viewport}.sna"
             cp "$out/minimal-manifest.json" "result/${viewport}-manifest.json"
+
+            fast_out="out-${viewport}-fast"
+            AW_VIEWPORT="$viewport" AW_FAST_DEGENERATE=1 python3 bench/minimal_full_ab.py \
+              --source-dir opt/vm-port \
+              --patch-dir bench \
+              --resource-js game-data/ootwdemo.js \
+              --sjasmplus "$PWD/sjasmplus/sjasmplus" \
+              --out "$PWD/$fast_out"
+            cp "$fast_out/st.sna" "variants/${viewport}-fast.sna"
+            cp "$fast_out/minimal-manifest.json" "result/${viewport}-fast-manifest.json"
           done
 
       - name: Run complete comparisons
         shell: bash
         run: |
           wasm="$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm"
-          for viewport in 256x192 224x176 224x160; do
-            dir="$PWD/compare-${viewport}"
+          for variant in 256x192 224x176 224x160 256x192-fast 224x176-fast 224x160-fast; do
+            dir="$PWD/compare-${variant}"
             mkdir -p "$dir"
             cp variants/current-st.sna "$dir/baseline.sna"
-            cp "variants/${viewport}.sna" "$dir/st.sna"
+            cp "variants/${variant}.sna" "$dir/st.sna"
             node bench/run_minimal_ab.mjs "$wasm" "$dir"
-            cp "$dir/minimal-ab-result.json" "result/${viewport}-result.json"
-            echo "===== ${viewport} ====="
-            cat "result/${viewport}-result.json"
+            cp "$dir/minimal-ab-result.json" "result/${variant}-result.json"
+            echo "===== ${variant} ====="
+            cat "result/${variant}-result.json"
           done
           cp opt/vm-port/build-full/draw-optimization.json result/
           cp bench/event-runs.bin result/
