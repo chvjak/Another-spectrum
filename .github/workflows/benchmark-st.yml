@@ -17,6 +17,7 @@ jobs:
       - name: Checkout optimization branch
         uses: actions/checkout@v4
         with:
+          ref: st-span-optimizations
           path: opt
 
       - name: Checkout recovered VM source
