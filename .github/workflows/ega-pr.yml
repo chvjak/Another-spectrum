@@ -20,6 +20,10 @@ jobs:
           ref: st-span-optimizations
           fetch-depth: 0
           path: opt
+      - name: Install video encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
       - name: Run EGA matrix, profile and capture
         shell: bash
         run: |
