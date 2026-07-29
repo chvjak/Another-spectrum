@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'cp -f out/work/vm-restore.asm result/ 2>/dev/null || true; cp -f out/work/renderer-restore.asm result/ 2>/dev/null || true' ERR
 
 ROOT="$PWD"
 OPT="$ROOT/opt"
 mkdir -p "$ROOT/game-data" "$ROOT/bench" "$ROOT/deep-data" "$ROOT/out" "$ROOT/result" "$OPT/vm-port/build-full"
 
 cat "$OPT"/vm-port/ega-source.part-* | base64 -d | tar -xz -C "$OPT"
-sed -i 's/jr nz,ega_restore_not_full/jp nz,ega_restore_not_full/' "$OPT/vm-port/ega_renderer_patch.py"
+python3 - <<'PY'
+from pathlib import Path
+p=Path('opt/vm-port/ega_renderer_patch.py')
+s=p.read_text()
+old='jr nz,ega_restore_not_full'
+print({'long_jump_occurrences_before': s.count(old)})
+if old not in s:
+    raise SystemExit('expected long restore jump not found')
+s=s.replace(old,'jp nz,ega_restore_not_full')
+p.write_text(s)
+print({'long_jump_occurrences_after': p.read_text().count(old)})
+PY
 python3 -m py_compile "$OPT/vm-port/ega_renderer_patch.py" "$OPT/vm-port/ega_build_variants.py"
 node --check "$OPT/vm-port/run_ega_profile.mjs"
 node --check "$OPT/vm-port/capture_ega_intro.mjs"
