@@ -48,6 +48,13 @@ jobs:
               text=pathlib.Path(src).read_text()
               encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
               pathlib.Path(dst).write_bytes(gzip.decompress(base64.b64decode(encoded)))
+
+          runner=pathlib.Path('bench/run_minimal_ab.mjs')
+          runner_source=runner.read_text()
+          occurrences=runner_source.count('100000')
+          if occurrences != 1:
+              raise SystemExit(f'unexpected runner frame-cap count: {occurrences}')
+          runner.write_text(runner_source.replace('100000','300000',1))
           PY
           python3 opt/vm-port/patch_ab_resources.py bench/minimal_full_ab.py
           python3 - <<'PY'
