@@ -86,7 +86,7 @@ jobs:
           p=pathlib.Path('bench/minimal_full_ab.py')
           s=p.read_text()
           old='event_runs = all_keep_runs()'
-          new='event_runs = Path(os.environ["AW_EVENT_RUNS"]).read_bytes()'
+          new='event_runs = Path("bench/event-runs.bin").read_bytes()'
           if old not in s:
               raise SystemExit('event-run builder changed')
           s=s.replace(old,new,1)
@@ -124,7 +124,7 @@ jobs:
       - name: Build and run combined baseline/ST snapshots
         shell: bash
         run: |
-          AW_EVENT_RUNS="$PWD/bench/event-runs.bin" python3 bench/minimal_full_ab.py \
+          python3 bench/minimal_full_ab.py \
             --source-dir opt/vm-port \
             --patch-dir bench \
             --resource-js game-data/ootwdemo.js \
