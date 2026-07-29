@@ -140,19 +140,16 @@ jobs:
         run: |
           cp opt/vm-port/viewport_renderer_patch.py bench/st_renderer_patch.py
           python3 - <<'PY'
-          import pathlib
+          import pathlib,re
           p=pathlib.Path('bench/minimal_full_ab.py')
           s=p.read_text()
-          old='from st_renderer_patch import patch_renderer'
-          new='from st_renderer_patch import patch_renderer, viewport_tables, TABLE_BANK2_OFFSET'
-          if old not in s:
-              raise SystemExit('patch import changed')
-          s=s.replace(old,new,1)
-          old='    pages = [bytearray(0x4000) for _ in range(8)]'
-          new=old+'\n    put(pages[2], TABLE_BANK2_OFFSET, viewport_tables(), "coordinate tables")'
-          if old not in s:
+          pattern=r'(?m)^(\s*)pages = \[bytearray\(0x4000\) for _ in range\(8\)\]\s*$'
+          match=re.search(pattern,s)
+          if match is None:
               raise SystemExit('snapshot page allocation changed')
-          s=s.replace(old,new,1)
+          indent=match.group(1)
+          replacement=(match.group(0)+'\n'+indent+'from st_renderer_patch import viewport_tables, TABLE_BANK2_OFFSET'+'\n'+indent+'put(pages[2], TABLE_BANK2_OFFSET, viewport_tables(), "coordinate tables")')
+          s=s[:match.start()]+replacement+s[match.end():]
           p.write_text(s)
           PY
           for viewport in 256x192 224x176 224x160; do
