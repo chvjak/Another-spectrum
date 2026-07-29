@@ -3,6 +3,8 @@ on:
   push:
     branches: [st-span-optimizations]
     paths: [.github/workflows/materialize-deep-source.yml]
+  pull_request:
+    branches: [main]
 permissions:
   contents: write
   actions: read
