@@ -11,7 +11,7 @@ on:
       - vm-port/run_deep_ab.mjs
       - vm-port/viewport_renderer_patch.py
       - vm-port/st_renderer_patch.py
-      - vm-port/deep-python.tgz.b64
+      - vm-port/deep-python.part-*
   pull_request:
     branches: [main]
 permissions:
@@ -30,7 +30,7 @@ jobs:
 
       - name: Restore bundled Python sources
         shell: bash
-        run: base64 -d opt/vm-port/deep-python.tgz.b64 | tar -xz -C opt/vm-port
+        run: cat opt/vm-port/deep-python.part-* | base64 -d | tar -xz -C opt/vm-port
 
       - name: Checkout embedded DOS intro and JS engine
         uses: actions/checkout@v4
