@@ -12,17 +12,20 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
           ref: jsspeccy-sna-verification
           fetch-depth: 0
           path: opt
-      - name: Restore benchmark emulator bundle
+      - name: Restore benchmark sources
+        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+      - name: Build the pinned JSSpeccy core and benchmark base
         run: |
-          cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
-          find opt -name jsspeccy-core.wasm -o -name 128-0.rom
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          bash opt/vm-port/run_rt45_ci.sh
       - name: Download the exact measured AY artifact
         env:
           GH_TOKEN: ${{ github.token }}
