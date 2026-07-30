@@ -38,19 +38,17 @@ def asm(sjasm: Path, src: Path, out: Path) -> bytes:
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--out',type=Path,required=True); ap.add_argument('--work',type=Path,required=True); ap.add_argument('--patch',type=Path,required=True); ap.add_argument('--sjasmplus',type=Path,required=True)
     a=ap.parse_args(); a.out.mkdir(parents=True,exist_ok=True); p=load(a.patch)
-    base=(a.out/'final.sna').read_bytes(); shutil.copy2(a.out/'final.sna',a.out/'u-baseline.sna')
-    vm0=(a.work/'vm-final-combined.asm').read_text(); r0=(a.work/'renderer-final-combined.asm').read_text()
+    base=(a.out/'both.sna').read_bytes(); shutil.copy2(a.out/'both.sna',a.out/'u-baseline.sna')
+    vm0=(a.work/'vm-both.asm').read_text(); r0=(a.work/'renderer-both.asm').read_text()
     specs={
       'u-w1-loop': ({'w1':'loop'}, {}),
       'u-w1-unrolled': ({'w1':'unrolled'}, {}),
       'u-short14': ({'w1':'unrolled','short':True}, {}),
       'u-hot81632': ({'hot':(8,16,32)}, {}),
       'u-copy-all': ({'w1':'unrolled','short':True,'hot':(8,16,32)}, {}),
-      'u-fill-copy32': ({}, {'fill_copy32':True}),
-      'u-fill-first4': ({}, {'fill_first':4}),
-      'u-fill-first8': ({}, {'fill_first':8}),
+      'u-fill-cell8': ({}, {'fill_cell8':True}),
       'u-span1': ({}, {'span1':True}),
-      'u-combined': ({'w1':'unrolled','short':True,'hot':(8,16,32)}, {'fill_copy32':True,'fill_first':4,'span1':True}),
+      'u-combined': ({'w1':'unrolled','short':True,'hot':(8,16,32)}, {'fill_cell8':True,'span1':True}),
     }
     manifest={'variants':{'u-baseline':{'snapshot_bytes':len(base)}}}; built=['u-baseline']
     for label,(vmkw,rkw) in specs.items():
