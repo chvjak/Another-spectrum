@@ -8,6 +8,10 @@ if (!dataPath || !enginePath) throw new Error('usage: capture_original_colour_pr
 globalThis.atob = value => Buffer.from(value, 'base64').toString('binary');
 globalThis.window = globalThis;
 globalThis.document = {};
+// another.min.js logs resource loads through console.log. This program writes
+// packed RGB24 on stdout, so even one text line corrupts all later frame
+// boundaries and appears as horizontal wrapping/warping in the encoded video.
+console.log = () => {};
 vm.runInThisContext(fs.readFileSync(dataPath, 'utf8') + '\n' + fs.readFileSync(enginePath, 'utf8'), { filename: enginePath });
 
 let lastDisplayOffset = null;
