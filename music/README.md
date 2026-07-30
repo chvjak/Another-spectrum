@@ -1,23 +1,25 @@
 # AY soundtrack experiments
 
-This branch combines the recovered `diff-stream/` intro work with the preserved AY soundtrack generators.
+This branch combines the recovered `diff-stream/` intro work with versioned AY soundtrack generators.
 
 ## Versions
 
-- `v4/` — noisier baseline: strong machine modulation, sampled-style melody attacks, gentle body-plus-noise snares.
-- `v5/` — current version: retains the noise and long-term level, reduces the regular “tractor” pulse, rounds the synth attacks, and lowers transient peaks by about 3 dB.
+- `v4/` — noisy baseline with strong machine modulation, sampled-style melody attacks, and gentle body-plus-noise snares.
+- `v5/` — rounded attacks and reduced machine pulse.
+- `v6/` — current version: removes the tractor effect completely while retaining v5 synth peaks, noise character and long-term level.
 
-Both versions generate a 2:50 soundtrack at 50 AY register updates per second. Run:
+All versions generate a 2:50 soundtrack at 50 AY register updates per second. Run:
 
 ```sh
 python3 music/v4/build_ay_recreation_v4.py
 python3 music/v5/build_ay_recreation_v5.py
+python3 music/v6/build_ay_recreation_v6.py
 ```
 
 Requirements: Python 3, NumPy, SciPy and ffmpeg.
 
-Generated output includes MP3/FLAC previews, three stems, a compact `AY50` register-delta stream, VGM/VGZ and a complete register CSV. Generated media is ignored by Git and is not committed.
+Generated MP3/FLAC previews, stems, VGM/VGZ and register CSV files are written below each version's `generated/` directory and ignored by Git. The committed v6 `AY50` payload is Base64-wrapped text so the diff-stream builder can consume it directly without requiring generated media in Git.
 
 ## Integration status
 
-The music source and diff-stream source now coexist on this branch, but the existing diff-stream snapshot builder does not yet call the AY50 decoder from its interrupt handler. The intended integration is one AY update per 50 Hz interrupt and two AY updates per 25 fps video frame. The old diff-stream timing bug must be corrected before final soundtrack synchronization.
+`diff-stream/build_full_speccy.py` now decodes v6 and advances AY once per 50 Hz `HALT`. With `SPECCY_WAIT_FRAMES=2`, each 25 fps visual frame receives exactly two AY updates. Each snapshot reel begins with a full AY register state, so reel boundaries are independently restartable.
