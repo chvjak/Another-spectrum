@@ -6,6 +6,7 @@ on:
       - .github/workflows/ega-pr.yml
       - vm-port/final-perf-trigger.txt
       - vm-port/final-perf-source.part-*
+      - vm-port/final-perf-fix.b64
 permissions:
   contents: read
 jobs:
@@ -19,7 +20,9 @@ jobs:
           fetch-depth: 0
           path: opt
       - name: Restore final performance sources
-        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+        run: |
+          cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+          base64 -d opt/vm-port/final-perf-fix.b64 | tar -xz -C opt
       - name: Install video encoder required by exact EGA setup
         run: |
           sudo apt-get update -qq
