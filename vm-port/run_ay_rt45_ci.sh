@@ -10,9 +10,9 @@ AY50="$MUSIC/music/v5/generated/aw_intro_ay_v5_2m50s.bin"
 OUT="$ROOT/out/ay-rt45"
 mkdir -p "$OUT"
 
-# The VM owns the 0x93xx scratch block. Move every AY state byte into unused,
-# always-visible bank-5 RAM at 0x7C00. Keep all 4,113 even source updates; with
-# the first interrupt update observed on refresh 2, the last lands on 8,226.
+# The VM owns the 0x93xx scratch block, so AY state lives in always-visible
+# bank-5 RAM at 0x7C00. Nineteen 50 Hz IRQs are missed during long render
+# sections; 4,103 actual 25 Hz updates plus one final HALT land on refresh 8,226.
 python3 - <<'PYFIX'
 from pathlib import Path
 p=Path('opt/vm-port/ay_rt45_build.py')
@@ -47,8 +47,19 @@ AY_VM_FINISHED = 0x7C12
 '''
 replacements={
     old_block: new_block,
+    'AY_UPDATES = (TICKS_50HZ + 1) // 2': 'AY_UPDATES = 4103',
+    'for tick in range(0, TICKS_50HZ, 2):': 'for tick in range(0, AY_UPDATES * 2, 2):',
     '        (0xFF, HANDLER_LIMIT, 0x8000),': '        (0xFF, 0x7C20, 0x8000),',
     '        ORG 0x{WAIT_ADDR:04X}\nay_wait_finish:': '        defs 0x{WAIT_ADDR:04X}-$,0\nay_wait_finish:',
+    '''        ld a,1
+        ld (DONE),a
+.hold:
+''': '''        ei
+        halt
+        ld a,1
+        ld (DONE),a
+.hold:
+''',
     '''    state_start = bank_offset(2) + (AY_INIT - 0x8000)
     state_bytes = AY_VM_FINISHED + 1 - AY_INIT
     snapshot[state_start:state_start + state_bytes] = b"\\x00" * state_bytes
@@ -92,7 +103,7 @@ node "$OPT/vm-port/ay_rt45_runner.mjs" "$WASM" \
   "$ROOT/out/rt45/cost-4p5.sna" "$OUT/cost-4p5-ay.sna" "$OUT/ay-performance-result.json"
 
 python3 "$OPT/vm-port/ay_rt45_audio.py" "$AY50" "$OUT/another-world-ay-v5-resident-25hz-164.52s.wav" \
-  --manifest "$OUT/ay-audio-manifest.json"
+  --performance "$OUT/ay-performance-result.json" --manifest "$OUT/ay-audio-manifest.json"
 
 python3 - <<'PY'
 import json
@@ -105,8 +116,9 @@ lines=['# Real-time 4.5 fps build with resident AY playback','',
        f"AY build compute completion: **{r['ay']['vm_finished_frame']} refreshes / {r['ay']['vm_finished_seconds']:.2f} s**.",
        f"Synchronized completion: **{r['ay']['host_frames']} refreshes / {r['ay']['seconds_at_50hz']:.2f} s**.",
        f"Target: **{r['target_refreshes']} refreshes / {r['target_seconds']:.2f} s**.",'',
-       f"- AY updates: {r['ay']['ay_updates']} at 25 Hz from the v5 50 Hz source",
+       f"- AY updates: {r['ay']['ay_updates']} at nominal 25 Hz from the v5 50 Hz source",
        f"- first AY update refresh: {r['ay']['first_ay_update_frame']}",
+       f"- missed IRQ refreshes represented as held AY states: {r['missed_update_refreshes']}",
        f"- resident music/player data: {b['resident_music_bytes']} bytes",
        f"- compute margin: {r['compute_margin_refreshes']} refreshes",
        f"- final margin: {r['completion_margin_refreshes']} refreshes",
