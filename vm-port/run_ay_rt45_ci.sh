@@ -10,21 +10,58 @@ AY50="$MUSIC/music/v5/generated/aw_intro_ay_v5_2m50s.bin"
 OUT="$ROOT/out/ay-rt45"
 mkdir -p "$OUT"
 
-# Patch the standalone builder for the pinned machine layout and the observed
-# 20-refresh IM2 startup. Music source tick 20 is first written on refresh 21;
-# 4,103 updates then finish on refresh 8,225.
+# The VM owns the 0x93xx scratch block. Move every AY state byte into unused,
+# always-visible bank-5 RAM at 0x7C00. Keep all 4,113 even source updates; with
+# the first interrupt update observed on refresh 2, the last lands on 8,226.
 python3 - <<'PYFIX'
 from pathlib import Path
 p=Path('opt/vm-port/ay_rt45_build.py')
 s=p.read_text()
+old_block='''AY_INIT = 0x93EA
+AY_PHASE = 0x93EB
+AY_REMAIN = 0x93EC
+AY_PTR = 0x93EE
+AY_SEG_END = 0x93F0
+AY_SEG_BANK = 0x93F2
+AY_SEG_TABLE_PTR = 0x93F3
+AY_FLAG_PTR = 0x93F5
+AY_FLAG_BYTE = 0x93F7
+AY_FLAG_BITS = 0x93F8
+AY_SAVED_PAGE = 0x93F9
+AY_UPDATE_COUNT = 0x93FA
+AY_VM_FINISHED = 0x93FC
+'''
+new_block='''AY_INIT = 0x7C00
+AY_PHASE = 0x7C01
+AY_REMAIN = 0x7C02
+AY_PTR = 0x7C04
+AY_SEG_END = 0x7C06
+AY_SEG_BANK = 0x7C08
+AY_SEG_TABLE_PTR = 0x7C09
+AY_FLAG_PTR = 0x7C0B
+AY_FLAG_BYTE = 0x7C0D
+AY_FLAG_BITS = 0x7C0E
+AY_SAVED_PAGE = 0x7C0F
+AY_UPDATE_COUNT = 0x7C10
+AY_VM_FINISHED = 0x7C12
+'''
 replacements={
-    'AY_UPDATES = (TICKS_50HZ + 1) // 2': 'START_TICK = 20\nAY_UPDATES = len(range(START_TICK, TICKS_50HZ, 2))',
-    'for tick in range(0, TICKS_50HZ, 2):': 'for tick in range(START_TICK, TICKS_50HZ, 2):',
+    old_block: new_block,
+    '        (0xFF, HANDLER_LIMIT, 0x8000),': '        (0xFF, 0x7C20, 0x8000),',
     '        ORG 0x{WAIT_ADDR:04X}\nay_wait_finish:': '        defs 0x{WAIT_ADDR:04X}-$,0\nay_wait_finish:',
+    '''    state_start = bank_offset(2) + (AY_INIT - 0x8000)
+    state_bytes = AY_VM_FINISHED + 1 - AY_INIT
+    snapshot[state_start:state_start + state_bytes] = b"\\x00" * state_bytes
+''': '''    state_start = bank_offset(5) + (AY_INIT - 0x4000)
+    state_bytes = AY_VM_FINISHED + 1 - AY_INIT
+    if any(snapshot[state_start:state_start + state_bytes]):
+        raise RuntimeError("AY fixed-bank state target is not empty")
+    snapshot[state_start:state_start + state_bytes] = b"\\x00" * state_bytes
+''',
 }
 for old,new in replacements.items():
     if s.count(old)!=1:
-        raise SystemExit(f'AY builder marker count={s.count(old)} for {old!r}')
+        raise SystemExit(f'AY builder marker count={s.count(old)} for {old[:80]!r}')
     s=s.replace(old,new,1)
 p.write_text(s)
 PYFIX
@@ -68,7 +105,7 @@ lines=['# Real-time 4.5 fps build with resident AY playback','',
        f"AY build compute completion: **{r['ay']['vm_finished_frame']} refreshes / {r['ay']['vm_finished_seconds']:.2f} s**.",
        f"Synchronized completion: **{r['ay']['host_frames']} refreshes / {r['ay']['seconds_at_50hz']:.2f} s**.",
        f"Target: **{r['target_refreshes']} refreshes / {r['target_seconds']:.2f} s**.",'',
-       f"- AY updates: {r['ay']['ay_updates']} at 25 Hz from source tick 20 of the v5 50 Hz stream",
+       f"- AY updates: {r['ay']['ay_updates']} at 25 Hz from the v5 50 Hz source",
        f"- first AY update refresh: {r['ay']['first_ay_update_frame']}",
        f"- resident music/player data: {b['resident_music_bytes']} bytes",
        f"- compute margin: {r['compute_margin_refreshes']} refreshes",
