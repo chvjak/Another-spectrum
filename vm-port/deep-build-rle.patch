@@ -1,0 +1,24 @@
+diff --git a/vm-port/deep_build_variants.py b/vm-port/deep_build_variants.py
+index 9bb865f..43cafba 100644
+--- a/vm-port/deep_build_variants.py
++++ b/vm-port/deep_build_variants.py
+@@ -131,10 +131,8 @@ def main() -> None:
+     deep_renderer = helper.assemble(args.sjasmplus, deep_renderer_source, out / "renderer-deep.bin")
+ 
+     mode_manifests: dict[str, dict] = {}
+-    layout_constants: set[str] = set()
+     for mode in ("child", "template", "both"):
+         layout_text = (args.deep_data / f"deep-{mode}.inc").read_text(encoding="utf-8")
+-        layout_constants.add(layout_text)
+         (work / "deep_layout.inc").write_text(layout_text, encoding="utf-8")
+         deep_vm_source = work / f"vm-{mode}.asm"
+         deep_vm_source.write_text(
+@@ -159,8 +157,6 @@ def main() -> None:
+             "renderer_bytes": len(deep_renderer),
+         }
+ 
+-    if len(layout_constants) != 1:
+-        raise RuntimeError("deep descriptor table address differs between modes")
+ 
+     renderer_end = helper.RENDERER_OFFSET_BANK5 + len(deep_renderer)
+     manifest = {

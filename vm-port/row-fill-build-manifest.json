@@ -1,0 +1,38 @@
+{
+  "baseline": "u-w1-fill",
+  "variants": {
+    "r-baseline": {
+      "snapshot_bytes": 131103
+    },
+    "r-row-ldir": {
+      "renderer_bytes": 3670,
+      "renderer_gap_remaining": 138,
+      "snapshot_bytes": 131103,
+      "mode": "row-ldir"
+    },
+    "r-row-ldi32": {
+      "renderer_bytes": 3736,
+      "renderer_gap_remaining": 72,
+      "snapshot_bytes": 131103,
+      "mode": "row-ldi32"
+    },
+    "r-row-vertical-indexed": {
+      "renderer_bytes": 3647,
+      "renderer_gap_remaining": 161,
+      "snapshot_bytes": 131103,
+      "mode": "row-vertical-indexed"
+    },
+    "r-row-vertical-exx": {
+      "renderer_bytes": 3650,
+      "renderer_gap_remaining": 158,
+      "snapshot_bytes": 131103,
+      "mode": "row-vertical-exx"
+    },
+    "r-row-vertical-exx-table": {
+      "renderer_bytes": 3690,
+      "renderer_gap_remaining": 118,
+      "snapshot_bytes": 131103,
+      "mode": "row-vertical-exx-table"
+    }
+  }
+}
