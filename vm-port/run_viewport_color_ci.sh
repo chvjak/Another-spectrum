@@ -19,6 +19,7 @@ p.write_text(s)
 PY
 python3 -m py_compile "$OPT/vm-port/viewport_color_build.py" "$OPT/vm-port/ega_renderer_patch.py"
 node --check "$OPT/vm-port/run_viewport_color_matrix.mjs"
+python3 -m pip install --user numpy pillow
 
 if [ ! -d "$ROOT/game-data/repo" ]; then
   git clone --depth 1 --branch gh-pages https://github.com/cyxx/another_js.git "$ROOT/game-data/repo"
@@ -87,4 +88,4 @@ WASM="$OPT/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm"
 node "$OPT/vm-port/run_viewport_color_matrix.mjs" "$WASM" "$ROOT/out-vp"
 cp -f "$ROOT/out-vp"/viewport-color-result.json "$ROOT/out-vp"/viewport-color-build-manifest.json "$ROOT/result-vp/"
 cp -f "$ROOT/out-vp"/*.sna "$ROOT/result-vp/"
-cp -f "$ROOT/out-vp"/vm-*.bin "$ROOT/out-vp"/renderer-*.bin "$ROOT/result-vp/"
+cp -f "$ROOT/out-vp"/vm-*.bin "$ROOT/out-vp"/renderer-*.bin "$ROOT/result-vp/
