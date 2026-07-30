@@ -23,6 +23,14 @@ jobs:
         run: |
           cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
           cat opt/vm-port/final-perf-fix2.part-* | base64 -d | tar -xz -C opt
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('opt/vm-port/final_perf_patch.py')
+          s = p.read_text()
+          s = s.replace('        jr z,.done_call', '        jp z,.done_call')
+          s = s.replace('        jr .done_call', '        jp .done_call')
+          p.write_text(s)
+          PY
       - name: Install video encoder required by exact EGA setup
         run: |
           sudo apt-get update -qq
