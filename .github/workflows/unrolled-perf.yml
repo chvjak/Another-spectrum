@@ -5,7 +5,9 @@ on:
     paths:
       - .github/workflows/unrolled-perf.yml
       - vm-port/unrolled-perf-trigger.txt
-      - vm-port/unrolled-source.part-*
+      - vm-port/unrolled_perf_patch.py
+      - vm-port/unrolled_perf_build.py
+      - vm-port/run_unrolled_perf_ci.sh
 permissions:
   contents: read
 jobs:
@@ -20,8 +22,6 @@ jobs:
           path: opt
       - name: Restore final performance sources
         run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
-      - name: Restore specialized benchmark sources
-        run: cat opt/vm-port/unrolled-source.part-* | base64 -d | tar -xz -C opt
       - name: Install video encoder required by the baseline pipeline
         run: |
           sudo apt-get update -qq
