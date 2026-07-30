@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Render the exact AY schedule used by cost-4p5-ay, including startup silence."""
+"""Render the exact fixed-bank AY schedule used by cost-4p5-ay."""
 from __future__ import annotations
 import argparse, json, struct, wave
 from pathlib import Path
 import numpy as np
 from scipy.signal import butter, sosfilt
 
-FPS=50; TICKS=8226; START_TICK=20; UPDATES=len(range(START_TICK,TICKS,2)); SR=44100; SAMPLES_PER_TICK=SR//FPS; AY_CLOCK=1773400.0
+FPS=50; TICKS=8226; FIRST_UPDATE_TICK=1; UPDATES=4113; SR=44100; SAMPLES_PER_TICK=SR//FPS; AY_CLOCK=1773400.0
 VOL=np.array([0.0,.0046,.0065,.0092,.0130,.0184,.0260,.0368,.0520,.0735,.104,.147,.208,.294,.416,.588],dtype=np.float32)
 
 def parse(path:Path)->np.ndarray:
@@ -25,8 +25,8 @@ def parse(path:Path)->np.ndarray:
 
 def player_schedule(source:np.ndarray)->np.ndarray:
     out=np.zeros((TICKS,14),dtype=np.uint8); out[:,7]=0x3F
-    for tick in range(START_TICK,TICKS):
-        source_tick=START_TICK+((tick-START_TICK)//2)*2
+    for tick in range(FIRST_UPDATE_TICK,TICKS):
+        source_tick=min(((tick-FIRST_UPDATE_TICK)//2)*2, 8224)
         out[tick]=source[source_tick]
     return out
 
@@ -63,7 +63,7 @@ def main():
     pcm=np.int16(np.clip(audio,-1,1)*32767)
     with wave.open(str(a.output),'wb') as f:
         f.setnchannels(1); f.setsampwidth(2); f.setframerate(SR); f.writeframes(pcm.tobytes())
-    info={'source':str(a.ay50),'ticks_50hz':TICKS,'duration_seconds':TICKS/FPS,'startup_silence_ticks':START_TICK,'source_start_tick':START_TICK,'register_updates':UPDATES,'register_update_rate_hz':25,'sample_rate':SR,'samples':len(audio),'wav_bytes':a.output.stat().st_size,'render':'software synthesis of the exact startup-delayed even-tick register schedule played by the resident AY ISR'}
+    info={'source':str(a.ay50),'ticks_50hz':TICKS,'duration_seconds':TICKS/FPS,'startup_silence_ticks':FIRST_UPDATE_TICK,'source_start_tick':0,'register_updates':UPDATES,'register_update_rate_hz':25,'sample_rate':SR,'samples':len(audio),'wav_bytes':a.output.stat().st_size,'render':'software synthesis of the exact one-tick-delayed, even-source-tick register schedule played by the fixed-bank AY ISR'}
     if a.manifest: a.manifest.write_text(json.dumps(info,indent=2)+'\n')
     print(json.dumps(info,indent=2))
 if __name__=='__main__': main()
