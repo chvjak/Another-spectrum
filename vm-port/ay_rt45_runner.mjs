@@ -5,6 +5,8 @@ import fs from 'node:fs';
 const [wasmPath, baselinePath, ayPath, outPath] = process.argv.slice(2);
 if (!wasmPath || !baselinePath || !ayPath || !outPath) throw new Error('usage: ay_rt45_runner.mjs core.wasm cost-4p5.sna cost-4p5-ay.sna result.json');
 const wasm = fs.readFileSync(wasmPath);
+const AY_UPDATE_COUNT = 0x7C10;
+const AY_VM_FINISHED = 0x7C12;
 
 async function setupCore(sna) {
   const { instance } = await WebAssembly.instantiate(wasm);
@@ -43,10 +45,10 @@ async function run(snaPath, label, ayPlayer = false) {
     if (status !== 0) throw new Error(`${label}: core status ${status}`);
     hostFrames++;
     if (ayPlayer) {
-      const updates = u16(0x93FA);
+      const updates = b5u16(AY_UPDATE_COUNT);
       if (firstAyUpdateFrame === null && updates !== previousAyUpdates) firstAyUpdateFrame = hostFrames;
       previousAyUpdates = updates;
-      if (vmFinishedFrame === null && u8(0x93FC) !== 0) vmFinishedFrame = hostFrames;
+      if (vmFinishedFrame === null && b5u8(AY_VM_FINISHED) !== 0) vmFinishedFrame = hostFrames;
     }
     const presentation = u16(0x9308);
     if (presentation === lastPresentation) continue;
@@ -66,7 +68,7 @@ async function run(snaPath, label, ayPlayer = false) {
     original_sample_slots_consumed: u16(0x93E8), decoded_primitives: b5u16(0x7283),
     renderer_error: b5u8(0x7282), renderer_error_root: b5u16(0x72A2),
     renderer_error_shape: b5u16(0x729D), renderer_error_code: b5u8(0x729F),
-    ay_updates: ayPlayer ? u16(0x93FA) : null, frames,
+    ay_updates: ayPlayer ? b5u16(AY_UPDATE_COUNT) : null, frames,
   };
 }
 
@@ -74,16 +76,16 @@ const baseline = await run(baselinePath, 'cost-4p5', false);
 const ay = await run(ayPath, 'cost-4p5-ay', true);
 const framesEqual = JSON.stringify(ay.frames) === JSON.stringify(baseline.frames);
 const traceEqual = ay.vm_tick === baseline.vm_tick && ay.instruction_count === baseline.instruction_count && ay.trace_hash === baseline.trace_hash;
-const target = 8226, expectedUpdates = 4103;
+const target = 8226, expectedUpdates = 4113;
 const result = {
   target_refreshes: target, target_seconds: target / 50,
-  playback_source_start_tick: 20,
+  playback_source_start_tick: 0,
   playback_updates_expected: expectedUpdates, playback_update_rate_hz: 25,
   baseline, ay, frames_equal: framesEqual, trace_equal: traceEqual,
   compute_margin_refreshes: ay.vm_finished_frame === null ? null : target - ay.vm_finished_frame,
   completion_margin_refreshes: target - ay.host_frames,
   real_time_compute_met: ay.vm_finished_frame !== null && ay.vm_finished_frame <= target,
-  exact_duration_met: ay.host_frames === 8225 || ay.host_frames === 8226,
+  exact_duration_met: ay.host_frames === target,
   passed: ay.done === 1 && ay.error_opcode === 0 && ay.renderer_error === 0 && ay.ay_updates === expectedUpdates && framesEqual && traceEqual && ay.host_frames <= target,
 };
 fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n');
