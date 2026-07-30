@@ -2,6 +2,10 @@
 set -euo pipefail
 ROOT="$PWD"; OPT="$ROOT/opt"; MUSIC="$ROOT/music-src"
 
+# The benchmark branch keeps the larger generated runner as a compact source
+# bundle. Materialize it explicitly rather than depending on another workflow.
+cat "$OPT"/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C "$OPT"
+
 bash "$OPT/vm-port/run_rt45_ci.sh"
 
 python3 "$MUSIC/music/v5/build_ay_recreation_v5.py"
