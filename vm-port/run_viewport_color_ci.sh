@@ -17,7 +17,7 @@ for old,new in {
     s=s.replace(old,new)
 p.write_text(s)
 PY
-python3 -m py_compile "$OPT/vm-port/viewport_color_build.py" "$OPT/vm-port/ega_renderer_patch.py"
+python3 -m py_compile "$OPT/vm-port/viewport_color_build.py" "$OPT/vm-port/viewport_safe_build.py" "$OPT/vm-port/ega_renderer_patch.py"
 node --check "$OPT/vm-port/run_viewport_color_matrix.mjs"
 python3 -m pip install --user numpy pillow
 
@@ -75,7 +75,7 @@ if [ ! -d "$OPT/vendor-jsspeccy3" ]; then
   npm --prefix "$OPT/vendor-jsspeccy3" run build:wasm:release
 fi
 
-python3 "$OPT/vm-port/viewport_color_build.py" \
+python3 "$OPT/vm-port/viewport_safe_build.py" \
   --source-dir "$OPT/vm-port" \
   --helper "$ROOT/bench/minimal_full_ab.py" \
   --resource-js "$ROOT/game-data/ootwdemo.js" \
@@ -88,4 +88,4 @@ WASM="$OPT/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm"
 node "$OPT/vm-port/run_viewport_color_matrix.mjs" "$WASM" "$ROOT/out-vp"
 cp -f "$ROOT/out-vp"/viewport-color-result.json "$ROOT/out-vp"/viewport-color-build-manifest.json "$ROOT/result-vp/"
 cp -f "$ROOT/out-vp"/*.sna "$ROOT/result-vp/"
-cp -f "$ROOT/out-vp"/vm-*.bin "$ROOT/out-vp"/renderer-*.bin "$ROOT/result-vp/
+cp -f "$ROOT/out-vp"/vm-*.bin "$ROOT/out-vp"/renderer-*.bin "$ROOT/result-vp/"
