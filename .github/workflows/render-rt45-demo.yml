@@ -1,0 +1,90 @@
+name: Render 4.5 fps real-time demo
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/render-rt45-demo.yml
+      - vm-port/render_rt45_demo.mjs
+      - vm-port/cost-4p5-render-plan.json
+      - vm-port/render-rt45-trigger.txt
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: render-rt45-demo
+          path: opt
+      - uses: actions/checkout@v4
+        with:
+          repository: cyxx/another_js
+          ref: gh-pages
+          path: game-data
+          sparse-checkout: |
+            ootwdemo.js
+            another.min.js
+          sparse-checkout-cone-mode: false
+      - name: Install video encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Validate renderer
+        run: node --check opt/vm-port/render_rt45_demo.mjs
+      - name: Render fixed Spectrum palette
+        shell: bash
+        run: |
+          mkdir -p result
+          node opt/vm-port/render_rt45_demo.mjs \
+            game-data/ootwdemo.js game-data/another.min.js \
+            opt/vm-port/cost-4p5-render-plan.json fixed | \
+          ffmpeg -y -hide_banner -loglevel warning \
+            -f rawvideo -pixel_format rgb24 -video_size 320x240 -framerate 7450/4113 -i - \
+            -vf "scale=960:720:flags=neighbor,fps=25" \
+            -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p \
+            result/another-world-spectrum-rt45-fixed.mp4
+      - name: Render quantized scene palettes
+        shell: bash
+        run: |
+          node opt/vm-port/render_rt45_demo.mjs \
+            game-data/ootwdemo.js game-data/another.min.js \
+            opt/vm-port/cost-4p5-render-plan.json quantized | \
+          ffmpeg -y -hide_banner -loglevel warning \
+            -f rawvideo -pixel_format rgb24 -video_size 320x240 -framerate 7450/4113 -i - \
+            -vf "scale=960:720:flags=neighbor,fps=25" \
+            -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p \
+            result/another-world-spectrum-rt45-quantized.mp4
+      - name: Create inspection sheets and metadata
+        shell: bash
+        run: |
+          for mode in fixed quantized; do
+            ffmpeg -y -hide_banner -loglevel warning \
+              -i result/another-world-spectrum-rt45-${mode}.mp4 \
+              -vf "fps=12/164.52,scale=320:240:flags=neighbor,tile=4x3" \
+              -frames:v 1 result/contact-sheet-${mode}.png
+          done
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          result={}
+          for mode in ('fixed','quantized'):
+              p=Path(f'result/another-world-spectrum-rt45-{mode}.mp4')
+              probe=subprocess.check_output([
+                  'ffprobe','-v','error','-show_entries','format=duration:stream=width,height,r_frame_rate,nb_frames',
+                  '-of','json',str(p)
+              ],text=True)
+              result[mode]={'bytes':p.stat().st_size,'probe':json.loads(probe)}
+          result['timeline_seconds']=164.52
+          result['source_slots']=298
+          result['retained_frames']=268
+          result['dropped_slots']=30
+          Path('result/render-manifest.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(json.dumps(result,indent=2))
+          PY
+      - name: Upload rendered demo
+        uses: actions/upload-artifact@v4
+        with:
+          name: another-world-spectrum-rt45-render
+          path: result/
