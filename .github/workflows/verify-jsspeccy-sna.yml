@@ -20,16 +20,22 @@ jobs:
           fetch-depth: 0
           path: opt
       - name: Restore benchmark emulator bundle
-        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+        run: |
+          cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+          find opt -name jsspeccy-core.wasm -o -name 128-0.rom
       - name: Download the exact measured AY artifact
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh run download 30558901484 --repo chvjak/Another-spectrum -n another-world-rt45-ay -D ay-artifact
       - name: Run JSSpeccy parseSNAFile and loadSnapshot path
+        shell: bash
         run: |
+          set -euo pipefail
+          WASM="$(find opt -name jsspeccy-core.wasm -print -quit)"
+          test -n "$WASM"
+          ROMDIR="$(dirname "$WASM")/roms"
           node opt/vm-port/verify_jsspeccy_sna.mjs \
-            opt/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm \
-            opt/vendor-jsspeccy3/dist/jsspeccy/roms \
+            "$WASM" "$ROMDIR" \
             ay-artifact/cost-4p5-ay.sna \
             verify-out
       - name: Upload loader verification
