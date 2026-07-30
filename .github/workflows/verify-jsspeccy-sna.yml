@@ -1,0 +1,41 @@
+name: Verify SNA through JSSpeccy loader
+on:
+  pull_request:
+    branches: [rt-4p5fps-ay]
+    paths:
+      - .github/workflows/verify-jsspeccy-sna.yml
+      - vm-port/verify_jsspeccy_sna.mjs
+      - vm-port/jsspeccy-sna-verify-trigger.txt
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jsspeccy-sna-verification
+          fetch-depth: 0
+          path: opt
+      - name: Restore benchmark emulator bundle
+        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+      - name: Download the exact measured AY artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 30558901484 --repo chvjak/Another-spectrum -n another-world-rt45-ay -D ay-artifact
+      - name: Run JSSpeccy parseSNAFile and loadSnapshot path
+        run: |
+          node opt/vm-port/verify_jsspeccy_sna.mjs \
+            opt/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm \
+            opt/vendor-jsspeccy3/dist/jsspeccy/roms \
+            ay-artifact/cost-4p5-ay.sna \
+            verify-out
+      - name: Upload loader verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsspeccy-sna-verification
+          path: verify-out/
+          retention-days: 90
