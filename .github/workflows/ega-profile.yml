@@ -1,9 +1,11 @@
-name: EGA framebuffer profile
+name: Final framebuffer performance push
 on:
   push:
     branches: [st-span-optimizations]
     paths:
-      - vm-port/ega-run-trigger.txt
+      - .github/workflows/ega-profile.yml
+      - vm-port/final-perf-trigger.txt
+      - vm-port/final-perf-source.part-*
 permissions:
   contents: read
 jobs:
@@ -11,180 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Checkout optimization branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: st-span-optimizations
           fetch-depth: 0
           path: opt
-
-      - name: Restore exact local source bundle
-        shell: bash
+      - name: Restore final performance sources
+        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+      - name: Install video encoder required by exact EGA setup
         run: |
-          cat opt/vm-port/ega-source.part-* | base64 -d | tar -xz -C opt
-          python3 -m py_compile \
-            opt/vm-port/ega_renderer_patch.py \
-            opt/vm-port/ega_build_variants.py
-          node --check opt/vm-port/run_ega_profile.mjs
-          node --check opt/vm-port/capture_ega_intro.mjs
-
-      - name: Checkout embedded DOS intro and JS engine
-        uses: actions/checkout@v4
-        with:
-          repository: cyxx/another_js
-          ref: gh-pages
-          path: game-data
-          sparse-checkout: |
-            ootwdemo.js
-            another.min.js
-          sparse-checkout-cone-mode: false
-
-      - name: Install analysis dependencies
-        run: python3 -m pip install --user numpy pillow
-
-      - name: Generate top-level and child ownership data
-        shell: bash
-        run: |
-          mkdir -p opt/vm-port/build-full bench deep-data out result
-          node opt/vm-port/generate_optimizer_trace.mjs \
-            game-data/ootwdemo.js game-data/another.min.js \
-            opt/vm-port/build-full/optimizer-trace.log
-          python3 opt/vm-port/optimize_draws.py
-          python3 - <<'PY'
-          from pathlib import Path
-          packed=Path('opt/vm-port/build-full/draw-event-keep-mask.bin').read_bytes()
-          count=9648
-          bits=[(packed[i>>3]>>(i&7))&1 for i in range(count)]
-          out=bytearray([bits[0]])
-          current=bits[0]
-          run=0
-          for bit in bits:
-              if bit==current and run<255:
-                  run+=1
-                  continue
-              out.append(run)
-              if bit==current:
-                  out.append(0)
-              current=bit
-              run=1
-          out.append(run)
-          Path('bench/event-runs.bin').write_bytes(out)
-          print({'events':count,'kept':sum(bits),'event_runs_bytes':len(out)})
-          PY
-          node opt/vm-port/generate_deep_trace.mjs \
-            game-data/ootwdemo.js game-data/another.min.js deep-data/deep-trace.log
-          python3 opt/vm-port/deep_optimize.py \
-            --trace deep-data/deep-trace.log \
-            --event-mask opt/vm-port/build-full/draw-event-keep-mask.bin \
-            --out deep-data
-
-      - name: Restore benchmark builder
-        shell: bash
-        run: |
-          git -C opt show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-minimal-full-ab.py.gz.b64 > bench/minimal.b64
-          python3 - <<'PY'
-          import base64,gzip,pathlib,re
-          text=pathlib.Path('bench/minimal.b64').read_text()
-          encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
-          pathlib.Path('bench/minimal_full_ab.py').write_bytes(gzip.decompress(base64.b64decode(encoded)))
-          PY
-          python3 opt/vm-port/patch_ab_resources.py bench/minimal_full_ab.py
-
-      - name: Build sjasmplus
-        shell: bash
-        run: |
-          git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/z00m128/sjasmplus.git opt/vendor-sjasmplus
-          make -C opt/vendor-sjasmplus -j2
-
-      - name: Build JSSpeccy core
-        shell: bash
-        run: |
-          git clone https://github.com/gasman/jsspeccy3.git opt/vendor-jsspeccy3
-          cd opt/vendor-jsspeccy3
-          git checkout cf886f39c2a72752a0bd49568fef398b141c11f2
-          npm ci
-          npm run build:core
-          npm run build:wasm:release
-
-      - name: Build EGA experiment snapshots
-        shell: bash
-        run: |
-          python3 opt/vm-port/ega_build_variants.py \
-            --source-dir opt/vm-port \
-            --helper bench/minimal_full_ab.py \
-            --resource-js game-data/ootwdemo.js \
-            --event-runs bench/event-runs.bin \
-            --deep-data deep-data \
-            --sjasmplus "$PWD/opt/vendor-sjasmplus/sjasmplus" \
-            --out "$PWD/out"
-
-      - name: Run full matrix and per-presentation write profile
-        shell: bash
-        run: |
-          node opt/vm-port/run_ega_profile.mjs \
-            "$PWD/opt/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
-            "$PWD/out"
-          cat out/ega-build-manifest.json
-          cat out/ega-ab-result.json
-
-      - name: Render viewable intro videos
-        shell: bash
-        run: |
-          BEST=$(tr -d '\n' < out/best-label.txt)
-          echo "Best variant: $BEST"
-          node opt/vm-port/capture_ega_intro.mjs \
-            "$PWD/opt/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
-            "$PWD/out/$BEST.sna" actual | \
-          ffmpeg -y -hide_banner -loglevel warning \
-            -f rawvideo -pixel_format rgb24 -video_size 320x240 -framerate 25 -i - \
-            -vf scale=960:720:flags=neighbor \
-            -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p \
-            out/another-world-ega-best-actual-runtime.mp4
-
-          node opt/vm-port/capture_ega_intro.mjs \
-            "$PWD/opt/vendor-jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
-            "$PWD/out/$BEST.sna" uniform-target | \
-          ffmpeg -y -hide_banner -loglevel warning \
-            -f rawvideo -pixel_format rgb24 -video_size 320x240 -framerate 25 -i - \
-            -vf scale=960:720:flags=neighbor \
-            -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p \
-            out/another-world-ega-best-uniform-164.52s-preview.mp4
-
-          ffmpeg -y -hide_banner -loglevel warning \
-            -i out/another-world-ega-best-uniform-164.52s-preview.mp4 \
-            -vf "fps=12/164.52,scale=320:240:flags=neighbor,tile=4x3" \
-            -frames:v 1 out/intro-contact-sheet.png
-
-      - name: Summarize and collect results
-        if: always()
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          out=Path('out')
-          if (out/'ega-ab-result.json').exists():
-              r=json.loads((out/'ega-ab-result.json').read_text())
-              lines=['# EGA framebuffer experiment','',f"Winner: **{r['winner']}**",'', '| Variant | Refreshes | Seconds | Saving vs current |','|---|---:|---:|---:|']
-              cur=r['runs']['current']['host_frames']
-              for name,run in r['runs'].items():
-                  saved=(1-run['host_frames']/cur)*100
-                  lines.append(f"| {name} | {run['host_frames']} | {run['seconds_at_50hz']:.2f} | {saved:.2f}% |")
-              lines += ['', 'The actual-runtime video preserves measured Spectrum time.', 'The 164.52-second preview distributes the 299 captured presentations uniformly and is for visual inspection only; it is not the authentic per-presentation timestamp schedule.']
-              (out/'EGA-RESULTS.md').write_text('\n'.join(lines)+'\n')
-          PY
-          cp -f out/ega-ab-result.json out/ega-build-manifest.json result/ 2>/dev/null || true
-          cp -f out/pixel-bandwidth-per-frame.json out/pixel-bandwidth-per-frame.csv result/ 2>/dev/null || true
-          cp -f out/EGA-RESULTS.md out/best-label.txt result/ 2>/dev/null || true
-          cp -f out/*.mp4 out/intro-contact-sheet.png result/ 2>/dev/null || true
-          cp -f out/current.sna out/restore.sna out/stack.sna out/both.sna out/profile.sna result/ 2>/dev/null || true
-          cp -f out/vm-*.bin out/renderer-*.bin result/ 2>/dev/null || true
-          cp -f opt/vm-port/ega_renderer_patch.py opt/vm-port/ega_build_variants.py result/ 2>/dev/null || true
-          cp -f opt/vm-port/run_ega_profile.mjs opt/vm-port/capture_ega_intro.mjs result/ 2>/dev/null || true
-
-      - name: Upload EGA profile and viewable intro
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Run final framebuffer matrix
+        run: bash opt/vm-port/run_final_perf_ci.sh
+      - name: Upload final framebuffer results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ega-framebuffer-results
+          name: final-framebuffer-performance
           path: result/
