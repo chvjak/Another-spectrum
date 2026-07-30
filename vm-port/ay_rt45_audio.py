@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Render the exact 25 Hz-held AY register schedule used by cost-4p5-ay."""
+"""Render the exact AY schedule used by cost-4p5-ay, including startup silence."""
 from __future__ import annotations
 import argparse, json, struct, wave
 from pathlib import Path
 import numpy as np
 from scipy.signal import butter, sosfilt
 
-FPS=50; TICKS=8226; SR=44100; SAMPLES_PER_TICK=SR//FPS; AY_CLOCK=1773400.0
+FPS=50; TICKS=8226; START_TICK=20; UPDATES=len(range(START_TICK,TICKS,2)); SR=44100; SAMPLES_PER_TICK=SR//FPS; AY_CLOCK=1773400.0
 VOL=np.array([0.0,.0046,.0065,.0092,.0130,.0184,.0260,.0368,.0520,.0735,.104,.147,.208,.294,.416,.588],dtype=np.float32)
 
 def parse(path:Path)->np.ndarray:
@@ -23,8 +23,14 @@ def parse(path:Path)->np.ndarray:
     if pos!=len(raw): raise RuntimeError(f'parse {pos} != {len(raw)}')
     return out
 
+def player_schedule(source:np.ndarray)->np.ndarray:
+    out=np.zeros((TICKS,14),dtype=np.uint8); out[:,7]=0x3F
+    for tick in range(START_TICK,TICKS):
+        source_tick=START_TICK+((tick-START_TICK)//2)*2
+        out[tick]=source[source_tick]
+    return out
+
 def synth(regs:np.ndarray)->np.ndarray:
-    regs=regs[np.arange(TICKS)&~1]
     total=TICKS*SAMPLES_PER_TICK; channels=np.zeros((3,total),dtype=np.float32)
     phases=[0.0,0.0,0.0]; rng=np.random.default_rng(0xA17E); idx=np.arange(SAMPLES_PER_TICK)
     for tick,row in enumerate(regs):
@@ -53,11 +59,11 @@ def synth(regs:np.ndarray)->np.ndarray:
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('ay50',type=Path); ap.add_argument('output',type=Path); ap.add_argument('--manifest',type=Path); a=ap.parse_args()
-    audio=synth(parse(a.ay50)); a.output.parent.mkdir(parents=True,exist_ok=True)
+    audio=synth(player_schedule(parse(a.ay50))); a.output.parent.mkdir(parents=True,exist_ok=True)
     pcm=np.int16(np.clip(audio,-1,1)*32767)
     with wave.open(str(a.output),'wb') as f:
         f.setnchannels(1); f.setsampwidth(2); f.setframerate(SR); f.writeframes(pcm.tobytes())
-    info={'source':str(a.ay50),'ticks_50hz':TICKS,'duration_seconds':TICKS/FPS,'register_updates':(TICKS+1)//2,'register_update_rate_hz':25,'sample_rate':SR,'samples':len(audio),'wav_bytes':a.output.stat().st_size,'render':'software synthesis of the exact even-tick register schedule played by the resident AY ISR'}
+    info={'source':str(a.ay50),'ticks_50hz':TICKS,'duration_seconds':TICKS/FPS,'startup_silence_ticks':START_TICK,'source_start_tick':START_TICK,'register_updates':UPDATES,'register_update_rate_hz':25,'sample_rate':SR,'samples':len(audio),'wav_bytes':a.output.stat().st_size,'render':'software synthesis of the exact startup-delayed even-tick register schedule played by the resident AY ISR'}
     if a.manifest: a.manifest.write_text(json.dumps(info,indent=2)+'\n')
     print(json.dumps(info,indent=2))
 if __name__=='__main__': main()
