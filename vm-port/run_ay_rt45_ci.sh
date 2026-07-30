@@ -10,9 +10,19 @@ AY50="$MUSIC/music/v5/generated/aw_intro_ay_v5_2m50s.bin"
 OUT="$ROOT/out/ay-rt45"
 mkdir -p "$OUT"
 
-# Pinned layout of the verified cost-4p5 snapshot. These boundaries come from
-# the full-port build that produced this exact base SNA; injection additionally
-# rejects any non-zero target bytes.
+# sjasmplus raw output does not pad forward ORG gaps. Make the fixed-address
+# finish wait routine part of the injected binary at its actual 0x7B80 address.
+python3 - <<'PYFIX'
+from pathlib import Path
+p=Path('opt/vm-port/ay_rt45_build.py')
+s=p.read_text()
+old='        ORG 0x{WAIT_ADDR:04X}\nay_wait_finish:'
+new='        defs 0x{WAIT_ADDR:04X}-$,0\nay_wait_finish:'
+if s.count(old)!=1:
+    raise SystemExit(f'AY wait ORG marker count={s.count(old)}')
+p.write_text(s.replace(old,new,1))
+PYFIX
+
 cat > "$OUT/ay-layout.json" <<'JSON'
 {
   "sizes": {
