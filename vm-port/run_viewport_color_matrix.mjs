@@ -49,7 +49,8 @@ async function run(label) {
   let lastPresentation = 0;
   let hashedPresentations = 0;
   const screenHash = crypto.createHash('sha256');
-  const visibleHash = crypto.createHash('sha256');
+  const displayedAtLatchHash = crypto.createHash('sha256');
+  const intendedDisplayHash = crypto.createHash('sha256');
   while (u8(0x9307) === 0 && hostFrames < 300000) {
     const status = core.runFrame();
     if (status !== 0) throw new Error(`${label}: core status ${status}`);
@@ -63,9 +64,14 @@ async function run(label) {
       screenHash.update(memory.subarray(pageAddress(5), pageAddress(5) + 6912));
       screenHash.update(memory.subarray(pageAddress(7), pageAddress(7) + 6912));
 
-      visibleHash.update(index);
+      displayedAtLatchHash.update(index);
       const displayedBank = (u8(0x930B) & 8) !== 0 ? 7 : 5;
-      visibleHash.update(memory.subarray(pageAddress(displayedBank), pageAddress(displayedBank) + 6912));
+      displayedAtLatchHash.update(memory.subarray(pageAddress(displayedBank), pageAddress(displayedBank) + 6912));
+
+      intendedDisplayHash.update(index);
+      const presentPage = u8(0x9330);
+      const intendedBank = presentPage === 1 ? 7 : presentPage === 2 ? 5 : (u8(0x932E) !== 0 ? 7 : 5);
+      intendedDisplayHash.update(memory.subarray(pageAddress(intendedBank), pageAddress(intendedBank) + 6912));
 
       lastPresentation = count;
       hashedPresentations++;
@@ -84,7 +90,8 @@ async function run(label) {
     sampled_frames: u16(0x9308),
     hashed_presentations: hashedPresentations,
     screen_sequence_sha256: screenHash.digest('hex'),
-    visible_screen_sequence_sha256: visibleHash.digest('hex'),
+    displayed_at_latch_sequence_sha256: displayedAtLatchHash.digest('hex'),
+    intended_display_sequence_sha256: intendedDisplayHash.digest('hex'),
     decoded_primitives: bank5u16(0x7283),
     renderer_error: bank5u8(0x7282),
   };
@@ -115,11 +122,12 @@ for (const label of labels.slice(1)) {
     trace_equal: run.trace_hash === reference.trace_hash,
     primitives_equal: run.decoded_primitives === reference.decoded_primitives,
     both_physical_screens_equal: label === 'full-colorcopy' ? run.screen_sequence_sha256 === reference.screen_sequence_sha256 : null,
-    visible_screen_equal: label === 'full-colorcopy' ? run.visible_screen_sequence_sha256 === reference.visible_screen_sequence_sha256 : null,
+    displayed_at_latch_equal: label === 'full-colorcopy' ? run.displayed_at_latch_sequence_sha256 === reference.displayed_at_latch_sequence_sha256 : null,
+    intended_display_equal: label === 'full-colorcopy' ? run.intended_display_sequence_sha256 === reference.intended_display_sequence_sha256 : null,
     target_factor: run.host_frames / (164.52 * 50),
   };
 }
 result.winner = labels.reduce((best, label) => runs[best].host_frames < runs[label].host_frames ? best : label);
 fs.writeFileSync(path.join(buildDir, 'viewport-color-result.json'), JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));
-if (!result.passed || result.comparisons['full-colorcopy'].visible_screen_equal !== true) process.exitCode = 1;
+if (!result.passed || result.comparisons['full-colorcopy'].intended_display_equal !== true) process.exitCode = 1;
