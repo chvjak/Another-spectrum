@@ -1,11 +1,10 @@
-name: Viewable geometry preview
+name: Original-colour intro preview
 on:
   pull_request:
     branches: [main]
     paths:
       - .github/workflows/geometry-preview.yml
-      - vm-port/render_geometry_preview.py
-      - vm-port/generate_optimizer_trace.mjs
+      - vm-port/capture_original_colour_preview.mjs
 permissions:
   contents: read
 jobs:
@@ -26,33 +25,29 @@ jobs:
             ootwdemo.js
             another.min.js
           sparse-checkout-cone-mode: false
-      - name: Install renderer dependencies
+      - name: Install video encoder
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          python3 -m pip install --user pillow
-      - name: Generate semantic geometry trace
+      - name: Validate capture script
+        run: node --check opt/vm-port/capture_original_colour_preview.mjs
+      - name: Encode 164.52-second original-colour preview
+        shell: bash
         run: |
-          mkdir -p frames result
-          node opt/vm-port/generate_optimizer_trace.mjs \
-            game-data/ootwdemo.js game-data/another.min.js optimizer-trace.log
-      - name: Render sampled presentation frames
-        run: |
-          python3 opt/vm-port/render_geometry_preview.py optimizer-trace.log frames
-      - name: Encode 164.52-second viewable preview
-        run: |
+          mkdir -p result
+          node opt/vm-port/capture_original_colour_preview.mjs \
+            game-data/ootwdemo.js game-data/another.min.js | \
           ffmpeg -y -hide_banner -loglevel warning \
-            -framerate 7450/4113 -i frames/frame-%03d.png \
+            -f rawvideo -pixel_format rgb24 -video_size 320x200 -framerate 7450/4113 -i - \
             -vf "scale=960:600:flags=neighbor,pad=960:720:0:60:black,fps=25" \
             -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p \
-            result/another-world-spectrum-geometry-preview-164.52s.mp4
+            result/another-world-original-colours-164.52s.mp4
           ffmpeg -y -hide_banner -loglevel warning \
-            -i result/another-world-spectrum-geometry-preview-164.52s.mp4 \
+            -i result/another-world-original-colours-164.52s.mp4 \
             -vf "fps=12/164.52,scale=320:240:flags=neighbor,tile=4x3" \
-            -frames:v 1 result/geometry-preview-contact-sheet.png
-          cp optimizer-trace.log result/
-      - name: Upload viewable geometry preview
+            -frames:v 1 result/original-colours-contact-sheet.png
+      - name: Upload original-colour preview
         uses: actions/upload-artifact@v4
         with:
-          name: geometry-preview
+          name: original-colour-preview
           path: result/
