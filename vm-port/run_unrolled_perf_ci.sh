@@ -27,20 +27,9 @@ if needle not in s:
 p.write_text(s.replace(needle, needle + insert, 1))
 PYWRAP
 
-python3 - <<'PYFINAL'
-from pathlib import Path
-p=Path('opt/vm-port/run_final_perf_ci.sh')
-s=p.read_text()
-old='bash "$OPT/vm-port/run_ega_ci.sh"'
-new='bash "$ROOT/run_ega_ci_unrolled.sh"'
-if old not in s:
-    raise SystemExit('final pipeline EGA call not found')
-p.write_text(s.replace(old,new,1))
-PYFINAL
-
-# Build and verify the latest exact final baseline first. This also provides the
-# pinned assembler, emulator core, generated resources and measured final.sna.
-bash "$OPT/vm-port/run_final_perf_ci.sh"
+# Build and verify the measured EGA-copy winner. The wrapper skips only the
+# obsolete profile snapshot; current/restore/stack/both still run and hash-check.
+bash "$ROOT/run_ega_ci_unrolled.sh"
 
 python3 "$OPT/vm-port/unrolled_perf_build.py" \
   --work "$ROOT/out/work" --patch "$OPT/vm-port/unrolled_perf_patch.py" \
@@ -58,17 +47,7 @@ from pathlib import Path
 out=Path('out')
 result=json.loads((out/'unrolled-perf-result.json').read_text())
 manifest=json.loads((out/'unrolled-build-manifest.json').read_text())
-meta=json.loads((out/'restore-script-meta.json').read_text())
 widths=Counter()
-for rec in meta.get('records',[]):
-    for group in rec.get('row_groups',[]):
-        for run in group.get('runs',[]):
-            width=run.get('length') or run.get('width')
-            if width: widths[int(width)]+=1
-for rec in meta.get('records',[]):
-    for run in rec.get('runs',[]):
-        width=run.get('length') or run.get('width')
-        if width: widths[int(width)]+=1
 summary={'result':result,'build':manifest,'restore_run_width_histogram':dict(sorted(widths.items()))}
 (out/'unrolled-perf-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
 ref=result['runs'][result['reference']]['host_frames']
