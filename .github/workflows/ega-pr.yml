@@ -29,6 +29,11 @@ jobs:
           s = p.read_text()
           s = s.replace('        jr z,.done_call', '        jp z,.done_call')
           s = s.replace('        jr .done_call', '        jp .done_call')
+          marker = "FULL_FILL_NEW = rf'''fill_destination_full:\n"
+          constants = "FULL_FILL_NEW = rf'''FINAL_FILL_ATTR_PTR EQU 0x93DE\nFINAL_FILL_TOP_PTR EQU 0x93E0\nFINAL_FILL_ROW EQU 0x93E2\nFINAL_FILL_LINE EQU 0x93E3\nfill_destination_full:\n"
+          if marker not in s:
+              raise SystemExit('full-fill marker changed')
+          s = s.replace(marker, constants, 1)
           p.write_text(s)
           PY
       - name: Install video encoder required by exact EGA setup
