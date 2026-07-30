@@ -1,158 +1,75 @@
-name: Child culling and hot-root templates
+name: Final framebuffer performance definitive
 on:
   push:
     branches: [st-span-optimizations]
     paths:
       - .github/workflows/deep-opt.yml
-      - vm-port/generate_deep_trace.mjs
-      - vm-port/deep_optimize.py
-      - vm-port/deep_source_patch.py
-      - vm-port/deep_build_variants.py
-      - vm-port/run_deep_ab.mjs
-      - vm-port/viewport_renderer_patch.py
-      - vm-port/st_renderer_patch.py
-      - vm-port/deep-python.part-*
-  pull_request:
-    branches: [main]
+      - vm-port/final-perf-trigger.txt
+      - vm-port/final-perf-source.part-*
+      - vm-port/final-perf-fix2.part-*
 permissions:
   contents: read
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
-      - name: Checkout optimization branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: st-span-optimizations
           fetch-depth: 0
           path: opt
-
-      - name: Restore bundled Python sources
-        shell: bash
+      - name: Restore final performance sources
         run: |
-          cat opt/vm-port/deep-python.part-* | base64 -d | tar -xz -C opt/vm-port
-          git -C opt apply vm-port/deep-v2.patch
-          git -C opt apply vm-port/deep-build-rle.patch
-          git -C opt apply vm-port/deep-v3.patch
-
-      - name: Checkout embedded DOS intro and JS engine
-        uses: actions/checkout@v4
-        with:
-          repository: cyxx/another_js
-          ref: gh-pages
-          path: game-data
-          sparse-checkout: |
-            ootwdemo.js
-            another.min.js
-          sparse-checkout-cone-mode: false
-
-      - name: Install analysis dependencies
-        run: python3 -m pip install --user numpy pillow
-
-      - name: Generate top-level and child ownership data
-        shell: bash
-        run: |
-          mkdir -p opt/vm-port/build-full bench deep-data out result
-          node opt/vm-port/generate_optimizer_trace.mjs \
-            game-data/ootwdemo.js game-data/another.min.js \
-            opt/vm-port/build-full/optimizer-trace.log
-          python3 opt/vm-port/optimize_draws.py
+          cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+          cat opt/vm-port/final-perf-fix2.part-* | base64 -d | tar -xz -C opt
           python3 - <<'PY'
           from pathlib import Path
-          packed=Path('opt/vm-port/build-full/draw-event-keep-mask.bin').read_bytes()
-          count=9648
-          bits=[(packed[i>>3]>>(i&7))&1 for i in range(count)]
-          out=bytearray([bits[0]])
-          current=bits[0]
-          run=0
-          for bit in bits:
-              if bit==current and run<255:
-                  run+=1
-                  continue
-              out.append(run)
-              if bit==current:
-                  out.append(0)
-              current=bit
-              run=1
-          out.append(run)
-          Path('bench/event-runs.bin').write_bytes(out)
-          print({'events':count,'kept':sum(bits),'event_runs_bytes':len(out)})
+          p = Path('opt/vm-port/final_perf_patch.py')
+          s = p.read_text()
+          s = s.replace('        jr z,.done_call', '        jp z,.done_call')
+          s = s.replace('        jr .done_call', '        jp .done_call')
+          marker = "FULL_FILL_NEW = rf'''fill_destination_full:\n"
+          constants = "FULL_FILL_NEW = rf'''FINAL_FILL_ATTR_PTR EQU 0x93DE\nFINAL_FILL_TOP_PTR EQU 0x93E0\nFINAL_FILL_ROW EQU 0x93E2\nFINAL_FILL_LINE EQU 0x93E3\nfill_destination_full:\n"
+          if marker not in s:
+              raise SystemExit('full-fill marker changed')
+          p.write_text(s.replace(marker, constants, 1))
+
+          p = Path('opt/vm-port/final_perf_runner.mjs')
+          s = p.read_text()
+          s = s.replace("path.join(buildDir, 'combined.sna')", "path.join(buildDir, 'script-table-ldi.sna')", 1)
+          s = s.replace("runSna(baseSna, 'combined-baseline')", "runSna(baseSna, 'script-table-ldi-baseline')", 1)
+          p.write_text(s)
+
+          p = Path('opt/vm-port/run_final_perf_ci.sh')
+          s = p.read_text()
+          old = '''node "$OPT/vm-port/final_perf_runner.mjs" matrix "$WASM" "$OUT" \\
+  ega-best restore script-arith script-table script-table-ldi script-table-ldi-lazy combined
+cp "$OUT/final-perf-result.json" "$OUT/final-perf-matrix-before-elision.json"
+'''
+          new = '''node "$OPT/vm-port/final_perf_runner.mjs" matrix "$WASM" "$OUT" \\
+  ega-best script-table-ldi-lazy combined || true
+cp "$OUT/final-perf-result.json" "$OUT/final-perf-invalid-variants.json"
+node "$OPT/vm-port/final_perf_runner.mjs" matrix "$WASM" "$OUT" \\
+  ega-best restore script-arith script-table script-table-ldi
+cp "$OUT/final-perf-result.json" "$OUT/final-perf-matrix-before-elision.json"
+'''
+          if old not in s:
+              raise SystemExit('initial matrix block changed')
+          s = s.replace(old, new, 1)
+          s = s.replace('matrix "$WASM" "$OUT" ega-best combined final', 'matrix "$WASM" "$OUT" ega-best script-table-ldi final', 1)
+          s = s.replace('final-perf-matrix-before-elision.json,final-perf-result-final.json', 'final-perf-matrix-before-elision.json,final-perf-invalid-variants.json,final-perf-result-final.json', 1)
+          p.write_text(s)
           PY
-          node opt/vm-port/generate_deep_trace.mjs \
-            game-data/ootwdemo.js game-data/another.min.js deep-data/deep-trace.log
-          python3 opt/vm-port/deep_optimize.py \
-            --trace deep-data/deep-trace.log \
-            --event-mask opt/vm-port/build-full/draw-event-keep-mask.bin \
-            --out deep-data
-
-      - name: Restore benchmark builder
-        shell: bash
+      - name: Install video encoder
         run: |
-          git -C opt show 86eb222f5a313e80fac2996f6edd11e697fcf563:vm-port/ci-minimal-full-ab.py.gz.b64 > bench/minimal.b64
-          python3 - <<'PY'
-          import base64,gzip,pathlib,re
-          text=pathlib.Path('bench/minimal.b64').read_text()
-          encoded=''.join(re.findall(r'[A-Za-z0-9+/=]',text))
-          pathlib.Path('bench/minimal_full_ab.py').write_bytes(gzip.decompress(base64.b64decode(encoded)))
-          PY
-          python3 opt/vm-port/patch_ab_resources.py bench/minimal_full_ab.py
-
-      - name: Build sjasmplus
-        shell: bash
-        run: |
-          git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/z00m128/sjasmplus.git
-          make -C sjasmplus -j2
-
-      - name: Build JSSpeccy core
-        shell: bash
-        run: |
-          git clone https://github.com/gasman/jsspeccy3.git
-          cd jsspeccy3
-          git checkout cf886f39c2a72752a0bd49568fef398b141c11f2
-          npm ci
-          npm run build:core
-          npm run build:wasm:release
-
-      - name: Build current child template and combined snapshots
-        shell: bash
-        run: |
-          python3 opt/vm-port/deep_build_variants.py \
-            --source-dir opt/vm-port \
-            --helper bench/minimal_full_ab.py \
-            --resource-js game-data/ootwdemo.js \
-            --event-runs bench/event-runs.bin \
-            --deep-data deep-data \
-            --sjasmplus "$PWD/sjasmplus/sjasmplus" \
-            --out "$PWD/out"
-
-      - name: Run complete emulator matrix and visual regression
-        shell: bash
-        run: |
-          node opt/vm-port/run_deep_ab.mjs \
-            "$PWD/jsspeccy3/dist/jsspeccy/jsspeccy-core.wasm" \
-            "$PWD/out"
-          cat deep-data/deep-report.json
-          cat out/deep-build-manifest.json
-          cat out/deep-ab-result.json
-
-      - name: Collect measured results
-        if: always()
-        shell: bash
-        run: |
-          cp -f out/deep-ab-result.json result/ 2>/dev/null || true
-          cp -f out/deep-build-manifest.json result/ 2>/dev/null || true
-          cp -f deep-data/deep-report.json result/ 2>/dev/null || true
-          cp -f deep-data/deep-*-report.json result/ 2>/dev/null || true
-          cp -f deep-data/deep-*.bin deep-data/deep-*.inc result/ 2>/dev/null || true
-          cp -f out/current.sna out/child.sna out/template.sna out/both.sna result/ 2>/dev/null || true
-          cp -f out/renderer-current.bin out/renderer-deep.bin result/ 2>/dev/null || true
-          cp -f out/vm-current.bin out/vm-child.bin out/vm-template.bin out/vm-both.bin result/ 2>/dev/null || true
-          cp -f opt/vm-port/build-full/draw-optimization.json result/ 2>/dev/null || true
-
-      - name: Upload measured deep optimization results
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Run final matrix and exact elision search
+        run: bash opt/vm-port/run_final_perf_ci.sh
+      - name: Upload definitive final results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: deep-optimization-results
+          name: final-framebuffer-performance-definitive
           path: result/
