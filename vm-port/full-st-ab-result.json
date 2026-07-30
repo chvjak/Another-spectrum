@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "trace_equal": true,
+  "primitives_equal": true,
+  "baseline": {
+    "label": "baseline",
+    "done": 1,
+    "host_frames": 121000,
+    "vm_tick": 2980,
+    "instruction_count": 56075,
+    "trace_hash": 40691,
+    "error_opcode": 0,
+    "sampled_frames": 298,
+    "decoded_primitives": 49517,
+    "renderer_error": 0,
+    "renderer_error_root": 0,
+    "renderer_error_shape": 0,
+    "renderer_error_code": 0
+  },
+  "st": {
+    "label": "st",
+    "done": 1,
+    "host_frames": 95170,
+    "vm_tick": 2980,
+    "instruction_count": 56075,
+    "trace_hash": 40691,
+    "error_opcode": 0,
+    "sampled_frames": 298,
+    "decoded_primitives": 49517,
+    "renderer_error": 0,
+    "renderer_error_root": 0,
+    "renderer_error_shape": 0,
+    "renderer_error_code": 0
+  },
+  "whole_run_speedup": 1.2714090574760954,
+  "whole_run_saved_percent": 21.347107438016533
+}

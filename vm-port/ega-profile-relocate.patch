@@ -1,0 +1,28 @@
+--- a/vm-port/ega_build_variants.py
++++ b/vm-port/ega_build_variants.py
+@@ -132,6 +132,12 @@
+         if mode != "current":
+             renderer_text = ega.patch_renderer(renderer_text, mode)
+             vm_text = ega.patch_vm(vm_text, mode)
++        if mode == "profile":
++            # The seven profile hooks add 21 renderer bytes, crossing the fixed
++            # event stream at 0x6C00 by 17 bytes. Move only the profile stream
++            # 32 bytes forward; it still ends below the 0x7000 renderer tables.
++            vm_text = vm_text.replace("ld hl,0x6C01", "ld hl,0x6C21", 1)
++            vm_text = vm_text.replace("ld a,(0x6C00)", "ld a,(0x6C20)", 1)
+ 
+         renderer_source = work / f"renderer-{mode}.asm"
+         vm_source = work / f"vm-{mode}.asm"
+@@ -146,6 +152,12 @@
+             packed_attrs, packed_bitmaps, checkpoints,
+             palette_tables, decisions, event_runs,
+         )
++        if mode == "profile":
++            # make_snapshot writes the standard stream at 0x6C00 after the
++            # renderer. Restore the complete profile renderer, then place its
++            # stream at the patched 0x6C20 address.
++            snapshot = inject(snapshot, 5, helper.RENDERER_OFFSET_BANK5, renderer, "profile renderer")
++            snapshot = inject(snapshot, 5, 0x2C20, event_runs, "profile event runs")
+         snapshot = inject(snapshot, 2, viewport.TABLE_BANK2_OFFSET, coordinate_tables, "coordinate tables")
+         snapshot = inject(snapshot, 7, 0x2000, child_blob, "child data")
+         (out / f"{mode}.sna").write_bytes(snapshot)

@@ -1,0 +1,60 @@
+name: Materialize deep optimization sources
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths: [.github/workflows/materialize-deep-source.yml]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+      - name: Restore real source files
+        shell: bash
+        run: |
+          cat vm-port/deep-python.part-* | base64 -d | tar -xz -C vm-port
+          git apply vm-port/deep-v2.patch
+          git apply vm-port/deep-build-rle.patch
+          git apply vm-port/deep-v3.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/deep-opt.yml')
+          s=p.read_text()
+          start=s.index('      - name: Restore bundled Python sources\n')
+          end=s.index('\n      - name: Checkout embedded DOS intro and JS engine', start)
+          s=s[:start]+s[end:]
+          s=s.replace('      - vm-port/deep-python.part-*\n','')
+          p.write_text(s)
+          PY
+      - name: Preserve measured result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p /tmp/deep-result
+          gh run download 30494755571 --repo "$GITHUB_REPOSITORY" --name deep-optimization-results --dir /tmp/deep-result
+          cp /tmp/deep-result/deep-ab-result.json vm-port/deep-ab-result.json
+          cp /tmp/deep-result/deep-build-manifest.json vm-port/deep-build-manifest.json
+          cp /tmp/deep-result/deep-report.json vm-port/deep-report.json
+          cp /tmp/deep-result/deep-child-report.json vm-port/deep-child-report.json
+          cp /tmp/deep-result/deep-template-report.json vm-port/deep-template-report.json
+          cp /tmp/deep-result/deep-both-report.json vm-port/deep-both-report.json
+          cp /tmp/deep-result/both.sna vm-port/another-world-vm-deep-both.sna
+      - name: Commit clean branch sources
+        shell: bash
+        run: |
+          rm -f vm-port/deep-python.tgz.b64 vm-port/deep-python.part-* vm-port/deep-v2.patch vm-port/deep-v3.patch vm-port/deep-build-rle.patch
+          rm -f .github/workflows/export-harness.yml .github/workflows/materialize-deep-source.yml
+          git config user.name OpenAI
+          git config user.email openai@localhost
+          git add -A
+          git add -f vm-port/another-world-vm-deep-both.sna
+          git commit -m "Add measured child culling and hot-root templates"
+          git push origin HEAD:st-span-optimizations
