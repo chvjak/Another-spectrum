@@ -43,12 +43,14 @@ def main():
     specs={
       'u-w1-loop': ({'w1':'loop'}, {}),
       'u-w1-unrolled': ({'w1':'unrolled'}, {}),
-      'u-short14': ({'w1':'unrolled','short':True}, {}),
-      'u-hot81632': ({'hot':(8,16,32)}, {}),
-      'u-copy-all': ({'w1':'unrolled','short':True,'hot':(8,16,32)}, {}),
+      'u-w2': ({'short':(2,)}, {}),
+      'u-w3': ({'short':(3,)}, {}),
+      'u-w4': ({'short':(4,)}, {}),
+      'u-w8': ({'hot':(8,)}, {}),
+      'u-w16': ({'hot':(16,)}, {}),
+      'u-w32': ({'hot':(32,)}, {}),
       'u-fill-cell8': ({}, {'fill_cell8':True}),
-      'u-span1': ({}, {'span1':True}),
-      'u-combined': ({'w1':'unrolled','short':True,'hot':(8,16,32)}, {'fill_cell8':True,'span1':True}),
+      'u-w1-fill': ({'w1':'unrolled'}, {'fill_cell8':True}),
     }
     manifest={'variants':{'u-baseline':{'snapshot_bytes':len(base)}}}; built=['u-baseline']
     for label,(vmkw,rkw) in specs.items():
