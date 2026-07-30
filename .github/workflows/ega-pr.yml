@@ -1,13 +1,11 @@
-name: Viewport and colour-copy benchmark
+name: Final framebuffer performance
 on:
   pull_request:
     branches: [main]
     paths:
       - .github/workflows/ega-pr.yml
-      - vm-port/viewport_color_build.py
-      - vm-port/run_viewport_color_matrix.mjs
-      - vm-port/run_viewport_color_ci.sh
-      - vm-port/ega-source.part-*
+      - vm-port/final-perf-trigger.txt
+      - vm-port/final-perf-source.part-*
 permissions:
   contents: read
 jobs:
@@ -20,11 +18,17 @@ jobs:
           ref: st-span-optimizations
           fetch-depth: 0
           path: opt
-      - name: Run viewport and colour-copy matrix
-        run: bash opt/vm-port/run_viewport_color_ci.sh
-      - name: Upload viewport results
+      - name: Restore final performance sources
+        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+      - name: Install video encoder required by exact EGA setup
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Run final framebuffer matrix
+        run: bash opt/vm-port/run_final_perf_ci.sh
+      - name: Upload final framebuffer results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: viewport-colour-results
-          path: result-vp/
+          name: final-framebuffer-performance
+          path: result/
