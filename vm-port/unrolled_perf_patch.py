@@ -33,7 +33,12 @@ def _copy_width_body(width: int) -> str:
 def _copy_hot_body(width: int) -> str:
     lines = [f"unrolled_copy_w{width}:", "        ld hl,(EGA_SRC_PTR)",
              "        ld de,(EGA_DST_PTR)", "        ld a,8", "        ld (EGA_SCAN_REMAIN),a", ".row:"]
-    lines += ["        ldi"] * width
+    if width == 32:
+        lines += ["        ld bc,32", "        ld a,2", ".chunk:"]
+        lines += ["        ldi"] * 16
+        lines += ["        dec a", "        jr nz,.chunk"]
+    else:
+        lines += ["        ldi"] * width
     lines += ["        ld a,l", f"        sub {width}", "        ld l,a", "        inc h",
               "        ld a,e", f"        sub {width}", "        ld e,a", "        inc d",
               "        ld a,(EGA_SCAN_REMAIN)", "        dec a", "        ld (EGA_SCAN_REMAIN),a",
