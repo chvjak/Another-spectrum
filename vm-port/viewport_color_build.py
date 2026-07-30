@@ -175,9 +175,17 @@ def patch_attr_vm(source: str, width: int, height: int) -> str:
 
     helper = f'''
 active_attr_copy:
-        ld a,(TARGET_SCREEN)
+        ; renderer_present runs before op_present flips the logical buffers.
+        ; Publish colours only to the screen which this opcode will display.
+        ld a,(PRESENT_PAGE)
+        cp 1
+        jr z,.bank7
+        cp 2
+        jr z,.bank5
+        ld a,(LOGICAL_BACK)
         or a
         jr z,.bank5
+.bank7:
         ld a,(DISPLAY_BIT)
         or 7
         call page_a
