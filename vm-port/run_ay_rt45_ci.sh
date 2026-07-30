@@ -2,19 +2,34 @@
 set -euo pipefail
 ROOT="$PWD"; OPT="$ROOT/opt"; MUSIC="$ROOT/music-src"
 
-# The benchmark branch keeps the larger generated runner as a compact source
-# bundle. Materialize it explicitly rather than depending on another workflow.
 cat "$OPT"/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C "$OPT"
-
 bash "$OPT/vm-port/run_rt45_ci.sh"
 
 python3 "$MUSIC/music/v5/build_ay_recreation_v5.py"
 AY50="$MUSIC/music/v5/generated/aw_intro_ay_v5_2m50s.bin"
 OUT="$ROOT/out/ay-rt45"
 mkdir -p "$OUT"
+
+# Pinned layout of the verified cost-4p5 snapshot. These boundaries come from
+# the full-port build that produced this exact base SNA; injection additionally
+# rejects any non-zero target bytes.
+cat > "$OUT/ay-layout.json" <<'JSON'
+{
+  "sizes": {
+    "bytecode": 9842,
+    "text": 0,
+    "attribute_streams": [0, 7]
+  },
+  "layout": {
+    "bank7_tail": {"bank": 7, "offset": 9533, "bytes": 0},
+    "bitmap19": {"offset": 13312, "bytes": 33}
+  }
+}
+JSON
+
 python3 "$OPT/vm-port/ay_rt45_build.py" \
   --base-sna "$ROOT/out/rt45/cost-4p5.sna" \
-  --manifest "$OPT/vm-port/build-full/manifest.json" \
+  --manifest "$OUT/ay-layout.json" \
   --ay50 "$AY50" \
   --sjasmplus "$OPT/vendor-sjasmplus/sjasmplus" \
   --out "$OUT"
