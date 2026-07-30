@@ -1,14 +1,13 @@
-name: EGA framebuffer profile PR
+name: Viewport and colour-copy benchmark
 on:
   pull_request:
     branches: [main]
     paths:
       - .github/workflows/ega-pr.yml
-      - vm-port/ega-run-trigger.txt
+      - vm-port/viewport_color_build.py
+      - vm-port/run_viewport_color_matrix.mjs
+      - vm-port/run_viewport_color_ci.sh
       - vm-port/ega-source.part-*
-      - vm-port/ega-profile-relocate.patch
-      - vm-port/capture_ega_intro_framebuffer.mjs
-      - vm-port/run_ega_ci.sh
 permissions:
   contents: read
 jobs:
@@ -21,31 +20,11 @@ jobs:
           ref: st-span-optimizations
           fetch-depth: 0
           path: opt
-      - name: Install video encoder
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-      - name: Run EGA matrix, profile and capture
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('opt/vm-port/run_ega_ci.sh')
-          s=p.read_text()
-          marker='cat "$OPT"/vm-port/ega-source.part-* | base64 -d | tar -xz -C "$OPT"\n'
-          if marker not in s:
-              raise SystemExit('runner extraction marker changed')
-          post=(
-              'git -C "$OPT" apply vm-port/ega-profile-relocate.patch\n'
-              'cp "$OPT/vm-port/capture_ega_intro_framebuffer.mjs" "$OPT/vm-port/capture_ega_intro.mjs"\n'
-          )
-          s=s.replace(marker, marker + post, 1)
-          p.write_text(s)
-          PY
-          bash opt/vm-port/run_ega_ci.sh
-      - name: Upload EGA profile and viewable intro
+      - name: Run viewport and colour-copy matrix
+        run: bash opt/vm-port/run_viewport_color_ci.sh
+      - name: Upload viewport results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ega-framebuffer-results
-          path: result/
+          name: viewport-colour-results
+          path: result-vp/
