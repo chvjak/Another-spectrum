@@ -1,0 +1,73 @@
+name: Final framebuffer performance definitive
+on:
+  push:
+    branches: [st-span-optimizations]
+    paths: [.github/workflows/export-harness.yml]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: st-span-optimizations
+          fetch-depth: 0
+          path: opt
+      - name: Restore final performance sources
+        run: |
+          cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+          cat opt/vm-port/final-perf-fix2.part-* | base64 -d | tar -xz -C opt
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('opt/vm-port/final_perf_patch.py')
+          s = p.read_text()
+          s = s.replace('        jr z,.done_call', '        jp z,.done_call')
+          s = s.replace('        jr .done_call', '        jp .done_call')
+          marker = "FULL_FILL_NEW = rf'''fill_destination_full:\n"
+          constants = "FULL_FILL_NEW = rf'''FINAL_FILL_ATTR_PTR EQU 0x93DE\nFINAL_FILL_TOP_PTR EQU 0x93E0\nFINAL_FILL_ROW EQU 0x93E2\nFINAL_FILL_LINE EQU 0x93E3\nfill_destination_full:\n"
+          if marker not in s:
+              raise SystemExit('full-fill marker changed')
+          p.write_text(s.replace(marker, constants, 1))
+
+          p = Path('opt/vm-port/final_perf_runner.mjs')
+          s = p.read_text()
+          s = s.replace("path.join(buildDir, 'combined.sna')", "path.join(buildDir, 'script-table-ldi.sna')", 1)
+          s = s.replace("runSna(baseSna, 'combined-baseline')", "runSna(baseSna, 'script-table-ldi-baseline')", 1)
+          p.write_text(s)
+
+          p = Path('opt/vm-port/run_final_perf_ci.sh')
+          s = p.read_text()
+          old = '''node "$OPT/vm-port/final_perf_runner.mjs" matrix "$WASM" "$OUT" \\
+  ega-best restore script-arith script-table script-table-ldi script-table-ldi-lazy combined
+cp "$OUT/final-perf-result.json" "$OUT/final-perf-matrix-before-elision.json"
+'''
+          new = '''node "$OPT/vm-port/final_perf_runner.mjs" matrix "$WASM" "$OUT" \\
+  ega-best script-table-ldi-lazy combined || true
+cp "$OUT/final-perf-result.json" "$OUT/final-perf-invalid-variants.json"
+node "$OPT/vm-port/final_perf_runner.mjs" matrix "$WASM" "$OUT" \\
+  ega-best restore script-arith script-table script-table-ldi
+cp "$OUT/final-perf-result.json" "$OUT/final-perf-matrix-before-elision.json"
+'''
+          if old not in s:
+              raise SystemExit('initial matrix block changed')
+          s = s.replace(old, new, 1)
+          s = s.replace('matrix "$WASM" "$OUT" ega-best combined final', 'matrix "$WASM" "$OUT" ega-best script-table-ldi final', 1)
+          s = s.replace('final-perf-matrix-before-elision.json,final-perf-result-final.json', 'final-perf-matrix-before-elision.json,final-perf-invalid-variants.json,final-perf-result-final.json', 1)
+          p.write_text(s)
+          PY
+      - name: Install video encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Run final matrix and exact elision search
+        run: bash opt/vm-port/run_final_perf_ci.sh
+      - name: Upload definitive final results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-framebuffer-performance-definitive
+          path: result/

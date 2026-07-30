@@ -1,0 +1,80 @@
+--- a/vm-port/deep_optimize.py
++++ b/vm-port/deep_optimize.py
+@@ -458,35 +458,58 @@
+     selected_templates: dict[int, bytes] = {}
+     selected_groups: Counter[tuple[int, int]] = Counter()
+ 
+-    # Fixed descriptor stream cost. Descriptor table and payload grow per event.
+-    stream_size = len(immediate_shapes)
+-    estimated = stream_size + 4  # descriptor zero
+-
+-    # In the combined mode reserve the cheap child masks first, then spend the
+-    # remaining bank-7 budget on full span templates. This guarantees that the
+-    # combined benchmark actually exercises both mechanisms.
+-    if mode in ("child", "both"):
++    def estimated_size(masks: dict[int, bytes], templates: dict[int, bytes]) -> int:
++        selected = set(masks) | set(templates)
++        # Use the uncompressed descriptor-event count as a safe upper bound; the
++        # emitted RLE stream is always smaller or equal. Payloads are deduplicated
++        # exactly as they are in the final packer.
++        return (
++            len(immediate_shapes)
++            + 4 * (len(selected) + 1)
++            + sum(len(payload) for payload in set(masks.values()))
++            + sum(len(payload) for payload in set(templates.values()))
++        )
++
++    if mode == "child":
+         for _, event_id, payload, _benefit in child_candidates:
+-            if len(selected_masks) + len(selected_templates) >= 255:
++            if len(selected_masks) >= 255:
+                 break
+-            extra = 4 + len(payload)
+-            if estimated + extra > DATA_LIMIT:
+-                continue
+             selected_masks[event_id] = payload
+-            estimated += extra
++            if estimated_size(selected_masks, selected_templates) > DATA_LIMIT:
++                selected_masks.pop(event_id)
+ 
+-    if mode in ("template", "both"):
++    elif mode == "template":
+         for _, event_id, payload, group in template_candidates:
+-            if event_id in selected_masks:
++            if len(selected_templates) >= 255:
++                break
++            selected_templates[event_id] = payload
++            if estimated_size(selected_masks, selected_templates) > DATA_LIMIT:
++                selected_templates.pop(event_id)
+                 continue
+-            if len(selected_masks) + len(selected_templates) >= 255:
++            selected_groups[group] += 1
++
++    else:
++        # Start with the profitable culling set. For events that also have an
++        # exact span template, replace the mask rather than adding another
++        # descriptor. This keeps descriptor-run overhead at child-only levels
++        # while exercising both mechanisms in the combined image.
++        for _, event_id, payload, _benefit in child_candidates:
++            if len(selected_masks) >= 255:
+                 break
+-            extra = 4 + len(payload)
+-            if estimated + extra > DATA_LIMIT:
++            selected_masks[event_id] = payload
++            if estimated_size(selected_masks, selected_templates) > DATA_LIMIT:
++                selected_masks.pop(event_id)
++
++        for _, event_id, payload, group in template_candidates:
++            if event_id not in selected_masks:
+                 continue
++            old_mask = selected_masks.pop(event_id)
+             selected_templates[event_id] = payload
++            if estimated_size(selected_masks, selected_templates) > DATA_LIMIT:
++                selected_templates.pop(event_id)
++                selected_masks[event_id] = old_mask
++                continue
+             selected_groups[group] += 1
+-            estimated += extra
+ 
+     selected_events = sorted(set(selected_masks) | set(selected_templates))
+     descriptor_id = {event_id: index + 1 for index, event_id in enumerate(selected_events)}
