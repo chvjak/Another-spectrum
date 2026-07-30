@@ -1,0 +1,121 @@
+    def __init__(self, origin: int):
+        self.origin = origin
+        self.code = bytearray()
+        self.labels: dict[str, int] = {}
+        self.fixups: list[tuple[int, str, str]] = []
+
+    @property
+    def pc(self) -> int:
+        return self.origin + len(self.code)
+
+    def emit(self, *values: int) -> None:
+        self.code.extend(value & 0xFF for value in values)
+
+    def word(self, value: int) -> None:
+        self.code += struct.pack("<H", value & 0xFFFF)
+
+    def label(self, name: str) -> None:
+        self.labels[name] = self.pc
+
+    def jr(self, opcode: int, label: str) -> None:
+        self.emit(opcode, 0)
+        self.fixups.append((len(self.code) - 1, label, "rel"))
+
+    def absolute(self, opcode: int, label: str) -> None:
+        self.emit(opcode, 0, 0)
+        self.fixups.append((len(self.code) - 2, label, "abs"))
+
+    def finish(self) -> bytes:
+        for position, label, kind in self.fixups:
+            address = self.labels[label]
+            if kind == "rel":
+                displacement = address - (self.origin + position + 1)
+                if not -128 <= displacement <= 127:
+                    raise ValueError(f"JR to {label} is out of range: {displacement}")
+                self.code[position] = displacement & 0xFF
+            else:
+                self.code[position : position + 2] = struct.pack("<H", address)
+        return bytes(self.code)
+
+
+def emit_ay_tick(a: Asm) -> None:
+    """Emit a compact unrolled AY delta decoder.
+
+    Segment layout is repeated ``u16 mask`` followed by one byte for every set
+    bit among registers 0..13. Each reel starts with a full 0x3FFF mask, so it
+    is independent of the AY state left by the previous snapshot.
+    """
+
+    a.label("ay_tick")
+    a.emit(0xF5, 0xC5, 0xD5, 0xE5)  # push af,bc,de,hl
+    a.absolute(0x2A, "ay_ptr")       # ld hl,(ay_ptr)
+    a.emit(0x5E, 0x23, 0x56, 0x23)  # ld e,(hl); inc hl; ld d,(hl); inc hl
+
+    for register in range(14):
+        a.emit(0xCB, 0x3A, 0xCB, 0x1B)  # srl d; rr e; carry = current mask bit
+        skip = f"ay_skip_{register}"
+        a.jr(0x30, skip)                  # jr nc,skip
+        a.emit(0x01, 0xFD, 0xFF)          # ld bc,$fffd
+        a.emit(0x3E, register, 0xED, 0x79)  # ld a,reg; out (c),a
+        a.emit(0x7E, 0x23, 0x06, 0xBF, 0xED, 0x79)  # value; inc hl; b=$bf; out
+        a.label(skip)
+
+    a.absolute(0x22, "ay_ptr")  # ld (ay_ptr),hl
+    a.emit(0xE1, 0xD1, 0xC1, 0xF1, 0xC9)  # pop hl,de,bc,af; ret
+
+
+def player_code(frame_count: int, tail_ticks: int) -> bytes:
+    if not 1 <= frame_count <= 255:
+        raise ValueError(f"frame_count out of range: {frame_count}")
+    if not 0 <= tail_ticks <= 0xFFFF:
+        raise ValueError(f"tail_ticks out of range: {tail_ticks}")
+    if not 1 <= WAIT_FRAMES <= 255:
+        raise ValueError(f"SPECCY_WAIT_FRAMES must be 1..255, got {WAIT_FRAMES}")
+
+    a = Asm(PLAYER_ORIGIN)
+    a.emit(
+        0xF3,                    # di
+        0x31, 0xF0, 0x7F,        # ld sp,$7ff0
+        0xDD, 0x21, 0x00, 0x80,  # ld ix,$8000 (video stream)
+        0xFD, 0x21, 0x00, 0x40,  # ld iy,$4000 (bank-5 target first)
+        0xAF,                    # xor a
+    )
+    a.absolute(0x32, "target")
+    a.emit(0x3E, frame_count)
+    a.absolute(0x32, "remaining")
+    a.emit(0x21)
+    a.word(AY_DATA_ADDRESS)
+    a.absolute(0x22, "ay_ptr")
+    a.emit(0x21)
+    a.word(tail_ticks)
+    a.absolute(0x22, "tail_remaining")
+    a.emit(0x3E, 0x5C, 0xED, 0x47, 0xED, 0x5E)  # ld a,$5c; ld i,a; im 2
+
+    a.label("frame")
+    a.emit(0xF3)  # di while applying spans and paging
+    a.label("span")
+    a.emit(
+        0xDD, 0x5E, 0x00, 0xDD, 0x23,  # ld e,(ix); inc ix
+        0xDD, 0x56, 0x00, 0xDD, 0x23,  # ld d,(ix); inc ix
+        0x7A, 0xFE, 0xFF,              # ld a,d; cp $ff
+    )
+    a.jr(0x28, "present")
+    a.emit(
+        0xDD, 0x4E, 0x00, 0xDD, 0x23,  # ld c,(ix); inc ix
+        0x06, 0x00,                    # ld b,0
+        0xFD, 0xE5, 0xE1,              # push iy; pop hl
+        0x19,                          # add hl,de
+        0xEB,                          # ex de,hl
+        0xDD, 0xE5, 0xE1,              # push ix; pop hl
+        0xED, 0xB0,                    # ldir
+        0xE5, 0xDD, 0xE1,              # push hl; pop ix
+    )
+    a.jr(0x18, "span")
+
+    a.label("present")
+    a.absolute(0x3A, "target")
+    a.emit(0xB7)
+    a.jr(0x20, "show7")
+    a.emit(0x3E, 0x07, 0xFD, 0x21, 0x00, 0xC0)  # page bank 7, draw at $c000
+    a.jr(0x18, "flip")
+    a.label("show7")
