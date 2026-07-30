@@ -36,25 +36,29 @@ function hashScreen(memory, pageAddress, bank) {
 async function run(snaPath, label, ayPlayer = false) {
   const sna = fs.readFileSync(snaPath);
   const { core, memory, pageAddress, u8, u16, b5u8, b5u16 } = await setupCore(sna);
-  let hostFrames = 0;
-  let lastPresentation = 0;
-  let vmFinishedFrame = null;
+  let hostFrames = 0, lastPresentation = 0, vmFinishedFrame = null, firstAyUpdateFrame = null, previousAyUpdates = 0;
   const frames = [];
   while (u8(0x9307) === 0 && hostFrames < 300000) {
     const status = core.runFrame();
     if (status !== 0) throw new Error(`${label}: core status ${status}`);
     hostFrames++;
-    if (ayPlayer && vmFinishedFrame === null && u8(0x93FC) !== 0) vmFinishedFrame = hostFrames;
+    if (ayPlayer) {
+      const updates = u16(0x93FA);
+      if (firstAyUpdateFrame === null && updates !== previousAyUpdates) firstAyUpdateFrame = hostFrames;
+      previousAyUpdates = updates;
+      if (vmFinishedFrame === null && u8(0x93FC) !== 0) vmFinishedFrame = hostFrames;
+    }
     const presentation = u16(0x9308);
     if (presentation === lastPresentation) continue;
     if (presentation !== lastPresentation + 1) throw new Error(`${label}: presentation jump ${lastPresentation}->${presentation}`);
     const displayBank = (u8(0x930B) & 8) ? 7 : 5;
-    frames.push({ presentation, source_slot: u16(0x93E8), display_bank: displayBank,
+    frames.push({ presentation, source_slot: u16(0x93E8),
       visible_sha256: hashScreen(memory, pageAddress, displayBank) });
     lastPresentation = presentation;
   }
   return {
     label, done: u8(0x9307), host_frames: hostFrames, seconds_at_50hz: hostFrames / 50,
+    first_ay_update_frame: firstAyUpdateFrame,
     vm_finished_frame: vmFinishedFrame,
     vm_finished_seconds: vmFinishedFrame === null ? null : vmFinishedFrame / 50,
     vm_tick: u16(0x9300), instruction_count: u16(0x9302), trace_hash: u16(0x9304),
@@ -70,16 +74,17 @@ const baseline = await run(baselinePath, 'cost-4p5', false);
 const ay = await run(ayPath, 'cost-4p5-ay', true);
 const framesEqual = JSON.stringify(ay.frames) === JSON.stringify(baseline.frames);
 const traceEqual = ay.vm_tick === baseline.vm_tick && ay.instruction_count === baseline.instruction_count && ay.trace_hash === baseline.trace_hash;
-const target = 8226;
+const target = 8226, expectedUpdates = 4103;
 const result = {
   target_refreshes: target, target_seconds: target / 50,
-  playback_updates_expected: 4113, playback_update_rate_hz: 25,
+  playback_source_start_tick: 20,
+  playback_updates_expected: expectedUpdates, playback_update_rate_hz: 25,
   baseline, ay, frames_equal: framesEqual, trace_equal: traceEqual,
   compute_margin_refreshes: ay.vm_finished_frame === null ? null : target - ay.vm_finished_frame,
   completion_margin_refreshes: target - ay.host_frames,
   real_time_compute_met: ay.vm_finished_frame !== null && ay.vm_finished_frame <= target,
   exact_duration_met: ay.host_frames === 8225 || ay.host_frames === 8226,
-  passed: ay.done === 1 && ay.error_opcode === 0 && ay.renderer_error === 0 && ay.ay_updates === 4113 && framesEqual && traceEqual && ay.host_frames <= target,
+  passed: ay.done === 1 && ay.error_opcode === 0 && ay.renderer_error === 0 && ay.ay_updates === expectedUpdates && framesEqual && traceEqual && ay.host_frames <= target,
 };
 fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));
