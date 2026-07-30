@@ -83,7 +83,8 @@ jobs:
           assert audio['codec_name']=='aac' and audio['sample_rate']=='44100', d
           assert abs(float(d['format']['duration'])-164.52)<0.03, d
           result=json.loads(Path('out/ay-rt45/ay-performance-result.json').read_text())
-          assert result['passed'] and result['ay']['ay_updates']==4113, result
+          assert result['passed'] and result['exact_duration_met'], result
+          assert result['ay']['ay_updates']==4103 and len(result['ay']['ay_update_frames'])==4103, result
           PY
           rm -f render-out/original-298-320x200.rgb render-out/another-world-zx-spectrum-cost-4p5-ay-silent.mp4
           cp -f render-out/* result/ay-rt45/
