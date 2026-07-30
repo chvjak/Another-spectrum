@@ -1,0 +1,234 @@
+diff --git a/vm-port/deep_optimize.py b/vm-port/deep_optimize.py
+index aec2fcc..d3b4ac4 100644
+--- a/vm-port/deep_optimize.py
++++ b/vm-port/deep_optimize.py
+@@ -357,10 +357,31 @@ def replay(trace: TraceData, live_events: set[int]) -> tuple[set[int], dict[str,
+ 
+ def mask_bytes(event: Event, live_primitives: set[int]) -> bytes:
+     raw = bytearray((len(event.primitives) + 7) // 8)
++    if len(raw) > 159:
++        raise ValueError(f"child mask too large for fixed buffer: event={event.ident} bytes={len(raw)}")
+     for index, pid in enumerate(event.primitives):
+         if pid in live_primitives:
+             raw[index >> 3] |= 1 << (index & 7)
+-    return bytes(raw)
++    # Length prefix lets the runtime copy the complete mask from bank 7 once at
++    # event entry. Primitive tests then stay in uncontended fixed RAM.
++    return bytes((len(raw),)) + bytes(raw)
++
++
++def rle_descriptors(values: list[int]) -> bytes:
++    out = bytearray()
++    if not values:
++        return bytes(out)
++    current = values[0]
++    run = 1
++    for value in values[1:]:
++        if value == current and run < 255:
++            run += 1
++            continue
++        out.extend((current, run))
++        current = value
++        run = 1
++    out.extend((current, run))
++    return bytes(out)
+ 
+ 
+ def template_bytes(event: Event, primitives: dict[int, Primitive], live: set[int] | None) -> bytes | None:
+@@ -441,32 +462,36 @@ def pack_mode(
+     stream_size = len(immediate_shapes)
+     estimated = stream_size + 4  # descriptor zero
+ 
+-    if mode in ("template", "both"):
+-        for _, event_id, payload, group in template_candidates:
++    # In the combined mode reserve the cheap child masks first, then spend the
++    # remaining bank-7 budget on full span templates. This guarantees that the
++    # combined benchmark actually exercises both mechanisms.
++    if mode in ("child", "both"):
++        for _, event_id, payload, _benefit in child_candidates:
+             if len(selected_masks) + len(selected_templates) >= 255:
+                 break
+             extra = 4 + len(payload)
+             if estimated + extra > DATA_LIMIT:
+                 continue
+-            selected_templates[event_id] = payload
+-            selected_groups[group] += 1
++            selected_masks[event_id] = payload
+             estimated += extra
+ 
+-    if mode in ("child", "both"):
+-        for _, event_id, payload, _benefit in child_candidates:
+-            if event_id in selected_templates:
++    if mode in ("template", "both"):
++        for _, event_id, payload, group in template_candidates:
++            if event_id in selected_masks:
+                 continue
+             if len(selected_masks) + len(selected_templates) >= 255:
+                 break
+             extra = 4 + len(payload)
+             if estimated + extra > DATA_LIMIT:
+                 continue
+-            selected_masks[event_id] = payload
++            selected_templates[event_id] = payload
++            selected_groups[group] += 1
+             estimated += extra
+ 
+     selected_events = sorted(set(selected_masks) | set(selected_templates))
+     descriptor_id = {event_id: index + 1 for index, event_id in enumerate(selected_events)}
+-    stream = bytes(descriptor_id.get(event.ident, 0) for event in immediate_shapes)
++    descriptor_values = [descriptor_id.get(event.ident, 0) for event in immediate_shapes]
++    stream = rle_descriptors(descriptor_values)
+     table_size = 4 * (len(selected_events) + 1)
+     cursor = len(stream) + table_size
+     if cursor > DATA_LIMIT:
+@@ -518,10 +543,14 @@ def pack_mode(
+         "mode": mode,
+         "data_offset_bank7": DATA_OFFSET,
+         "data_bytes": len(blob),
++        "descriptor_events": len(immediate_shapes),
+         "descriptor_stream_bytes": len(stream),
++        "descriptor_runs": len(stream) // 2,
+         "descriptor_table_bytes": table_size,
+         "optimized_events": len(selected_events),
+         "child_mask_events": len(selected_masks),
++        "child_mask_payload_bytes": sum(len(payload) for payload in selected_masks.values()),
++        "child_mask_max_bytes": max((len(payload) - 1 for payload in selected_masks.values()), default=0),
+         "template_events": len(selected_templates),
+         "template_unique_payloads": len({payload for payload in selected_templates.values()}),
+         "template_root_zoom_groups": [
+diff --git a/vm-port/deep_source_patch.py b/vm-port/deep_source_patch.py
+index 7215694..eff69bf 100644
+--- a/vm-port/deep_source_patch.py
++++ b/vm-port/deep_source_patch.py
+@@ -17,6 +17,8 @@ VM_TAG = "; Deep child-mask/template runtime."
+ RENDERER_TAG = "; Deep primitive-mask/template hooks."
+ 
+ VM_HELPERS = r'''; Deep child-mask/template runtime.
++        ASSERT $ <= 0x8900
++        defs 0x8900-$,0
+         ORG 0x8900
+         jp deep_opt_begin
+         jp deep_opt_next
+@@ -31,18 +33,33 @@ deep_page_a:
+         out (c),a
+         ret
+ 
+-; Consume the next descriptor for a live immediate shape. Page-3 and checkpoint
+-; shapes never call this routine and therefore have no descriptor entries.
++; Consume the next descriptor for a live immediate shape. The sparse stream is
++; run-length encoded as {descriptor, count}; bank 7 is touched only at a run
++; boundary rather than once per shape. Page-3 and checkpoint shapes never call
++; this routine and therefore have no descriptor entries.
+ deep_read_descriptor:
++        ld a,(DEEP_DESC_REMAIN)
++        or a
++        jr nz,.consume
+         ld a,7
+         call deep_page_a
+         ld hl,(DEEP_DESC_STREAM_PTR)
+         ld a,(hl)
+-        ld (SHAPE_DESCRIPTOR),a
++        ld (DEEP_DESC_VALUE),a
++        inc hl
++        ld a,(hl)
++        ld (DEEP_DESC_REMAIN),a
+         inc hl
+         ld (DEEP_DESC_STREAM_PTR),hl
+         ld a,1
+-        jp deep_page_a
++        call deep_page_a
++.consume:
++        ld a,(DEEP_DESC_REMAIN)
++        dec a
++        ld (DEEP_DESC_REMAIN),a
++        ld a,(DEEP_DESC_VALUE)
++        ld (SHAPE_DESCRIPTOR),a
++        ret
+ 
+ ; Called by renderer_draw_shape before normal recursive decoding.
+ ; Carry set means an exact template was rendered and decode_shape must be skipped.
+@@ -77,6 +94,27 @@ deep_opt_begin:
+         ld a,d
+         or e
+         jr nz,deep_render_template
++
++        ; Child-mask payloads are length-prefixed. Copy the complete mask into
++        ; fixed RAM while bank 7 is already mapped; per-primitive tests then need
++        ; no paging at all.
++        ld hl,(DEEP_MASK_PTR)
++        ld a,h
++        or l
++        jr z,.mask_ready
++        ld b,(hl)
++        inc hl
++        ld de,DEEP_MASK_BUFFER
++        ld a,b
++        or a
++        jr z,.mask_copied
++        ld c,b
++        ld b,0
++        ldir
++.mask_copied:
++        ld hl,DEEP_MASK_BUFFER
++        ld (DEEP_MASK_PTR),hl
++.mask_ready:
+         ld a,1
+         call deep_page_a
+         or a                            ; carry clear: continue decode_shape
+@@ -94,10 +132,6 @@ deep_opt_next:
+         ld a,(DEEP_MASK_BITS)
+         or a
+         jr nz,.have_byte
+-        ld a,(0x7280)                   ; renderer CURRENT_BANK
+-        push af
+-        ld a,7
+-        call deep_page_a
+         ld hl,(DEEP_MASK_PTR)
+         ld a,(hl)
+         ld (DEEP_MASK_BYTE),a
+@@ -105,8 +139,6 @@ deep_opt_next:
+         ld (DEEP_MASK_PTR),hl
+         ld a,8
+         ld (DEEP_MASK_BITS),a
+-        pop af
+-        call deep_page_a
+ .have_byte:
+         ld a,(DEEP_MASK_BYTE)
+         rrca
+@@ -159,7 +191,7 @@ deep_render_template:
+         ld (0x72AF),a                   ; MAX_Y
+         call deep_template_byte
+         ld (DEEP_SPAN_REMAIN),a
+-        call RENDERER_DEEP_PREP
++        call 0x5D47
+ .span_loop:
+         ld a,(DEEP_SPAN_REMAIN)
+         or a
+@@ -170,7 +202,7 @@ deep_render_template:
+         ld (0x72BD),a                   ; SPAN_LEFT
+         call deep_template_byte
+         ld (0x72BE),a                   ; SPAN_RIGHT
+-        call RENDERER_FILL_SPAN
++        call 0x5D4A
+         ld a,(DEEP_SPAN_REMAIN)
+         dec a
+         ld (DEEP_SPAN_REMAIN),a
+@@ -222,6 +254,9 @@ DEEP_MASK_BYTE         EQU 0x933D
+ DEEP_TEMPLATE_PTR      EQU 0x933E
+ DEEP_RECORD_REMAIN     EQU 0x9353
+ DEEP_SPAN_REMAIN       EQU 0x9354
++DEEP_DESC_REMAIN       EQU 0x9355
++DEEP_DESC_VALUE        EQU 0x9356
++DEEP_MASK_BUFFER       EQU 0x9360
+ """
+     if source.count(vars_marker) != 1:
+         raise ValueError("VM event variable marker changed")
+@@ -246,6 +281,8 @@ DEEP_SPAN_REMAIN       EQU 0x9354
+         ld (DEEP_DESC_STREAM_PTR),hl
+         xor a
+         ld (SHAPE_DESCRIPTOR),a
++        ld (DEEP_DESC_REMAIN),a
++        ld (DEEP_DESC_VALUE),a
+         ld a,1                       ; bytecode bank, display bank 5
+ """
+     if source.count(init_marker) != 1:

@@ -1,0 +1,35 @@
+name: 4.5 fps real-time benchmark
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/rt45.yml
+      - vm-port/rt45-*
+      - vm-port/run_rt45_ci.sh
+      - vm-port/final-perf-source.part-*
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rt-4p5fps
+          fetch-depth: 0
+          path: opt
+      - name: Restore final performance sources
+        run: cat opt/vm-port/final-perf-source.part-* | base64 -d | tar -xz -C opt
+      - name: Install video encoder required by the exact EGA setup
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Run 4.5 fps retained-frame matrix
+        run: bash opt/vm-port/run_rt45_ci.sh
+      - name: Upload measured variants
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rt-4p5fps-results
+          path: result/rt45/
