@@ -6,6 +6,7 @@ import argparse
 import importlib.util
 import json
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -86,6 +87,10 @@ def main() -> None:
     vm_src = args.out / 'vm-rt45.asm'
     vm_src.write_text(source)
     normalize(vm_src)
+    layout = args.vm_source.parent / 'deep_layout.inc'
+    if not layout.exists():
+        raise RuntimeError(f'missing generated include: {layout}')
+    shutil.copy2(layout, args.out / 'deep_layout.inc')
     vm = assemble(args.sjasmplus, vm_src, args.out / 'vm-rt45.bin')
 
     manifest: dict[str, object] = {
