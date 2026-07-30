@@ -2,9 +2,9 @@
 """Build the rounded-machine AY v5 from the preserved v4 generator.
 
 The musical arrangement, noise level and three-channel roles remain those of v4.
-This pass only reduces the periodic 'tractor' quality of channel A and rounds the
-sharp attack peaks of channel B. The generated mix is still normalized to the
-same 0.84 peak as v4.
+This pass reduces the periodic 'tractor' quality of channel A and rounds the
+sharp attack peaks of channel B. Long-term level is matched to v4; the rounded
+transient peaks are intentionally about 3 dB lower.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ replacements = {
     "OUT = Path(__file__).resolve().parent / 'generated'":
         "OUT = Path(__file__).resolve().parent / 'generated'",
 
-    # Rounded melody envelope: preserve its sustain and level, remove the
+    # Rounded melody envelope: preserve sustain and level, remove the
     # one-refresh amplitude spike.
     "macro=[1.00,0.78,0.62,0.55,0.58,0.52,0.49,0.47]":
         "macro=[0.52,0.68,0.82,0.92,0.88,0.78,0.68,0.60,0.55,0.51]",
@@ -46,10 +46,12 @@ replacements = {
     "if age==0: semi=12\n        elif age==1 and e.instrument=='glass': semi=7\n        elif age==2 and e.instrument=='glass': semi=12":
         "if age==0: semi=3 if e.instrument=='glass' else 2\n        elif age==1: semi=2 if e.instrument=='glass' else 1\n        elif age==2 and e.instrument=='glass': semi=1",
 
-    # Slightly softer extreme edge, then normalize to exactly the same peak.
+    # Softer extreme edge and v4-matched long-term listening level.
     "x=np.tanh(x*1.25)": "x=np.tanh(x*1.12)",
     "sos=butter(2,[35,9500],btype='bandpass',fs=SR,output='sos')":
         "sos=butter(2,[35,8400],btype='bandpass',fs=SR,output='sos')",
+    "mix=post(room(chout.sum(axis=0)),.84)":
+        "mix=post(room(chout.sum(axis=0)),.84)*0.70",
 
     "aw_intro_ay_v4_2m50s.bin": "aw_intro_ay_v5_2m50s.bin",
     "aw_intro_ay_v4_registers.csv": "aw_intro_ay_v5_registers.csv",
@@ -90,7 +92,7 @@ new_summary = (
     "'changes':['reduced periodic bass noise gating while preserving ambience',"
     "'slower less regular machine pitch modulation','rounded multi-tick melody attacks',"
     "'removed octave-spike melody transients',"
-    "'slightly softer output bandwidth at unchanged peak level',"
+    "'v4-matched long-term level with lower transient peaks',"
     "'body+noise gentle snares retained'],'melody_events':len(melody),"
     "'bass_events':len(bass),'drum_events':len(drums)}"
 )
@@ -108,7 +110,7 @@ old_readme = (
 )
 new_readme = (
     "Changes from v4:\\n"
-    "- keeps the same overall normalized level and useful AY noise texture\\n"
+    "- keeps v4's long-term listening level and useful AY noise texture\\n"
     "- reduces regular bass noise gates and rapid pitch modulation that sounded like a tractor\\n"
     "- replaces one-tick melody octave/fifth spikes with a rounded 4–5 tick attack\\n"
     "- softens only the extreme high-frequency edge; melody sustain and noise remain present\\n"
