@@ -1,1 +1,1 @@
-Render corrected-stride cost-selected 4.5 fps demo at 2026-07-30T15:09+02:00.
+Render corrected-stride cost-selected 4.5 fps demo; binary-clean RGB rerun at 2026-07-30T15:24+02:00.
