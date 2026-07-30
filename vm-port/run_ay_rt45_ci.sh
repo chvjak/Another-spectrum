@@ -10,17 +10,23 @@ AY50="$MUSIC/music/v5/generated/aw_intro_ay_v5_2m50s.bin"
 OUT="$ROOT/out/ay-rt45"
 mkdir -p "$OUT"
 
-# sjasmplus raw output does not pad forward ORG gaps. Make the fixed-address
-# finish wait routine part of the injected binary at its actual 0x7B80 address.
+# Patch the standalone builder for the pinned machine layout and the observed
+# 20-refresh IM2 startup. Music source tick 20 is first written on refresh 21;
+# 4,103 updates then finish on refresh 8,225.
 python3 - <<'PYFIX'
 from pathlib import Path
 p=Path('opt/vm-port/ay_rt45_build.py')
 s=p.read_text()
-old='        ORG 0x{WAIT_ADDR:04X}\nay_wait_finish:'
-new='        defs 0x{WAIT_ADDR:04X}-$,0\nay_wait_finish:'
-if s.count(old)!=1:
-    raise SystemExit(f'AY wait ORG marker count={s.count(old)}')
-p.write_text(s.replace(old,new,1))
+replacements={
+    'AY_UPDATES = (TICKS_50HZ + 1) // 2': 'START_TICK = 20\nAY_UPDATES = len(range(START_TICK, TICKS_50HZ, 2))',
+    'for tick in range(0, TICKS_50HZ, 2):': 'for tick in range(START_TICK, TICKS_50HZ, 2):',
+    '        ORG 0x{WAIT_ADDR:04X}\nay_wait_finish:': '        defs 0x{WAIT_ADDR:04X}-$,0\nay_wait_finish:',
+}
+for old,new in replacements.items():
+    if s.count(old)!=1:
+        raise SystemExit(f'AY builder marker count={s.count(old)} for {old!r}')
+    s=s.replace(old,new,1)
+p.write_text(s)
 PYFIX
 
 cat > "$OUT/ay-layout.json" <<'JSON'
@@ -62,7 +68,8 @@ lines=['# Real-time 4.5 fps build with resident AY playback','',
        f"AY build compute completion: **{r['ay']['vm_finished_frame']} refreshes / {r['ay']['vm_finished_seconds']:.2f} s**.",
        f"Synchronized completion: **{r['ay']['host_frames']} refreshes / {r['ay']['seconds_at_50hz']:.2f} s**.",
        f"Target: **{r['target_refreshes']} refreshes / {r['target_seconds']:.2f} s**.",'',
-       f"- AY updates: {r['ay']['ay_updates']} at 25 Hz from the v5 50 Hz source",
+       f"- AY updates: {r['ay']['ay_updates']} at 25 Hz from source tick 20 of the v5 50 Hz stream",
+       f"- first AY update refresh: {r['ay']['first_ay_update_frame']}",
        f"- resident music/player data: {b['resident_music_bytes']} bytes",
        f"- compute margin: {r['compute_margin_refreshes']} refreshes",
        f"- final margin: {r['completion_margin_refreshes']} refreshes",
