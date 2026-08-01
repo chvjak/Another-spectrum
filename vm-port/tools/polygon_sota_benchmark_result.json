@@ -1,24 +1,33 @@
 {
+  "seed": 1,
   "triangles": 5000,
-  "exact_equal": 5000,
+  "exact_framebuffers": 395,
+  "visual_difference": {
+    "mean_pixels": 158.2892,
+    "median_pixels": 122.0,
+    "p95_pixels": 428.0,
+    "mean_bytes": 138.9118
+  },
   "modes": {
     "baseline": {
       "mean_modeled_t": 85382.1336,
-      "median_modeled_t": 81717.0,
-      "p95_modeled_t": 166145.25
+      "median_modeled_t": 81717.0
     },
-    "direct": {
-      "mean_modeled_t": 49334.3004,
-      "median_modeled_t": 42255.0,
-      "p95_modeled_t": 116010.0
+    "dda": {
+      "mean_modeled_t": 57509.1248,
+      "median_modeled_t": 51500.0
     },
-    "direct_post": {
-      "mean_modeled_t": 77587.1424,
-      "median_modeled_t": 64728.0,
-      "p95_modeled_t": 189504.0
+    "dda_post": {
+      "mean_modeled_t": 77580.9648,
+      "median_modeled_t": 64728.0
+    },
+    "preprocessed": {
+      "mean_modeled_t": 51720.6432,
+      "median_modeled_t": 43152.0
     }
   },
-  "speedup_direct": 1.730684998220832,
-  "speedup_repeated_with_postdraw": 1.2717132987230626,
-  "notes": "Relative Z80 T-state model. Not an emulator or hardware timing result. direct_post measures two identical direct draws where the second draw suppresses unchanged byte stores."
+  "speedup_dda_vs_baseline": 1.484671065625398,
+  "speedup_repeated_dda_postdraw": 1.4825576079971616,
+  "speedup_repeated_preprocessed": 2.2238364119957423,
+  "notes": "Relative Z80 T-state model, not emulator timing. Approximate signed 8.8 DDA deviations are intentionally allowed and measured. Preprocessed mode replays only bytes changed by the DDA rasterization."
 }
