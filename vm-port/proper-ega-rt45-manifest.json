@@ -1,0 +1,29 @@
+{
+  "kind": "live VM/vector renderer; not a diff-stream replay",
+  "base_visual_snapshot": "/workspace/scratch/883795df2cde/work/full/speccy-vm-port/build-full/another-world-vm-full.sna",
+  "vm_bytes": 4807,
+  "renderer_bytes": 3690,
+  "bitmap19": {
+    "old_offset": 13312,
+    "new_offset": 13304,
+    "bytes": 1739
+  },
+  "deep_child": {
+    "bank": 5,
+    "offset": 15043,
+    "address": 64195,
+    "bytes": 1341
+  },
+  "coordinate_tables": {
+    "bank": 2,
+    "offset": 14336,
+    "bytes": 520
+  },
+  "snapshot_bytes": 131103,
+  "schedule": {
+    "name": "cost-4p5",
+    "nominal_fps": 4.496644295302013,
+    "kept_presentations": 268,
+    "dropped_presentations": 30
+  }
+}

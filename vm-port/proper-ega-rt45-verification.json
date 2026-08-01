@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "candidate": {
+    "refreshes": 10164,
+    "secondsAt50Hz": 203.28,
+    "presentations": 268,
+    "distinctScreenHashes": 101,
+    "nonBlackPresentations": 268,
+    "vmTick": 2980,
+    "instructionCount": 56075,
+    "traceHash": 40691,
+    "firstRetainedSlot": 1,
+    "lastRetainedSlot": 298
+  },
+  "reference": {
+    "refreshes": 11815,
+    "secondsAt50Hz": 236.3,
+    "presentations": 298
+  },
+  "comparison": {
+    "exactPresentations": 64,
+    "averageMismatchBytes": 1264.0149253731342,
+    "worstMismatchBytes": 4923,
+    "bytesPerScreen": 6912,
+    "retainedSlotsOrdered": true
+  }
+}
