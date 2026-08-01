@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Regression tests for diff-stream/AY reel construction.
 
-These tests validate stream round-tripping, exact 50 Hz timing, SNA layout and
-presence of AY port writes. They do not replace execution in a Z80 emulator.
+These tests validate stream round-tripping, exact 50 Hz timing, SNA layout,
+presence of AY port writes and the v7 SFX overlays. They do not replace
+execution in a Z80 emulator.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ SPEC.loader.exec_module(build)
 
 
 def main() -> None:
-    ay_path = ROOT.parent / "music" / "v6" / "aw_intro_ay_v6_2m50s.bin.zlib.b64"
+    ay_path = ROOT.parent / "music" / "v7" / "aw_intro_ay_v7_sfx_2m50s.bin.zlib.b64"
     ay_frames = build.load_ay50(ay_path)
     assert len(ay_frames) == 8500
 
@@ -29,10 +30,19 @@ def main() -> None:
         assert encoded[:2] == b"\xff\x3f"
         assert build.decode_ay_segment(encoded, end - start) == ay_frames[start:end]
 
-    # Channel A is tone-only in v6; noisy onsets and snares remain on B/C.
-    assert all(frame[7] & 0x08 for frame in ay_frames)
-    assert any((frame[7] & 0x10) == 0 for frame in ay_frames)
-    assert any((frame[7] & 0x20) == 0 for frame in ay_frames)
+    # V6's stable tone-only bass remains intact except for the explicit lightning
+    # strike, which intentionally steals all three AY channels.
+    lightning_start = 118 * 50
+    lightning_end = lightning_start + 123
+    assert all(frame[7] & 0x08 for index, frame in enumerate(ay_frames) if not lightning_start <= index < lightning_end)
+    assert any((ay_frames[index][7] & 0x08) == 0 for index in range(lightning_start, lightning_end))
+
+    # Keypad tones use B; tyre/steps use C tone+noise; all are in the native stream.
+    keypad_tick = round(35.20 * 50)
+    assert ay_frames[keypad_tick][9] > 0
+    assert (ay_frames[keypad_tick][7] & 0x02) == 0
+    assert any((ay_frames[index][7] & 0x20) == 0 for index in range(round(25.20 * 50), round(26.85 * 50)))
+    assert any((ay_frames[index][7] & 0x20) == 0 for index in range(round(42.30 * 50), round(48.0 * 50)))
 
     code = build.player_code(frame_count=10, tail_ticks=272)
     assert build.PLAYER_ORIGIN + len(code) <= build.IM2_VECTOR_LOW_ADDRESS
@@ -60,7 +70,7 @@ def main() -> None:
         assert page5[handler : handler + 3] == bytes((0xFB, 0xED, 0x4D))
 
     print(
-        "passed: 8500 AY ticks, AY delta round-trip, no channel-A noise gate, "
+        "passed: 8500 AY ticks, v7 SFX overlays, AY delta round-trip, "
         f"player={len(code)} bytes, corrected timeline tail=272 ticks"
     )
 
