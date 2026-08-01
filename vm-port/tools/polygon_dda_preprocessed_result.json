@@ -1,0 +1,33 @@
+{
+  "seed": 1,
+  "triangles": 5000,
+  "exact_framebuffers_vs_current": 395,
+  "visual_difference_vs_current": {
+    "mean_pixels": 158.2892,
+    "median_pixels": 122.0,
+    "p95_pixels": 428.0,
+    "mean_bytes": 138.9118
+  },
+  "mean_changed_byte_records": 1077.5134,
+  "modes": {
+    "current_bresenham_edge_tables": {
+      "mean_modeled_t": 85382.1336,
+      "median_modeled_t": 81717.0,
+      "p95_modeled_t": 166145.25
+    },
+    "runtime_dda": {
+      "mean_modeled_t": 57509.1248,
+      "median_modeled_t": 51500.0,
+      "p95_modeled_t": 127120.6
+    },
+    "offline_dda_changed_byte_replay": {
+      "mean_modeled_t": 32325.402,
+      "median_modeled_t": 26970.0,
+      "p95_modeled_t": 78868.5
+    }
+  },
+  "speedup_runtime_dda_vs_current": 1.484671065625398,
+  "speedup_combined_vs_current": 2.6413324604594246,
+  "speedup_combined_vs_runtime_dda": 1.7790691295965941,
+  "notes": "Relative Z80 T-state model, not emulator timing. DDA rasterization and post-draw comparison occur offline. Runtime replays only changed destination-byte records. DDA deviations from the current Bresenham convention are intentionally allowed and measured."
+}
