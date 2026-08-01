@@ -63,6 +63,23 @@ MAYBE_NEW = """maybe_render:
         or a
         sbc hl,de
         jr nz,.render
+
+        ; A dropped slot still has to execute the complete presentation path.
+        ; RENDERER_PRESENT advances the attribute/checkpoint stream and swaps
+        ; the logical pages.  Hide the physical flip afterwards and keep the
+        ; externally visible rendered-frame counter at 268.
+        ld a,(LOGICAL_BACK)
+        ld (LAST_SAMPLE_BANK),a
+        call RENDERER_PRESENT
+        ld a,(DISPLAY_BIT)
+        xor 8
+        ld (DISPLAY_BIT),a
+        or 1
+        call page_a
+        ld hl,(FRAME_COUNT)
+        dec hl
+        ld (FRAME_COUNT),hl
+
         ld hl,(RT_DROP_PTR)
         inc hl
         inc hl
