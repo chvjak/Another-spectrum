@@ -1,8 +1,11 @@
 {
   "kind": "live VM/vector renderer; not a diff-stream replay",
-  "base_visual_snapshot": "/workspace/scratch/883795df2cde/work/full/speccy-vm-port/build-full/another-world-vm-full.sna",
-  "vm_bytes": 4807,
-  "renderer_bytes": 3690,
+  "base_visual_snapshot": "another-world-vm-full.sna",
+  "base_visual_sha256": "702626c903b3514f1c31fc5d030c2649ee7b0840d14ad64c39ae9abe99cb3ba1",
+  "vm_source": "vm-current.asm",
+  "renderer_source": "renderer-current.asm",
+  "vm_bytes": 2650,
+  "renderer_bytes": 3679,
   "bitmap19": {
     "old_offset": 13312,
     "new_offset": 13304,
@@ -15,11 +18,22 @@
     "bytes": 1341
   },
   "coordinate_tables": {
-    "bank": 2,
-    "offset": 14336,
-    "bytes": 520
+    "layout": "safe X table in fixed bank 5; arithmetic Y scaling",
+    "x": {
+      "bank": 5,
+      "offset": 12032,
+      "address": 28416,
+      "bytes": 256
+    }
+  },
+  "disabled_optimizations": {
+    "event_filter": true,
+    "deep_culling": true,
+    "fast_degenerate": true,
+    "fast_fill": true
   },
   "snapshot_bytes": 131103,
+  "snapshot_sha256": "f1549ef6d323c931fd0542d629935f593eae94c0db06d2613451d47c112851b1",
   "schedule": {
     "name": "cost-4p5",
     "nominal_fps": 4.496644295302013,

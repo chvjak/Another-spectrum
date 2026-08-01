@@ -11,7 +11,9 @@ that collapse to one horizontal or vertical span after Spectrum scaling.
 
 from __future__ import annotations
 
+import argparse
 import os
+from pathlib import Path
 
 try:
     # The benchmark harness keeps the original patcher under this name while
@@ -38,6 +40,19 @@ DEGENERATE_MARKER = '''        call prepare_color_decisions
         ld hl,(BBOX_WIDTH)'''
 
 FAST_DEGENERATE = r'''        call prepare_color_decisions
+
+        ; The original arithmetic maps source y=199 to byte value 192.  That
+        ; scanline is outside the Spectrum bitmap; clamp general polygons and
+        ; reject wholly off-screen collapsed primitives before dirty marking.
+        ld a,(MIN_Y)
+        cp 192
+        ret nc
+        ld a,(MAX_Y)
+        cp 192
+        jr c,.st_y_clipped
+        ld a,191
+        ld (MAX_Y),a
+.st_y_clipped:
         call mark_polygon_dirty
 
         ; Polygons which collapse after coordinate scaling need no edge tables.
@@ -173,10 +188,27 @@ def patch_renderer(source: str) -> str:
     width, height = selected_viewport()
     start = patched.index("scale_x_clamped:\n")
     end = patched.index(POLYGON_MARKER, start)
-    patched = patched[:start] + _lookup_routines(width, height) + "\n" + patched[end:]
+    patched = (
+        patched[:start]
+        + _lookup_routines(width, height)
+        + "\n\n"
+        + patched[end:]
+    )
 
     if os.environ.get("AW_FAST_DEGENERATE") == "1":
         if patched.count(DEGENERATE_MARKER) != 1:
             raise ValueError("primitive dispatch marker changed")
         patched = patched.replace(DEGENERATE_MARKER, FAST_DEGENERATE, 1)
     return patched
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("source", type=Path)
+    parser.add_argument("output", type=Path)
+    args = parser.parse_args()
+    args.output.write_text(patch_renderer(args.source.read_text(encoding="utf-8")), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()

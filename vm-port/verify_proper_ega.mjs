@@ -41,8 +41,8 @@ async function capture(snapshotPath) {
     if (next === presentation) continue;
     if (next !== presentation + 1) throw new Error(`presentation jump ${presentation} -> ${next}`);
     presentation = next;
-    const displayBank = (machine.u8(0x930B) & 8) ? 7 : 5;
-    frames.push(Buffer.from(machine.memory.subarray(machine.page(displayBank), machine.page(displayBank) + 6912)));
+    const presentedBank = machine.u8(0x9332) ? 7 : 5;
+    frames.push(Buffer.from(machine.memory.subarray(machine.page(presentedBank), machine.page(presentedBank) + 6912)));
   }
   return {
     refreshes,

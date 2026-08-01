@@ -8,6 +8,7 @@ The original source remains unchanged.  The generated file replaces only the
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 START_MARKER = "fill_span:\n"
@@ -382,25 +383,27 @@ def patch_renderer(source: str) -> str:
     """Return the optimized renderer source, validating the expected baseline."""
     if PATCH_TAG in source:
         return source
-    if source.count(START_MARKER) != 1:
-        raise ValueError("expected exactly one fill_span label")
-    if source.count(END_MARKER) != 1:
-        raise ValueError("expected exactly one prepare_color_decisions marker")
-    start = source.index(START_MARKER)
-    end = source.index(END_MARKER, start)
-    old = source[start:end]
-    required = (
-        ".byte_loop:",
-        "call decision_ink",
-        "ld (SPAN_CURRENT_BYTE),a",
-        "jp .byte_loop",
-    )
-    missing = [token for token in required if token not in old]
-    if missing:
-        raise ValueError(f"renderer baseline changed; missing {missing}")
-    patched = source[:start] + FAST_FILL_SPAN.rstrip() + "\n\n" + source[end:]
+    patched = source
+    if os.environ.get("AW_ST_FAST_FILL", "1") != "0":
+        if patched.count(START_MARKER) != 1:
+            raise ValueError("expected exactly one fill_span label")
+        if patched.count(END_MARKER) != 1:
+            raise ValueError("expected exactly one prepare_color_decisions marker")
+        start = patched.index(START_MARKER)
+        end = patched.index(END_MARKER, start)
+        old = patched[start:end]
+        required = (
+            ".byte_loop:",
+            "call decision_ink",
+            "ld (SPAN_CURRENT_BYTE),a",
+            "jp .byte_loop",
+        )
+        missing = [token for token in required if token not in old]
+        if missing:
+            raise ValueError(f"renderer baseline changed; missing {missing}")
+        patched = patched[:start] + FAST_FILL_SPAN.rstrip() + "\n\n" + patched[end:]
 
-    if EDGE_PATCH_TAG not in patched:
+    if os.environ.get("AW_ST_FAST_EDGE", "1") != "0" and EDGE_PATCH_TAG not in patched:
         if patched.count(EDGE_START_MARKER) != 1 or patched.count(EDGE_END_MARKER) != 1:
             raise ValueError("expected exactly one fill_polygon edge-clear block")
         edge_start = patched.index(EDGE_START_MARKER)
@@ -411,15 +414,17 @@ def patch_renderer(source: str) -> str:
                 raise ValueError(f"edge-clear baseline changed; missing {token}")
         patched = patched[:edge_start] + FAST_EDGE_CLEAR.rstrip() + "\n" + patched[edge_end:]
 
-    if patched.count(SCALE_START_MARKER) != 1 or patched.count(SCALE_END_MARKER) != 1:
-        raise ValueError("expected exactly one scale_x_clamped/scale_y_clamped pair")
-    scale_start = patched.index(SCALE_START_MARKER)
-    scale_end = patched.index(SCALE_END_MARKER, scale_start)
-    old_scale = patched[scale_start:scale_end]
-    for token in ("ld de,5", "sbc hl,bc", ".divide:"):
-        if token not in old_scale:
-            raise ValueError(f"scale_x baseline changed; missing {token}")
-    return patched[:scale_start] + FAST_SCALE_X.rstrip() + "\n\n" + patched[scale_end:]
+    if os.environ.get("AW_ST_FAST_SCALE", "1") != "0":
+        if patched.count(SCALE_START_MARKER) != 1 or patched.count(SCALE_END_MARKER) != 1:
+            raise ValueError("expected exactly one scale_x_clamped/scale_y_clamped pair")
+        scale_start = patched.index(SCALE_START_MARKER)
+        scale_end = patched.index(SCALE_END_MARKER, scale_start)
+        old_scale = patched[scale_start:scale_end]
+        for token in ("ld de,5", "sbc hl,bc", ".divide:"):
+            if token not in old_scale:
+                raise ValueError(f"scale_x baseline changed; missing {token}")
+        patched = patched[:scale_start] + FAST_SCALE_X.rstrip() + "\n\n" + patched[scale_end:]
+    return patched
 
 
 def main() -> None:
