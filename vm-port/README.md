@@ -69,3 +69,15 @@ node capture_full_vm.mjs |
 
 `build-full/manifest.json` contains the exact resource/layout sizes.
 `build-full/test-results.json` contains the complete VM and renderer regression.
+
+## Fixed real-asset 4.5 fps build
+
+`build_proper_ega.py` now supports the pixel-verified production combination:
+safe fixed-bank X scaling, arithmetic Y scaling, off-screen dirty clipping and
+a display-only 4.5 fps schedule. The unsafe real-asset event filter, deep-child
+culling, collapsed-polygon shortcut and fast span fill are disabled explicitly.
+
+The full local verification compares the bank recorded in `LAST_SAMPLE_BANK`
+for every retained presentation. The current result is 268/268 byte-exact
+screens, with zero mismatched bytes. See `PROPER-EGA-RT45-RESULTS.md` for the
+rebuild command, checksums and measured runtime.
