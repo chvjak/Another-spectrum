@@ -315,13 +315,13 @@ renderer_fill_screen:
         ld (DEST_MODE),a
         call fill_destination_full
         call mark_target_full
-        jr restore_bytecode
+        jp restore_bytecode
 
 renderer_restore_screen:
         xor a
         ld (DEST_MODE),a
         call restore_dirty_cells
-        jr restore_bytecode
+        jp restore_bytecode
 
 renderer_screen_to_background:
         ld a,(TARGET_SCREEN)
@@ -339,17 +339,36 @@ renderer_screen_to_background:
         ld bc,0x1800
         ldir
         call mark_both_full
-        jr restore_bytecode
+        jp restore_bytecode
 
 renderer_page3_to_background:
         ld a,1
         ld (DEST_MODE),a
         ld a,(PAGE3_BASE)
+        cp 0x40
+        jr z,.snapshot0
+        cp 0x41
+        jr z,.snapshot1
         bit 7,a
         jr z,.replay
         and 0x0F
         ld (POLY_COLOR),a
         call fill_destination_full
+        call mark_both_full
+        jr .replay
+.snapshot0:
+        ld hl,PAGE3_SNAPSHOT0
+        jr .load_snapshot
+.snapshot1:
+        ld hl,PAGE3_SNAPSHOT1
+.load_snapshot:
+        ld a,0xFF                    ; compressed snapshot is in fixed bank 5
+        ld c,0
+        call lz_reset
+        ld de,BACKGROUND
+        ld bc,0x1800
+        call lz_decode
+        call restart_middle_attributes
         call mark_both_full
 .replay:
         call replay_page3
@@ -359,6 +378,10 @@ renderer_page3_to_screen:
         xor a
         ld (DEST_MODE),a
         ld a,(PAGE3_BASE)
+        cp 0x40
+        jr z,.snapshot0
+        cp 0x41
+        jr z,.snapshot1
         bit 7,a
         jr z,.background
         and 0x0F
@@ -368,6 +391,27 @@ renderer_page3_to_screen:
         jr .replay
 .background:
         call restore_dirty_cells
+        jr .replay
+.snapshot0:
+        ld hl,PAGE3_SNAPSHOT0
+        jr .load_snapshot
+.snapshot1:
+        ld hl,PAGE3_SNAPSHOT1
+.load_snapshot:
+        ld a,0xFF
+        ld c,0
+        call lz_reset
+        call map_destination
+        ld a,(TARGET_SCREEN)
+        or a
+        ld de,0x4000
+        jr z,.destination_ready
+        ld de,0xC000
+.destination_ready:
+        ld bc,0x1800
+        call lz_decode
+        call restart_middle_attributes
+        call mark_target_full
 .replay:
         call replay_page3
         jr restore_bytecode
@@ -1145,6 +1189,20 @@ decode_primitive:
         call shape_fetch               ; vertex count
         ld (VERTEX_COUNT),a
         ld c,a
+        call primitive_fully_offscreen
+        jr nc,.not_fully_offscreen
+        ld a,c
+        add a,a
+        ld e,a
+        ld d,0
+        ld hl,(SHAPE_OFFSET)
+        add hl,de
+        ld (SHAPE_OFFSET),hl
+        ld hl,(PRIMITIVE_COUNT)
+        inc hl
+        ld (PRIMITIVE_COUNT),hl
+        ret
+.not_fully_offscreen:
         ld hl,(BBOX_WIDTH)
         ld a,h
         or l
@@ -1298,6 +1356,41 @@ decode_primitive:
         ret
 .polygon:
         call fill_polygon
+        ret
+
+; Match the original renderer's bounding-box rejection before any viewport
+; conversion. Carry is set when the complete primitive lies outside 320x200.
+primitive_fully_offscreen:
+        ld hl,(POLY_X1)
+        bit 7,h
+        jr nz,.x_right_test
+        ld de,320
+        or a
+        sbc hl,de
+        jr nc,.outside
+.x_right_test:
+        ld hl,(POLY_X1)
+        ld de,(BBOX_WIDTH)
+        add hl,de
+        bit 7,h
+        jr nz,.outside
+        ld hl,(POLY_Y1)
+        bit 7,h
+        jr nz,.y_bottom_test
+        ld de,200
+        or a
+        sbc hl,de
+        jr nc,.outside
+.y_bottom_test:
+        ld hl,(POLY_Y1)
+        ld de,(BBOX_HEIGHT)
+        add hl,de
+        bit 7,h
+        jr nz,.outside
+        or a
+        ret
+.outside:
+        scf
         ret
 
 ; A=resource coordinate, return DE=floor(A * SHAPE_ZOOM / 64).
@@ -1758,6 +1851,8 @@ fill_span:
         ld a,(POLY_COLOR)
         cp 17
         jr z,.page_color
+        cp 16
+        jr z,.byte_done              ; COL_ALPHA preserves the existing pixel
         ld a,(iy+0)
         call decision_ink
         or a
@@ -1813,7 +1908,7 @@ prepare_color_decisions:
         cp 17
         ret z
         cp 16
-        jr z,.desired_ready
+        ret z                           ; COL_ALPHA is a preserve operation
         ld c,a                        ; original colour 0..15
         ld a,(PENDING_PALETTE)
         cp 0xFF
@@ -1843,16 +1938,19 @@ prepare_color_decisions:
         ld e,c
         ld d,0
         add hl,de
-        ld a,(hl)
-.desired_ready:
+        ld a,(hl)                      ; deduplicated direct-row index
         ld l,a
         ld h,0
         add hl,hl
         add hl,hl
         add hl,hl
         add hl,hl
-        ld de,DECISION_DATA
+        ld de,DIRECT_DECISION_ROWS
         add hl,de
+        ld a,(CURRENT_BANK)
+        push af
+        ld a,7
+        call page_a
         push hl
         pop ix
         ld iy,COLOR_DECISIONS
@@ -1872,7 +1970,8 @@ prepare_color_decisions:
         dec d
         jr nz,.bit
         djnz .group
-        ret
+        pop af
+        jp page_a
 
 ; A=attribute. Return A=0xFF when the current primitive maps to INK,
 ; otherwise return zero for PAPER.

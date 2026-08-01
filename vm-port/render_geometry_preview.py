@@ -25,8 +25,13 @@ PALETTE = [
 
 CLEAR_RE = re.compile(r"SEM clear buffer=(\d+) color=(-?\d+)")
 COPY_RE = re.compile(r"SEM copy dst=(\d+) src=(\d+)")
-POLY_RE = re.compile(r"SEM quadstrip buffer=(\d+) color=(-?\d+) vertices=(\d+)")
-VERTEX_RE = re.compile(r"SEM vertex index=(\d+) x=(-?\d+) y=(-?\d+)")
+POLY_RE = re.compile(
+    r"SEM quadstrip(?: primitive=\d+)?(?: event=\d+)? "
+    r"buffer=(\d+) color=(-?\d+) vertices=(\d+)"
+)
+VERTEX_RE = re.compile(
+    r"SEM vertex(?: primitive=\d+)? index=(\d+) x=(-?\d+) y=(-?\d+)"
+)
 POINT_RE = re.compile(r"SEM point buffer=(\d+) color=(-?\d+) x=(-?\d+) y=(-?\d+)")
 GLYPH_RE = re.compile(r"SEM glyph buffer=(\d+) color=(-?\d+) char=(\d+) x=(-?\d+) y=(-?\d+)")
 PRESENT_RE = re.compile(r"SEM present buffer=(\d+)")
@@ -57,6 +62,8 @@ def main() -> None:
     tick = -1
     saved = 0
     presents = 0
+    polygons = 0
+    vertices_seen = 0
     font = ImageFont.load_default()
 
     i = 0
@@ -74,6 +81,7 @@ def main() -> None:
                 pages[dst] = pages[src].copy()
         elif match := POLY_RE.fullmatch(line):
             page, value, count = map(int, match.groups())
+            polygons += 1
             vertices: list[tuple[int, int]] = []
             for _ in range(count):
                 i += 1
@@ -82,6 +90,7 @@ def main() -> None:
                     raise RuntimeError(f"missing vertex after {line!r}: {lines[i]!r}")
                 _, x, y = map(int, vertex.groups())
                 vertices.append((max(-512, min(831, x)), max(-512, min(711, y))))
+                vertices_seen += 1
             if 0 <= page < len(pages) and vertices:
                 draw = ImageDraw.Draw(pages[page])
                 if len(vertices) == 1:
@@ -110,10 +119,19 @@ def main() -> None:
                 saved += 1
         i += 1
 
-    summary = {"trace_lines": len(lines), "present_events": presents, "saved_frames": saved, "last_tick": tick}
+    summary = {
+        "trace_lines": len(lines),
+        "present_events": presents,
+        "saved_frames": saved,
+        "polygons": polygons,
+        "vertices": vertices_seen,
+        "last_tick": tick,
+    }
     print(summary)
     if saved != 298:
         raise RuntimeError(f"expected 298 sampled frames, got {saved}")
+    if polygons == 0 or vertices_seen == 0:
+        raise RuntimeError("semantic trace contained no parsed polygon geometry")
 
 
 if __name__ == "__main__":
