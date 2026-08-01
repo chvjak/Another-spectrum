@@ -473,9 +473,10 @@ def main() -> None:
         default=Path(__file__).with_name("hybrid_aw_font_schedule.json"),
     )
     parser.add_argument("--rawgl-revision", default="unknown")
-    # Gap 1 keeps the external player on its exact 8,226-refresh completion
-    # deadline with this schedule while still fitting the stream in 26 blocks.
-    parser.add_argument("--merge-gap", type=int, default=1)
+    # Gap 4 reduces control-loop overhead enough for every dense delta to
+    # finish before its two-refresh presentation deadline.  The resulting
+    # stream uses 27 fixed-size external-media blocks.
+    parser.add_argument("--merge-gap", type=int, default=4)
     parser.add_argument("--stats", type=Path)
     args = parser.parse_args()
 
