@@ -1,0 +1,24 @@
+{
+  "triangles": 5000,
+  "exact_equal": 5000,
+  "modes": {
+    "baseline": {
+      "mean_modeled_t": 85382.1336,
+      "median_modeled_t": 81717.0,
+      "p95_modeled_t": 166145.25
+    },
+    "direct": {
+      "mean_modeled_t": 49334.3004,
+      "median_modeled_t": 42255.0,
+      "p95_modeled_t": 116010.0
+    },
+    "direct_post": {
+      "mean_modeled_t": 77587.1424,
+      "median_modeled_t": 64728.0,
+      "p95_modeled_t": 189504.0
+    }
+  },
+  "speedup_direct": 1.730684998220832,
+  "speedup_repeated_with_postdraw": 1.2717132987230626,
+  "notes": "Relative Z80 T-state model. Not an emulator or hardware timing result. direct_post measures two identical direct draws where the second draw suppresses unchanged byte stores."
+}
