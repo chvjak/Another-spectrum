@@ -33,6 +33,8 @@ python3 diff-stream/build_hybrid_aw_font.py \
 `hybrid_aw_font_schedule.json` records the inclusive source-frame ranges,
 RawGL string IDs, original text coordinates, and Spectrum colours.  The build
 manifest records hashes for the input stream, RawGL source, extracted font,
-schedule, and output stream.  The default one-byte delta merge gap packages the
-result in 26 external-media blocks and preserves the verified 8,226-refresh
-(164.52-second) completion deadline.
+schedule, and output stream.  The default four-byte delta merge gap packages the
+result in 27 external-media blocks.  It reduces decoder control-loop overhead
+enough for the published player to decode into the hidden bank before every
+deadline, then flip with an exact two-refresh cadence: all 4,113 presentations
+take 40 ms and completion remains exactly 8,226 refreshes (164.52 seconds).
