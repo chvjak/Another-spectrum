@@ -1,0 +1,2996 @@
+{
+  "schema": "another-spectrum-vm-baseline-v1",
+  "baseline": {
+    "build": "VM baseline \u2014 independent-reference fixed",
+    "source_branch": "agent/polygon-sota-benchmark (descends proper-ega)",
+    "snapshot": {
+      "path": "another-world-original-render-fixed.sna",
+      "bytes": 131103,
+      "sha256": "334e2740c20a90c4c3f370d90a55a8aafaab4a4f7c048a1b3d4aa7ce1d080c8a"
+    },
+    "completed": true,
+    "vm_tick": 2980,
+    "instruction_count": 56075,
+    "trace_hash": 40691,
+    "total_refreshes": 31184,
+    "total_tstates_at_refresh_boundary": 2211195072,
+    "equivalent_seconds_at_50hz": 623.68,
+    "retained_presentations": 298,
+    "presentation_cost": {
+      "average_refreshes": 104.63422818791946,
+      "p50_refreshes": 46,
+      "p95_refreshes": 400,
+      "maximum_refreshes": 799,
+      "average_tstates_at_refresh_boundary": 7419403.889261745,
+      "p95_tstates_at_refresh_boundary": 28363191
+    },
+    "screen_sequence_sha256": "8d41651c8d30cbb50ed63af59db7b6ae7d41fb003fb696e3aff52ee47ca406c6"
+  },
+  "renderer": {
+    "span_bytes": 270238,
+    "text_bytes": 14240,
+    "full_bitmap_bytes": 552960,
+    "polygons": 5344,
+    "points": 2594,
+    "background_primitives": 1977,
+    "foreground_primitives": 5961,
+    "background_span_bytes": 84269,
+    "foreground_span_bytes": 185969,
+    "rasterizer_and_text_bitmap_write_bytes": 284478,
+    "primitive_sum": 7938,
+    "destination_primitive_sum": 7938,
+    "span_destination_sum": 270238,
+    "measurement_only_visual_identity": true,
+    "instrumentation_refreshes": 32464,
+    "uninstrumented_exact_run_tasks_tstates": 1464607629,
+    "uninstrumented_exact_run_tasks_refreshes": 20655.040742934507
+  },
+  "bitmap": {
+    "visible_changed_bytes": 85489,
+    "visible_changed_bits": 492380,
+    "background_restore_bytes": 198128,
+    "rasterizer_write_bytes": null,
+    "rasterizer_write_bytes_note": "Requires the separately instrumented byte-write build; framebuffer deltas are not write counts."
+  },
+  "attributes": {
+    "generations": 48,
+    "baseline_copy_bytes": 457728,
+    "baseline_copy_policy": "768 bytes copied to bank 5 and bank 7 on every retained presentation",
+    "visible_changed_bytes": 25528
+  },
+  "page_operations": {
+    "semantic_copy_counts": {
+      "0->1": 1388,
+      "0->2": 1390,
+      "0->3": 2,
+      "1->0": 5,
+      "1->3": 1,
+      "2->0": 8,
+      "2->1": 1,
+      "3->0": 8,
+      "3->2": 1
+    },
+    "screen_to_background_full_copy_operations": 13,
+    "screen_to_background_bitmap_bytes": 79872,
+    "background_to_screen_actual_restore_bytes": 198128,
+    "baseline_attribute_copy_bytes": 457728
+  },
+  "semantic_full_intro": {
+    "totals": {
+      "clears": 73,
+      "presentations": 2982,
+      "draw_events": 9648,
+      "polygons": 24675,
+      "vertices": 129162,
+      "copies": 2804,
+      "glyphs": 11504,
+      "points": 17293
+    },
+    "copy_operations": {
+      "0->1": 1388,
+      "0->2": 1390,
+      "0->3": 2,
+      "1->0": 5,
+      "1->3": 1,
+      "2->0": 8,
+      "2->1": 1,
+      "3->0": 8,
+      "3->2": 1
+    }
+  },
+  "background_construction": [
+    {
+      "stage": "Interplay logo / bitmap 18 load",
+      "vm_tick": 1,
+      "reference_capture_frame": 10,
+      "run_tasks_tstates": 5947855,
+      "pal_refreshes": 83.88129689174706,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 1,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 1,
+      "background_span_bytes": 24,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6168,
+      "prepared_background_lzss_bytes": 814,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "Interplay-to-Delphine transition",
+      "vm_tick": 49,
+      "reference_capture_frame": 60,
+      "run_tasks_tstates": 1537344,
+      "pal_refreshes": 21.680825858859368,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6144,
+      "prepared_background_lzss_bytes": 442,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "Delphine Software logo / bitmap 71",
+      "vm_tick": 54,
+      "reference_capture_frame": 60,
+      "run_tasks_tstates": 5645148,
+      "pal_refreshes": 79.61228634286681,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 1,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 1,
+      "background_span_bytes": 24,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6168,
+      "prepared_background_lzss_bytes": 442,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "copyright/title transition",
+      "vm_tick": 102,
+      "reference_capture_frame": 110,
+      "run_tasks_tstates": 1527793,
+      "pal_refreshes": 21.546130196874824,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6144,
+      "prepared_background_lzss_bytes": 30,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "Ferrari/parking setup",
+      "vm_tick": 188,
+      "reference_capture_frame": 190,
+      "run_tasks_tstates": 2109919,
+      "pal_refreshes": 29.75572572911378,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6144,
+      "prepared_background_lzss_bytes": 30,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "Ferrari/parking",
+      "vm_tick": 190,
+      "reference_capture_frame": 200,
+      "run_tasks_tstates": 31007426,
+      "pal_refreshes": 437.29094037344163,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 169,
+      "points": 90,
+      "glyphs": 0,
+      "renderer_background_primitives": 270,
+      "background_span_bytes": 14134,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 20278,
+      "prepared_background_lzss_bytes": 743,
+      "already_prebuilt_in_baseline": true,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "Ferrari/parking detail",
+      "vm_tick": 302,
+      "reference_capture_frame": 310,
+      "run_tasks_tstates": 19661660,
+      "pal_refreshes": 277.2840864218424,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 110,
+      "points": 83,
+      "glyphs": 0,
+      "renderer_background_primitives": 195,
+      "background_span_bytes": 8830,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 14974,
+      "prepared_background_lzss_bytes": 508,
+      "already_prebuilt_in_baseline": true,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "door/corridor",
+      "vm_tick": 403,
+      "reference_capture_frame": 410,
+      "run_tasks_tstates": 25095137,
+      "pal_refreshes": 353.91122299317425,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 85,
+      "points": 12,
+      "glyphs": 0,
+      "renderer_background_primitives": 99,
+      "background_span_bytes": 14139,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 20283,
+      "prepared_background_lzss_bytes": 551,
+      "already_prebuilt_in_baseline": true,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "elevator transition",
+      "vm_tick": 776,
+      "reference_capture_frame": 780,
+      "run_tasks_tstates": 2261481,
+      "pal_refreshes": 31.893171433406668,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6144,
+      "prepared_background_lzss_bytes": 30,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "elevator/doorway",
+      "vm_tick": 1053,
+      "reference_capture_frame": 1060,
+      "run_tasks_tstates": 14953208,
+      "pal_refreshes": 210.8818186946466,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 41,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 41,
+      "background_span_bytes": 8820,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 14964,
+      "prepared_background_lzss_bytes": 433,
+      "already_prebuilt_in_baseline": true,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "laboratory entrance",
+      "vm_tick": 1087,
+      "reference_capture_frame": 1090,
+      "run_tasks_tstates": 11818239,
+      "pal_refreshes": 166.670037231342,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 25,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 25,
+      "background_span_bytes": 7316,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 13460,
+      "prepared_background_lzss_bytes": 100,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "laboratory/desk",
+      "vm_tick": 1171,
+      "reference_capture_frame": 1180,
+      "run_tasks_tstates": 17991528,
+      "pal_refreshes": 253.73058047046877,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 165,
+      "points": 38,
+      "glyphs": 0,
+      "renderer_background_primitives": 203,
+      "background_span_bytes": 3485,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 9629,
+      "prepared_background_lzss_bytes": 372,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "accelerator console text",
+      "vm_tick": 2159,
+      "reference_capture_frame": 2170,
+      "run_tasks_tstates": 3012183,
+      "pal_refreshes": 42.480157387036726,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 56,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 448,
+      "background_bitmap_bytes_written": 6592,
+      "prepared_background_lzss_bytes": 279,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "accelerator/tunnel setup",
+      "vm_tick": 2209,
+      "reference_capture_frame": 2220,
+      "run_tasks_tstates": 2255368,
+      "pal_refreshes": 31.806961132735374,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6144,
+      "prepared_background_lzss_bytes": 792,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "accelerator/tunnel",
+      "vm_tick": 2211,
+      "reference_capture_frame": 2220,
+      "run_tasks_tstates": 32662314,
+      "pal_refreshes": 460.62946353020817,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 184,
+      "points": 92,
+      "glyphs": 0,
+      "renderer_background_primitives": 287,
+      "background_span_bytes": 14658,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 20802,
+      "prepared_background_lzss_bytes": 792,
+      "already_prebuilt_in_baseline": true,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "late title transition",
+      "vm_tick": 2899,
+      "reference_capture_frame": 2910,
+      "run_tasks_tstates": 2499699,
+      "pal_refreshes": 35.25270773396514,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 0,
+      "points": 0,
+      "glyphs": 17,
+      "renderer_background_primitives": 0,
+      "background_span_bytes": 0,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 136,
+      "background_bitmap_bytes_written": 6280,
+      "prepared_background_lzss_bytes": 116,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    },
+    {
+      "stage": "Out of This World title / bitmap 19",
+      "vm_tick": 2939,
+      "reference_capture_frame": 2950,
+      "run_tasks_tstates": 5971613,
+      "pal_refreshes": 84.21635076437073,
+      "measurement_scope": "complete run_tasks tick in live-background timing build",
+      "polygons": 1,
+      "points": 0,
+      "glyphs": 0,
+      "renderer_background_primitives": 1,
+      "background_span_bytes": 24,
+      "background_full_fill_bytes": 6144,
+      "background_text_bytes": 0,
+      "background_bitmap_bytes_written": 6168,
+      "prepared_background_lzss_bytes": 1357,
+      "already_prebuilt_in_baseline": false,
+      "policy": "prebuild"
+    }
+  ],
+  "regression": {
+    "reference_screens": 298,
+    "reference_screens_sha256": "36b1ab6f549cc7b8af093a353912fbac96164d8bf6b044f46f3e61a4dcc34817",
+    "comparison": {
+      "passed": true,
+      "presentations": 298,
+      "exact_reference_presentations": 31,
+      "average_reference_mismatch_bytes": 522.255033557047,
+      "worst_reference_mismatch_bytes": 3855,
+      "candidate_original_rgb_mse": 2550.5630749411584,
+      "ideal_reference_original_rgb_mse": 2156.5617114585516,
+      "excess_rgb_error_fraction": 0.18269885873849212,
+      "worst": [
+        {
+          "presentation": 113,
+          "bitmap_mismatch_bytes": 3855,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3855,
+          "candidate_original_rgb_mse": 2200.009562174479,
+          "reference_original_rgb_mse": 2200.009562174479
+        },
+        {
+          "presentation": 203,
+          "bitmap_mismatch_bytes": 3078,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3078,
+          "candidate_original_rgb_mse": 7327.664855957031,
+          "reference_original_rgb_mse": 6049.369717068143
+        },
+        {
+          "presentation": 204,
+          "bitmap_mismatch_bytes": 3031,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3031,
+          "candidate_original_rgb_mse": 8163.384460449219,
+          "reference_original_rgb_mse": 6745.426344129774
+        },
+        {
+          "presentation": 119,
+          "bitmap_mismatch_bytes": 2559,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2559,
+          "candidate_original_rgb_mse": 9322.17194281684,
+          "reference_original_rgb_mse": 5872.2353108723955
+        },
+        {
+          "presentation": 121,
+          "bitmap_mismatch_bytes": 2449,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2449,
+          "candidate_original_rgb_mse": 9004.433566623264,
+          "reference_original_rgb_mse": 5662.717420789931
+        },
+        {
+          "presentation": 118,
+          "bitmap_mismatch_bytes": 2267,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2267,
+          "candidate_original_rgb_mse": 8588.356119791666,
+          "reference_original_rgb_mse": 5579.361762152777
+        },
+        {
+          "presentation": 282,
+          "bitmap_mismatch_bytes": 2118,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2118,
+          "candidate_original_rgb_mse": 3382.104193793403,
+          "reference_original_rgb_mse": 2976.4698621961807
+        },
+        {
+          "presentation": 278,
+          "bitmap_mismatch_bytes": 2117,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2117,
+          "candidate_original_rgb_mse": 3375.897745768229,
+          "reference_original_rgb_mse": 2969.678127712674
+        },
+        {
+          "presentation": 273,
+          "bitmap_mismatch_bytes": 2115,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2115,
+          "candidate_original_rgb_mse": 3386.286173502604,
+          "reference_original_rgb_mse": 2980.542249891493
+        },
+        {
+          "presentation": 283,
+          "bitmap_mismatch_bytes": 2110,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2110,
+          "candidate_original_rgb_mse": 3613.508578830295,
+          "reference_original_rgb_mse": 3169.5090128580728
+        },
+        {
+          "presentation": 275,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3370.9092068142363,
+          "reference_original_rgb_mse": 2967.4986165364585
+        },
+        {
+          "presentation": 281,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3376.69681125217,
+          "reference_original_rgb_mse": 2973.2862209743926
+        },
+        {
+          "presentation": 289,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3369.21780734592,
+          "reference_original_rgb_mse": 2965.8072170681426
+        },
+        {
+          "presentation": 286,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3375.938327365451,
+          "reference_original_rgb_mse": 2972.527737087674
+        },
+        {
+          "presentation": 290,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3371.649359809028,
+          "reference_original_rgb_mse": 2968.88330078125
+        },
+        {
+          "presentation": 277,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3377.0868326822915,
+          "reference_original_rgb_mse": 2973.6762424045137
+        }
+      ],
+      "per_presentation": [
+        {
+          "presentation": 1,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1395.0956217447917,
+          "reference_original_rgb_mse": 1395.0956217447917
+        },
+        {
+          "presentation": 2,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1395.0956217447917,
+          "reference_original_rgb_mse": 1395.0956217447917
+        },
+        {
+          "presentation": 3,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1395.0956217447917,
+          "reference_original_rgb_mse": 1395.0956217447917
+        },
+        {
+          "presentation": 4,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1395.0956217447917,
+          "reference_original_rgb_mse": 1395.0956217447917
+        },
+        {
+          "presentation": 5,
+          "bitmap_mismatch_bytes": 500,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 500,
+          "candidate_original_rgb_mse": 26.586134168836807,
+          "reference_original_rgb_mse": 26.586134168836807
+        },
+        {
+          "presentation": 6,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 0.0,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 7,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 0.0,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 8,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 0.0,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 9,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 0.0,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 10,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 108.37239583333333,
+          "reference_original_rgb_mse": 108.37239583333333
+        },
+        {
+          "presentation": 11,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 0.0,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 12,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 13,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 14,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 15,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 16,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 17,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 18,
+          "bitmap_mismatch_bytes": 140,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 140,
+          "candidate_original_rgb_mse": 493.45550537109375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 19,
+          "bitmap_mismatch_bytes": 120,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 120,
+          "candidate_original_rgb_mse": 12.54144287109375,
+          "reference_original_rgb_mse": 12.54144287109375
+        },
+        {
+          "presentation": 20,
+          "bitmap_mismatch_bytes": 55,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 55,
+          "candidate_original_rgb_mse": 2418.6046617296006,
+          "reference_original_rgb_mse": 2414.4900783962676
+        },
+        {
+          "presentation": 21,
+          "bitmap_mismatch_bytes": 55,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 55,
+          "candidate_original_rgb_mse": 2418.6046617296006,
+          "reference_original_rgb_mse": 2414.4900783962676
+        },
+        {
+          "presentation": 22,
+          "bitmap_mismatch_bytes": 255,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 255,
+          "candidate_original_rgb_mse": 2915.746595594618,
+          "reference_original_rgb_mse": 2373.310940212674
+        },
+        {
+          "presentation": 23,
+          "bitmap_mismatch_bytes": 199,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 199,
+          "candidate_original_rgb_mse": 2746.576850043403,
+          "reference_original_rgb_mse": 2317.8848470052085
+        },
+        {
+          "presentation": 24,
+          "bitmap_mismatch_bytes": 199,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 199,
+          "candidate_original_rgb_mse": 2746.576850043403,
+          "reference_original_rgb_mse": 2317.8848470052085
+        },
+        {
+          "presentation": 25,
+          "bitmap_mismatch_bytes": 117,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 117,
+          "candidate_original_rgb_mse": 2239.6740044487847,
+          "reference_original_rgb_mse": 2209.958509657118
+        },
+        {
+          "presentation": 26,
+          "bitmap_mismatch_bytes": 117,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 117,
+          "candidate_original_rgb_mse": 2239.6740044487847,
+          "reference_original_rgb_mse": 2209.958509657118
+        },
+        {
+          "presentation": 27,
+          "bitmap_mismatch_bytes": 117,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 117,
+          "candidate_original_rgb_mse": 2239.6740044487847,
+          "reference_original_rgb_mse": 2209.958509657118
+        },
+        {
+          "presentation": 28,
+          "bitmap_mismatch_bytes": 119,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 119,
+          "candidate_original_rgb_mse": 2242.010240342882,
+          "reference_original_rgb_mse": 2212.501993815104
+        },
+        {
+          "presentation": 29,
+          "bitmap_mismatch_bytes": 136,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 136,
+          "candidate_original_rgb_mse": 2249.9838256835938,
+          "reference_original_rgb_mse": 2219.0291815863716
+        },
+        {
+          "presentation": 30,
+          "bitmap_mismatch_bytes": 136,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 136,
+          "candidate_original_rgb_mse": 2249.9838256835938,
+          "reference_original_rgb_mse": 2219.0291815863716
+        },
+        {
+          "presentation": 31,
+          "bitmap_mismatch_bytes": 146,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 146,
+          "candidate_original_rgb_mse": 2410.877163357205,
+          "reference_original_rgb_mse": 2351.056850857205
+        },
+        {
+          "presentation": 32,
+          "bitmap_mismatch_bytes": 375,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 375,
+          "candidate_original_rgb_mse": 2468.584703233507,
+          "reference_original_rgb_mse": 2374.982706705729
+        },
+        {
+          "presentation": 33,
+          "bitmap_mismatch_bytes": 229,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 229,
+          "candidate_original_rgb_mse": 2202.5598754882812,
+          "reference_original_rgb_mse": 2150.1297539605034
+        },
+        {
+          "presentation": 34,
+          "bitmap_mismatch_bytes": 137,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 137,
+          "candidate_original_rgb_mse": 2193.062052408854,
+          "reference_original_rgb_mse": 2154.136271158854
+        },
+        {
+          "presentation": 35,
+          "bitmap_mismatch_bytes": 166,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 166,
+          "candidate_original_rgb_mse": 2231.492824978299,
+          "reference_original_rgb_mse": 2204.213094075521
+        },
+        {
+          "presentation": 36,
+          "bitmap_mismatch_bytes": 150,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 150,
+          "candidate_original_rgb_mse": 2079.9899088541665,
+          "reference_original_rgb_mse": 2061.956488715278
+        },
+        {
+          "presentation": 37,
+          "bitmap_mismatch_bytes": 150,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 150,
+          "candidate_original_rgb_mse": 2079.9899088541665,
+          "reference_original_rgb_mse": 2061.956488715278
+        },
+        {
+          "presentation": 38,
+          "bitmap_mismatch_bytes": 150,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 150,
+          "candidate_original_rgb_mse": 2079.9899088541665,
+          "reference_original_rgb_mse": 2061.956488715278
+        },
+        {
+          "presentation": 39,
+          "bitmap_mismatch_bytes": 161,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 161,
+          "candidate_original_rgb_mse": 2187.1286417643228,
+          "reference_original_rgb_mse": 2158.0314195421006
+        },
+        {
+          "presentation": 40,
+          "bitmap_mismatch_bytes": 161,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 161,
+          "candidate_original_rgb_mse": 2187.1286417643228,
+          "reference_original_rgb_mse": 2158.0314195421006
+        },
+        {
+          "presentation": 41,
+          "bitmap_mismatch_bytes": 165,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 165,
+          "candidate_original_rgb_mse": 2283.2054511176216,
+          "reference_original_rgb_mse": 2177.162312825521
+        },
+        {
+          "presentation": 42,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1920.089382595486,
+          "reference_original_rgb_mse": 1918.210910373264
+        },
+        {
+          "presentation": 43,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1920.089382595486,
+          "reference_original_rgb_mse": 1918.210910373264
+        },
+        {
+          "presentation": 44,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1920.089382595486,
+          "reference_original_rgb_mse": 1918.210910373264
+        },
+        {
+          "presentation": 45,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1920.089382595486,
+          "reference_original_rgb_mse": 1918.210910373264
+        },
+        {
+          "presentation": 46,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1920.089382595486,
+          "reference_original_rgb_mse": 1918.210910373264
+        },
+        {
+          "presentation": 47,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1919.212843153212,
+          "reference_original_rgb_mse": 1917.4630601671006
+        },
+        {
+          "presentation": 48,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1917.2725355360244,
+          "reference_original_rgb_mse": 1915.522752549913
+        },
+        {
+          "presentation": 49,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1915.1166381835938,
+          "reference_original_rgb_mse": 1913.3668551974827
+        },
+        {
+          "presentation": 50,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1912.960740831163,
+          "reference_original_rgb_mse": 1911.210957845052
+        },
+        {
+          "presentation": 51,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1911.0204332139756,
+          "reference_original_rgb_mse": 1909.2706502278645
+        },
+        {
+          "presentation": 52,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1908.8645358615452,
+          "reference_original_rgb_mse": 1907.114752875434
+        },
+        {
+          "presentation": 53,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1906.9242282443577,
+          "reference_original_rgb_mse": 1905.1744452582466
+        },
+        {
+          "presentation": 54,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1904.768330891927,
+          "reference_original_rgb_mse": 1903.018547905816
+        },
+        {
+          "presentation": 55,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1902.6124335394966,
+          "reference_original_rgb_mse": 1900.8626505533855
+        },
+        {
+          "presentation": 56,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1900.672125922309,
+          "reference_original_rgb_mse": 1898.922342936198
+        },
+        {
+          "presentation": 57,
+          "bitmap_mismatch_bytes": 10,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 10,
+          "candidate_original_rgb_mse": 1898.5162285698784,
+          "reference_original_rgb_mse": 1896.7664455837673
+        },
+        {
+          "presentation": 58,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1898.3536987304688,
+          "reference_original_rgb_mse": 1896.3816935221355
+        },
+        {
+          "presentation": 59,
+          "bitmap_mismatch_bytes": 12,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 12,
+          "candidate_original_rgb_mse": 1898.655266655816,
+          "reference_original_rgb_mse": 1896.448018391927
+        },
+        {
+          "presentation": 60,
+          "bitmap_mismatch_bytes": 12,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 12,
+          "candidate_original_rgb_mse": 1898.7215915256077,
+          "reference_original_rgb_mse": 1896.5143432617188
+        },
+        {
+          "presentation": 61,
+          "bitmap_mismatch_bytes": 11,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 11,
+          "candidate_original_rgb_mse": 1898.5460408528645,
+          "reference_original_rgb_mse": 1896.5740356445312
+        },
+        {
+          "presentation": 62,
+          "bitmap_mismatch_bytes": 12,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 12,
+          "candidate_original_rgb_mse": 1898.847608778212,
+          "reference_original_rgb_mse": 1896.640360514323
+        },
+        {
+          "presentation": 63,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 64,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 65,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 66,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 67,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 68,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 69,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 70,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 71,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 72,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 73,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 74,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 75,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 76,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 77,
+          "bitmap_mismatch_bytes": 9,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 9,
+          "candidate_original_rgb_mse": 1897.714850531684,
+          "reference_original_rgb_mse": 1896.2224460177952
+        },
+        {
+          "presentation": 78,
+          "bitmap_mismatch_bytes": 8,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 8,
+          "candidate_original_rgb_mse": 1630.465813530816,
+          "reference_original_rgb_mse": 1629.5543551974827
+        },
+        {
+          "presentation": 79,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1651.6839192708333,
+          "reference_original_rgb_mse": 1651.6839192708333
+        },
+        {
+          "presentation": 80,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1649.7083333333333,
+          "reference_original_rgb_mse": 1649.7083333333333
+        },
+        {
+          "presentation": 81,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1649.3085123697917,
+          "reference_original_rgb_mse": 1649.3085123697917
+        },
+        {
+          "presentation": 82,
+          "bitmap_mismatch_bytes": 1,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1,
+          "candidate_original_rgb_mse": 1649.536376953125,
+          "reference_original_rgb_mse": 1649.3085123697917
+        },
+        {
+          "presentation": 83,
+          "bitmap_mismatch_bytes": 237,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 237,
+          "candidate_original_rgb_mse": 2017.0659790039062,
+          "reference_original_rgb_mse": 1610.1110704210068
+        },
+        {
+          "presentation": 84,
+          "bitmap_mismatch_bytes": 245,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 245,
+          "candidate_original_rgb_mse": 1971.973097059462,
+          "reference_original_rgb_mse": 1564.1067301432292
+        },
+        {
+          "presentation": 85,
+          "bitmap_mismatch_bytes": 253,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 253,
+          "candidate_original_rgb_mse": 1927.3685777452256,
+          "reference_original_rgb_mse": 1518.5907524956597
+        },
+        {
+          "presentation": 86,
+          "bitmap_mismatch_bytes": 256,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 256,
+          "candidate_original_rgb_mse": 1862.2033081054688,
+          "reference_original_rgb_mse": 1452.9296061197917
+        },
+        {
+          "presentation": 87,
+          "bitmap_mismatch_bytes": 253,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 253,
+          "candidate_original_rgb_mse": 1823.8656616210938,
+          "reference_original_rgb_mse": 1415.0878363715278
+        },
+        {
+          "presentation": 88,
+          "bitmap_mismatch_bytes": 245,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 245,
+          "candidate_original_rgb_mse": 1801.2262301974827,
+          "reference_original_rgb_mse": 1393.35986328125
+        },
+        {
+          "presentation": 89,
+          "bitmap_mismatch_bytes": 241,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 241,
+          "candidate_original_rgb_mse": 1782.3838772243923,
+          "reference_original_rgb_mse": 1375.0129530164932
+        },
+        {
+          "presentation": 90,
+          "bitmap_mismatch_bytes": 242,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 242,
+          "candidate_original_rgb_mse": 1777.186082628038,
+          "reference_original_rgb_mse": 1369.55908203125
+        },
+        {
+          "presentation": 91,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1752.175557454427,
+          "reference_original_rgb_mse": 1373.3441569010417
+        },
+        {
+          "presentation": 92,
+          "bitmap_mismatch_bytes": 205,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 205,
+          "candidate_original_rgb_mse": 1748.5184733072917,
+          "reference_original_rgb_mse": 1369.2313435872395
+        },
+        {
+          "presentation": 93,
+          "bitmap_mismatch_bytes": 202,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 202,
+          "candidate_original_rgb_mse": 1743.7393459743923,
+          "reference_original_rgb_mse": 1364.7940131293403
+        },
+        {
+          "presentation": 94,
+          "bitmap_mismatch_bytes": 204,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 204,
+          "candidate_original_rgb_mse": 1739.348897298177,
+          "reference_original_rgb_mse": 1360.2781304253472
+        },
+        {
+          "presentation": 95,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1734.0677761501736,
+          "reference_original_rgb_mse": 1355.236375596788
+        },
+        {
+          "presentation": 96,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1733.8619859483506,
+          "reference_original_rgb_mse": 1355.0305853949653
+        },
+        {
+          "presentation": 97,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1734.3067830403645,
+          "reference_original_rgb_mse": 1355.4753824869792
+        },
+        {
+          "presentation": 98,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1736.9841172960068,
+          "reference_original_rgb_mse": 1358.1527167426216
+        },
+        {
+          "presentation": 99,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1741.5467800564236,
+          "reference_original_rgb_mse": 1362.715379503038
+        },
+        {
+          "presentation": 100,
+          "bitmap_mismatch_bytes": 201,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 201,
+          "candidate_original_rgb_mse": 1746.058586968316,
+          "reference_original_rgb_mse": 1367.2271864149307
+        },
+        {
+          "presentation": 101,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1375.3059217664932,
+          "reference_original_rgb_mse": 1375.3059217664932
+        },
+        {
+          "presentation": 102,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1378.230204264323,
+          "reference_original_rgb_mse": 1378.230204264323
+        },
+        {
+          "presentation": 103,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1379.082763671875,
+          "reference_original_rgb_mse": 1379.082763671875
+        },
+        {
+          "presentation": 104,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1379.082763671875,
+          "reference_original_rgb_mse": 1379.082763671875
+        },
+        {
+          "presentation": 105,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 1379.082763671875,
+          "reference_original_rgb_mse": 1379.082763671875
+        },
+        {
+          "presentation": 106,
+          "bitmap_mismatch_bytes": 128,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 128,
+          "candidate_original_rgb_mse": 2768.509772406684,
+          "reference_original_rgb_mse": 2745.1658596462676
+        },
+        {
+          "presentation": 107,
+          "bitmap_mismatch_bytes": 160,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 160,
+          "candidate_original_rgb_mse": 2877.916754828559,
+          "reference_original_rgb_mse": 2851.67923312717
+        },
+        {
+          "presentation": 108,
+          "bitmap_mismatch_bytes": 193,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 193,
+          "candidate_original_rgb_mse": 2859.1610582139756,
+          "reference_original_rgb_mse": 2805.3261990017363
+        },
+        {
+          "presentation": 109,
+          "bitmap_mismatch_bytes": 627,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 627,
+          "candidate_original_rgb_mse": 3568.9727986653647,
+          "reference_original_rgb_mse": 3072.4392903645835
+        },
+        {
+          "presentation": 110,
+          "bitmap_mismatch_bytes": 608,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 608,
+          "candidate_original_rgb_mse": 3433.2999131944443,
+          "reference_original_rgb_mse": 2983.606655544705
+        },
+        {
+          "presentation": 111,
+          "bitmap_mismatch_bytes": 240,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 240,
+          "candidate_original_rgb_mse": 3734.2994723849824,
+          "reference_original_rgb_mse": 3618.4669664171006
+        },
+        {
+          "presentation": 112,
+          "bitmap_mismatch_bytes": 47,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 47,
+          "candidate_original_rgb_mse": 3170.2969021267363,
+          "reference_original_rgb_mse": 3134.690958658854
+        },
+        {
+          "presentation": 113,
+          "bitmap_mismatch_bytes": 3855,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3855,
+          "candidate_original_rgb_mse": 2200.009562174479,
+          "reference_original_rgb_mse": 2200.009562174479
+        },
+        {
+          "presentation": 114,
+          "bitmap_mismatch_bytes": 21,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 21,
+          "candidate_original_rgb_mse": 2158.9853244357637,
+          "reference_original_rgb_mse": 2151.7283799913193
+        },
+        {
+          "presentation": 115,
+          "bitmap_mismatch_bytes": 113,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 113,
+          "candidate_original_rgb_mse": 2412.5093790690103,
+          "reference_original_rgb_mse": 2383.6050821940103
+        },
+        {
+          "presentation": 116,
+          "bitmap_mismatch_bytes": 271,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 271,
+          "candidate_original_rgb_mse": 2650.1964450412324,
+          "reference_original_rgb_mse": 2531.299031575521
+        },
+        {
+          "presentation": 117,
+          "bitmap_mismatch_bytes": 401,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 401,
+          "candidate_original_rgb_mse": 2164.1876152886284,
+          "reference_original_rgb_mse": 2004.6957872178818
+        },
+        {
+          "presentation": 118,
+          "bitmap_mismatch_bytes": 2267,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2267,
+          "candidate_original_rgb_mse": 8588.356119791666,
+          "reference_original_rgb_mse": 5579.361762152777
+        },
+        {
+          "presentation": 119,
+          "bitmap_mismatch_bytes": 2559,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2559,
+          "candidate_original_rgb_mse": 9322.17194281684,
+          "reference_original_rgb_mse": 5872.2353108723955
+        },
+        {
+          "presentation": 120,
+          "bitmap_mismatch_bytes": 1993,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1993,
+          "candidate_original_rgb_mse": 8240.033786349826,
+          "reference_original_rgb_mse": 5718.9001057942705
+        },
+        {
+          "presentation": 121,
+          "bitmap_mismatch_bytes": 2449,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2449,
+          "candidate_original_rgb_mse": 9004.433566623264,
+          "reference_original_rgb_mse": 5662.717420789931
+        },
+        {
+          "presentation": 122,
+          "bitmap_mismatch_bytes": 277,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 277,
+          "candidate_original_rgb_mse": 2730.690138075087,
+          "reference_original_rgb_mse": 2636.363966200087
+        },
+        {
+          "presentation": 123,
+          "bitmap_mismatch_bytes": 308,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 308,
+          "candidate_original_rgb_mse": 2417.9058837890625,
+          "reference_original_rgb_mse": 2323.6593560112847
+        },
+        {
+          "presentation": 124,
+          "bitmap_mismatch_bytes": 160,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 160,
+          "candidate_original_rgb_mse": 2131.4019368489585,
+          "reference_original_rgb_mse": 2068.6007215711807
+        },
+        {
+          "presentation": 125,
+          "bitmap_mismatch_bytes": 1098,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1098,
+          "candidate_original_rgb_mse": 4586.234646267361,
+          "reference_original_rgb_mse": 879.3976576063368
+        },
+        {
+          "presentation": 126,
+          "bitmap_mismatch_bytes": 844,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 844,
+          "candidate_original_rgb_mse": 4984.414286295573,
+          "reference_original_rgb_mse": 2325.8226725260415
+        },
+        {
+          "presentation": 127,
+          "bitmap_mismatch_bytes": 1114,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1114,
+          "candidate_original_rgb_mse": 4503.7343343098955,
+          "reference_original_rgb_mse": 791.1819593641493
+        },
+        {
+          "presentation": 128,
+          "bitmap_mismatch_bytes": 1097,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1097,
+          "candidate_original_rgb_mse": 4501.104031032986,
+          "reference_original_rgb_mse": 794.9449937608507
+        },
+        {
+          "presentation": 129,
+          "bitmap_mismatch_bytes": 1097,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1097,
+          "candidate_original_rgb_mse": 4500.923990885417,
+          "reference_original_rgb_mse": 793.5887383355034
+        },
+        {
+          "presentation": 130,
+          "bitmap_mismatch_bytes": 1097,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1097,
+          "candidate_original_rgb_mse": 4500.923990885417,
+          "reference_original_rgb_mse": 793.5887383355034
+        },
+        {
+          "presentation": 131,
+          "bitmap_mismatch_bytes": 1096,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1096,
+          "candidate_original_rgb_mse": 4499.324381510417,
+          "reference_original_rgb_mse": 793.4005872938368
+        },
+        {
+          "presentation": 132,
+          "bitmap_mismatch_bytes": 1096,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1096,
+          "candidate_original_rgb_mse": 4516.558648003473,
+          "reference_original_rgb_mse": 810.6791246202257
+        },
+        {
+          "presentation": 133,
+          "bitmap_mismatch_bytes": 1010,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1010,
+          "candidate_original_rgb_mse": 1958.3604193793403,
+          "reference_original_rgb_mse": 1671.1551242404514
+        },
+        {
+          "presentation": 134,
+          "bitmap_mismatch_bytes": 955,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 955,
+          "candidate_original_rgb_mse": 1972.3091498480903,
+          "reference_original_rgb_mse": 1688.4423963758682
+        },
+        {
+          "presentation": 135,
+          "bitmap_mismatch_bytes": 969,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 969,
+          "candidate_original_rgb_mse": 1968.0382080078125,
+          "reference_original_rgb_mse": 1687.0931125217014
+        },
+        {
+          "presentation": 136,
+          "bitmap_mismatch_bytes": 872,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 872,
+          "candidate_original_rgb_mse": 2043.4559733072917,
+          "reference_original_rgb_mse": 1817.2626139322917
+        },
+        {
+          "presentation": 137,
+          "bitmap_mismatch_bytes": 691,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 691,
+          "candidate_original_rgb_mse": 1942.3938530815972,
+          "reference_original_rgb_mse": 1778.708523220486
+        },
+        {
+          "presentation": 138,
+          "bitmap_mismatch_bytes": 800,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 800,
+          "candidate_original_rgb_mse": 2046.4798990885417,
+          "reference_original_rgb_mse": 1816.568874782986
+        },
+        {
+          "presentation": 139,
+          "bitmap_mismatch_bytes": 843,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 843,
+          "candidate_original_rgb_mse": 2060.811238606771,
+          "reference_original_rgb_mse": 1817.1230875651042
+        },
+        {
+          "presentation": 140,
+          "bitmap_mismatch_bytes": 837,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 837,
+          "candidate_original_rgb_mse": 2072.3390842013887,
+          "reference_original_rgb_mse": 1821.4571397569443
+        },
+        {
+          "presentation": 141,
+          "bitmap_mismatch_bytes": 1003,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1003,
+          "candidate_original_rgb_mse": 2007.0988091362847,
+          "reference_original_rgb_mse": 1701.6187744140625
+        },
+        {
+          "presentation": 142,
+          "bitmap_mismatch_bytes": 882,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 882,
+          "candidate_original_rgb_mse": 1970.8374701605903,
+          "reference_original_rgb_mse": 1689.3934597439236
+        },
+        {
+          "presentation": 143,
+          "bitmap_mismatch_bytes": 878,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 878,
+          "candidate_original_rgb_mse": 1972.986572265625,
+          "reference_original_rgb_mse": 1693.2452528211807
+        },
+        {
+          "presentation": 144,
+          "bitmap_mismatch_bytes": 889,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 889,
+          "candidate_original_rgb_mse": 1965.6400553385417,
+          "reference_original_rgb_mse": 1689.0975206163193
+        },
+        {
+          "presentation": 145,
+          "bitmap_mismatch_bytes": 886,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 886,
+          "candidate_original_rgb_mse": 1972.7972683376736,
+          "reference_original_rgb_mse": 1689.7777370876736
+        },
+        {
+          "presentation": 146,
+          "bitmap_mismatch_bytes": 1337,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1337,
+          "candidate_original_rgb_mse": 4763.223571777344,
+          "reference_original_rgb_mse": 3739.5686238606772
+        },
+        {
+          "presentation": 147,
+          "bitmap_mismatch_bytes": 1340,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1340,
+          "candidate_original_rgb_mse": 4764.240451388889,
+          "reference_original_rgb_mse": 3736.357374403212
+        },
+        {
+          "presentation": 148,
+          "bitmap_mismatch_bytes": 1350,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1350,
+          "candidate_original_rgb_mse": 4765.392523871527,
+          "reference_original_rgb_mse": 3733.186082628038
+        },
+        {
+          "presentation": 149,
+          "bitmap_mismatch_bytes": 1347,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1347,
+          "candidate_original_rgb_mse": 4764.528367784288,
+          "reference_original_rgb_mse": 3733.186082628038
+        },
+        {
+          "presentation": 150,
+          "bitmap_mismatch_bytes": 1346,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1346,
+          "candidate_original_rgb_mse": 4763.912611219618,
+          "reference_original_rgb_mse": 3732.9010213216147
+        },
+        {
+          "presentation": 151,
+          "bitmap_mismatch_bytes": 1349,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1349,
+          "candidate_original_rgb_mse": 4765.928982204861,
+          "reference_original_rgb_mse": 3733.419474283854
+        },
+        {
+          "presentation": 152,
+          "bitmap_mismatch_bytes": 1348,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1348,
+          "candidate_original_rgb_mse": 4764.635355631511,
+          "reference_original_rgb_mse": 3733.186082628038
+        },
+        {
+          "presentation": 153,
+          "bitmap_mismatch_bytes": 1346,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1346,
+          "candidate_original_rgb_mse": 4764.828531901042,
+          "reference_original_rgb_mse": 3733.186082628038
+        },
+        {
+          "presentation": 154,
+          "bitmap_mismatch_bytes": 736,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 736,
+          "candidate_original_rgb_mse": 2630.0996704101562,
+          "reference_original_rgb_mse": 2419.3138563368057
+        },
+        {
+          "presentation": 155,
+          "bitmap_mismatch_bytes": 785,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 785,
+          "candidate_original_rgb_mse": 2689.4906073676216,
+          "reference_original_rgb_mse": 2450.6638454861113
+        },
+        {
+          "presentation": 156,
+          "bitmap_mismatch_bytes": 784,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 784,
+          "candidate_original_rgb_mse": 2681.8185289171006,
+          "reference_original_rgb_mse": 2445.2627563476562
+        },
+        {
+          "presentation": 157,
+          "bitmap_mismatch_bytes": 781,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 781,
+          "candidate_original_rgb_mse": 2681.4033406575522,
+          "reference_original_rgb_mse": 2445.371873643663
+        },
+        {
+          "presentation": 158,
+          "bitmap_mismatch_bytes": 786,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 786,
+          "candidate_original_rgb_mse": 2694.132527669271,
+          "reference_original_rgb_mse": 2453.6449584960938
+        },
+        {
+          "presentation": 159,
+          "bitmap_mismatch_bytes": 783,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 783,
+          "candidate_original_rgb_mse": 2692.2407497829863,
+          "reference_original_rgb_mse": 2453.2410278320312
+        },
+        {
+          "presentation": 160,
+          "bitmap_mismatch_bytes": 47,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 47,
+          "candidate_original_rgb_mse": 1579.631618923611,
+          "reference_original_rgb_mse": 1562.6012369791667
+        },
+        {
+          "presentation": 161,
+          "bitmap_mismatch_bytes": 49,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 49,
+          "candidate_original_rgb_mse": 1579.3115980360244,
+          "reference_original_rgb_mse": 1562.3536987304688
+        },
+        {
+          "presentation": 162,
+          "bitmap_mismatch_bytes": 249,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 249,
+          "candidate_original_rgb_mse": 1808.438449435764,
+          "reference_original_rgb_mse": 1670.362277560764
+        },
+        {
+          "presentation": 163,
+          "bitmap_mismatch_bytes": 257,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 257,
+          "candidate_original_rgb_mse": 1839.976799858941,
+          "reference_original_rgb_mse": 1684.217034233941
+        },
+        {
+          "presentation": 164,
+          "bitmap_mismatch_bytes": 258,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 258,
+          "candidate_original_rgb_mse": 1839.5582071940105,
+          "reference_original_rgb_mse": 1683.9410196940105
+        },
+        {
+          "presentation": 165,
+          "bitmap_mismatch_bytes": 284,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 284,
+          "candidate_original_rgb_mse": 1851.1627604166667,
+          "reference_original_rgb_mse": 1679.0985243055557
+        },
+        {
+          "presentation": 166,
+          "bitmap_mismatch_bytes": 299,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 299,
+          "candidate_original_rgb_mse": 1889.3307969835068,
+          "reference_original_rgb_mse": 1702.7470296223958
+        },
+        {
+          "presentation": 167,
+          "bitmap_mismatch_bytes": 306,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 306,
+          "candidate_original_rgb_mse": 1894.6361694335938,
+          "reference_original_rgb_mse": 1697.076924641927
+        },
+        {
+          "presentation": 168,
+          "bitmap_mismatch_bytes": 304,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 304,
+          "candidate_original_rgb_mse": 1894.4904174804688,
+          "reference_original_rgb_mse": 1697.1484035915798
+        },
+        {
+          "presentation": 169,
+          "bitmap_mismatch_bytes": 305,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 305,
+          "candidate_original_rgb_mse": 1895.004150390625,
+          "reference_original_rgb_mse": 1697.4056260850693
+        },
+        {
+          "presentation": 170,
+          "bitmap_mismatch_bytes": 476,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 476,
+          "candidate_original_rgb_mse": 2268.485887315538,
+          "reference_original_rgb_mse": 1587.2565036349827
+        },
+        {
+          "presentation": 171,
+          "bitmap_mismatch_bytes": 473,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 473,
+          "candidate_original_rgb_mse": 2267.3540242513022,
+          "reference_original_rgb_mse": 1587.246819390191
+        },
+        {
+          "presentation": 172,
+          "bitmap_mismatch_bytes": 1076,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1076,
+          "candidate_original_rgb_mse": 2755.654344346788,
+          "reference_original_rgb_mse": 1666.8003946940105
+        },
+        {
+          "presentation": 173,
+          "bitmap_mismatch_bytes": 1084,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1084,
+          "candidate_original_rgb_mse": 2755.348687065972,
+          "reference_original_rgb_mse": 1664.987575954861
+        },
+        {
+          "presentation": 174,
+          "bitmap_mismatch_bytes": 1081,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1081,
+          "candidate_original_rgb_mse": 2757.8502129448784,
+          "reference_original_rgb_mse": 1660.1121487087673
+        },
+        {
+          "presentation": 175,
+          "bitmap_mismatch_bytes": 1078,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1078,
+          "candidate_original_rgb_mse": 2756.02395968967,
+          "reference_original_rgb_mse": 1664.1899753146702
+        },
+        {
+          "presentation": 176,
+          "bitmap_mismatch_bytes": 1079,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1079,
+          "candidate_original_rgb_mse": 2753.2138671875,
+          "reference_original_rgb_mse": 1663.7611762152778
+        },
+        {
+          "presentation": 177,
+          "bitmap_mismatch_bytes": 1081,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1081,
+          "candidate_original_rgb_mse": 2759.0365193684897,
+          "reference_original_rgb_mse": 1660.4746704101562
+        },
+        {
+          "presentation": 178,
+          "bitmap_mismatch_bytes": 1072,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1072,
+          "candidate_original_rgb_mse": 2742.8211737738716,
+          "reference_original_rgb_mse": 1660.462883843316
+        },
+        {
+          "presentation": 179,
+          "bitmap_mismatch_bytes": 1073,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1073,
+          "candidate_original_rgb_mse": 2744.647203233507,
+          "reference_original_rgb_mse": 1659.5721164279514
+        },
+        {
+          "presentation": 180,
+          "bitmap_mismatch_bytes": 1117,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1117,
+          "candidate_original_rgb_mse": 2809.6407945421006,
+          "reference_original_rgb_mse": 1682.0177476671006
+        },
+        {
+          "presentation": 181,
+          "bitmap_mismatch_bytes": 1072,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1072,
+          "candidate_original_rgb_mse": 2743.2644788953994,
+          "reference_original_rgb_mse": 1658.831536187066
+        },
+        {
+          "presentation": 182,
+          "bitmap_mismatch_bytes": 1120,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1120,
+          "candidate_original_rgb_mse": 2810.819376627604,
+          "reference_original_rgb_mse": 1682.0303141276042
+        },
+        {
+          "presentation": 183,
+          "bitmap_mismatch_bytes": 1070,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1070,
+          "candidate_original_rgb_mse": 2742.142829047309,
+          "reference_original_rgb_mse": 1658.5714314778645
+        },
+        {
+          "presentation": 184,
+          "bitmap_mismatch_bytes": 1126,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1126,
+          "candidate_original_rgb_mse": 2814.0196736653647,
+          "reference_original_rgb_mse": 1682.823493109809
+        },
+        {
+          "presentation": 185,
+          "bitmap_mismatch_bytes": 1080,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1080,
+          "candidate_original_rgb_mse": 2746.5786404079863,
+          "reference_original_rgb_mse": 1659.129638671875
+        },
+        {
+          "presentation": 186,
+          "bitmap_mismatch_bytes": 685,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 685,
+          "candidate_original_rgb_mse": 2096.743645562066,
+          "reference_original_rgb_mse": 1699.1121351453994
+        },
+        {
+          "presentation": 187,
+          "bitmap_mismatch_bytes": 686,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 686,
+          "candidate_original_rgb_mse": 2097.4930555555557,
+          "reference_original_rgb_mse": 1699.369357638889
+        },
+        {
+          "presentation": 188,
+          "bitmap_mismatch_bytes": 687,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 687,
+          "candidate_original_rgb_mse": 2098.1718953450522,
+          "reference_original_rgb_mse": 1699.578145345052
+        },
+        {
+          "presentation": 189,
+          "bitmap_mismatch_bytes": 685,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 685,
+          "candidate_original_rgb_mse": 2097.5379842122397,
+          "reference_original_rgb_mse": 1699.5523071289062
+        },
+        {
+          "presentation": 190,
+          "bitmap_mismatch_bytes": 688,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 688,
+          "candidate_original_rgb_mse": 2098.327541775174,
+          "reference_original_rgb_mse": 1699.1784532335068
+        },
+        {
+          "presentation": 191,
+          "bitmap_mismatch_bytes": 688,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 688,
+          "candidate_original_rgb_mse": 2097.340081108941,
+          "reference_original_rgb_mse": 1699.0210706922744
+        },
+        {
+          "presentation": 192,
+          "bitmap_mismatch_bytes": 688,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 688,
+          "candidate_original_rgb_mse": 2098.7827758789062,
+          "reference_original_rgb_mse": 1699.5523071289062
+        },
+        {
+          "presentation": 193,
+          "bitmap_mismatch_bytes": 773,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 773,
+          "candidate_original_rgb_mse": 2190.7787272135415,
+          "reference_original_rgb_mse": 1740.807156032986
+        },
+        {
+          "presentation": 194,
+          "bitmap_mismatch_bytes": 685,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 685,
+          "candidate_original_rgb_mse": 2036.6802842881943,
+          "reference_original_rgb_mse": 1684.820041232639
+        },
+        {
+          "presentation": 195,
+          "bitmap_mismatch_bytes": 683,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 683,
+          "candidate_original_rgb_mse": 2036.328152126736,
+          "reference_original_rgb_mse": 1684.8103569878472
+        },
+        {
+          "presentation": 196,
+          "bitmap_mismatch_bytes": 958,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 958,
+          "candidate_original_rgb_mse": 2378.47122531467,
+          "reference_original_rgb_mse": 1773.1463555230034
+        },
+        {
+          "presentation": 197,
+          "bitmap_mismatch_bytes": 959,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 959,
+          "candidate_original_rgb_mse": 2377.7879299587676,
+          "reference_original_rgb_mse": 1772.775343153212
+        },
+        {
+          "presentation": 198,
+          "bitmap_mismatch_bytes": 957,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 957,
+          "candidate_original_rgb_mse": 2377.6654527452256,
+          "reference_original_rgb_mse": 1772.9067721896702
+        },
+        {
+          "presentation": 199,
+          "bitmap_mismatch_bytes": 707,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 707,
+          "candidate_original_rgb_mse": 2069.160101996528,
+          "reference_original_rgb_mse": 1696.210666232639
+        },
+        {
+          "presentation": 200,
+          "bitmap_mismatch_bytes": 668,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 668,
+          "candidate_original_rgb_mse": 2050.7553914388022,
+          "reference_original_rgb_mse": 1675.600877549913
+        },
+        {
+          "presentation": 201,
+          "bitmap_mismatch_bytes": 666,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 666,
+          "candidate_original_rgb_mse": 2048.645033094618,
+          "reference_original_rgb_mse": 1675.5671251085068
+        },
+        {
+          "presentation": 202,
+          "bitmap_mismatch_bytes": 667,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 667,
+          "candidate_original_rgb_mse": 2051.5733981662324,
+          "reference_original_rgb_mse": 1675.8077731662327
+        },
+        {
+          "presentation": 203,
+          "bitmap_mismatch_bytes": 3078,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3078,
+          "candidate_original_rgb_mse": 7327.664855957031,
+          "reference_original_rgb_mse": 6049.369717068143
+        },
+        {
+          "presentation": 204,
+          "bitmap_mismatch_bytes": 3031,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3031,
+          "candidate_original_rgb_mse": 8163.384460449219,
+          "reference_original_rgb_mse": 6745.426344129774
+        },
+        {
+          "presentation": 205,
+          "bitmap_mismatch_bytes": 309,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 309,
+          "candidate_original_rgb_mse": 7557.453525119357,
+          "reference_original_rgb_mse": 7497.772752549913
+        },
+        {
+          "presentation": 206,
+          "bitmap_mismatch_bytes": 318,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 318,
+          "candidate_original_rgb_mse": 7563.889180501302,
+          "reference_original_rgb_mse": 7502.862921820746
+        },
+        {
+          "presentation": 207,
+          "bitmap_mismatch_bytes": 696,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 696,
+          "candidate_original_rgb_mse": 2074.306138780382,
+          "reference_original_rgb_mse": 1690.0531005859375
+        },
+        {
+          "presentation": 208,
+          "bitmap_mismatch_bytes": 698,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 698,
+          "candidate_original_rgb_mse": 2076.247551812066,
+          "reference_original_rgb_mse": 1690.3434719509548
+        },
+        {
+          "presentation": 209,
+          "bitmap_mismatch_bytes": 699,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 699,
+          "candidate_original_rgb_mse": 2075.0249769422744,
+          "reference_original_rgb_mse": 1690.1161227756077
+        },
+        {
+          "presentation": 210,
+          "bitmap_mismatch_bytes": 696,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 696,
+          "candidate_original_rgb_mse": 2074.331000434028,
+          "reference_original_rgb_mse": 1690.0779622395833
+        },
+        {
+          "presentation": 211,
+          "bitmap_mismatch_bytes": 698,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 698,
+          "candidate_original_rgb_mse": 2075.876756456163,
+          "reference_original_rgb_mse": 1690.3600463867188
+        },
+        {
+          "presentation": 212,
+          "bitmap_mismatch_bytes": 699,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 699,
+          "candidate_original_rgb_mse": 2075.3599514431426,
+          "reference_original_rgb_mse": 1690.1409844292534
+        },
+        {
+          "presentation": 213,
+          "bitmap_mismatch_bytes": 553,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 553,
+          "candidate_original_rgb_mse": 1887.2699652777778,
+          "reference_original_rgb_mse": 1614.6979166666667
+        },
+        {
+          "presentation": 214,
+          "bitmap_mismatch_bytes": 554,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 554,
+          "candidate_original_rgb_mse": 1888.0193752712673,
+          "reference_original_rgb_mse": 1614.9551391601562
+        },
+        {
+          "presentation": 215,
+          "bitmap_mismatch_bytes": 555,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 555,
+          "candidate_original_rgb_mse": 1887.8421834309895,
+          "reference_original_rgb_mse": 1614.927686903212
+        },
+        {
+          "presentation": 216,
+          "bitmap_mismatch_bytes": 557,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 557,
+          "candidate_original_rgb_mse": 1889.6632622612847,
+          "reference_original_rgb_mse": 1614.5070122612847
+        },
+        {
+          "presentation": 217,
+          "bitmap_mismatch_bytes": 235,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 235,
+          "candidate_original_rgb_mse": 537.6311102973091,
+          "reference_original_rgb_mse": 18.124409993489582
+        },
+        {
+          "presentation": 218,
+          "bitmap_mismatch_bytes": 235,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 235,
+          "candidate_original_rgb_mse": 537.6311102973091,
+          "reference_original_rgb_mse": 18.124409993489582
+        },
+        {
+          "presentation": 219,
+          "bitmap_mismatch_bytes": 235,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 235,
+          "candidate_original_rgb_mse": 537.6311102973091,
+          "reference_original_rgb_mse": 18.124409993489582
+        },
+        {
+          "presentation": 220,
+          "bitmap_mismatch_bytes": 235,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 235,
+          "candidate_original_rgb_mse": 537.6311102973091,
+          "reference_original_rgb_mse": 18.124409993489582
+        },
+        {
+          "presentation": 221,
+          "bitmap_mismatch_bytes": 235,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 235,
+          "candidate_original_rgb_mse": 537.6311102973091,
+          "reference_original_rgb_mse": 18.124409993489582
+        },
+        {
+          "presentation": 222,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2256.2586195203994,
+          "reference_original_rgb_mse": 2256.2586195203994
+        },
+        {
+          "presentation": 223,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2255.112345377604,
+          "reference_original_rgb_mse": 2255.065036349826
+        },
+        {
+          "presentation": 224,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2255.179836697049,
+          "reference_original_rgb_mse": 2255.065036349826
+        },
+        {
+          "presentation": 225,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2255.151407877604,
+          "reference_original_rgb_mse": 2255.065036349826
+        },
+        {
+          "presentation": 226,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2255.065036349826,
+          "reference_original_rgb_mse": 2255.065036349826
+        },
+        {
+          "presentation": 227,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2255.9156358506943,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 228,
+          "bitmap_mismatch_bytes": 1,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1,
+          "candidate_original_rgb_mse": 2255.967719184028,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 229,
+          "bitmap_mismatch_bytes": 5,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 5,
+          "candidate_original_rgb_mse": 2254.7972819010415,
+          "reference_original_rgb_mse": 2253.3085666232637
+        },
+        {
+          "presentation": 230,
+          "bitmap_mismatch_bytes": 6,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 6,
+          "candidate_original_rgb_mse": 2253.6129218207466,
+          "reference_original_rgb_mse": 2252.1873575846353
+        },
+        {
+          "presentation": 231,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2254.9905598958335,
+          "reference_original_rgb_mse": 2254.9278428819443
+        },
+        {
+          "presentation": 232,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2262.9887084960938,
+          "reference_original_rgb_mse": 2261.0850626627603
+        },
+        {
+          "presentation": 233,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2254.9278428819443,
+          "reference_original_rgb_mse": 2254.9278428819443
+        },
+        {
+          "presentation": 234,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2256.0198025173613,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 235,
+          "bitmap_mismatch_bytes": 15,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 15,
+          "candidate_original_rgb_mse": 2274.421617296007,
+          "reference_original_rgb_mse": 2270.810940212674
+        },
+        {
+          "presentation": 236,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2256.0198025173613,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 237,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2255.6233791775176,
+          "reference_original_rgb_mse": 2254.6795857747397
+        },
+        {
+          "presentation": 238,
+          "bitmap_mismatch_bytes": 1444,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1444,
+          "candidate_original_rgb_mse": 5184.590148925781,
+          "reference_original_rgb_mse": 1291.1865234375
+        },
+        {
+          "presentation": 239,
+          "bitmap_mismatch_bytes": 4,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 4,
+          "candidate_original_rgb_mse": 2255.554497612847,
+          "reference_original_rgb_mse": 2254.191650390625
+        },
+        {
+          "presentation": 240,
+          "bitmap_mismatch_bytes": 1,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1,
+          "candidate_original_rgb_mse": 2255.967719184028,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 241,
+          "bitmap_mismatch_bytes": 1,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1,
+          "candidate_original_rgb_mse": 2256.1882052951387,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 242,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2256.0198025173613,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 243,
+          "bitmap_mismatch_bytes": 5,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 5,
+          "candidate_original_rgb_mse": 2263.733900282118,
+          "reference_original_rgb_mse": 2261.702433268229
+        },
+        {
+          "presentation": 244,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2256.0304361979165,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 245,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2256.260986328125,
+          "reference_original_rgb_mse": 2255.5274793836807
+        },
+        {
+          "presentation": 246,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2255.9156358506943,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 247,
+          "bitmap_mismatch_bytes": 1,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1,
+          "candidate_original_rgb_mse": 2255.967719184028,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 248,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2256.1578233506943,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 249,
+          "bitmap_mismatch_bytes": 2,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2,
+          "candidate_original_rgb_mse": 2256.207953559028,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 250,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2256.0304361979165,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 251,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2255.9156358506943,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 252,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2255.9156358506943,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 253,
+          "bitmap_mismatch_bytes": 3,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 3,
+          "candidate_original_rgb_mse": 2256.1111924913193,
+          "reference_original_rgb_mse": 2255.7759060329863
+        },
+        {
+          "presentation": 254,
+          "bitmap_mismatch_bytes": 5,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 5,
+          "candidate_original_rgb_mse": 2263.817667643229,
+          "reference_original_rgb_mse": 2261.702433268229
+        },
+        {
+          "presentation": 255,
+          "bitmap_mismatch_bytes": 4,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 4,
+          "candidate_original_rgb_mse": 2256.5475802951387,
+          "reference_original_rgb_mse": 2255.9156358506943
+        },
+        {
+          "presentation": 256,
+          "bitmap_mismatch_bytes": 13,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 13,
+          "candidate_original_rgb_mse": 2273.6664157443574,
+          "reference_original_rgb_mse": 2270.42184109158
+        },
+        {
+          "presentation": 257,
+          "bitmap_mismatch_bytes": 863,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 863,
+          "candidate_original_rgb_mse": 7895.137620713976,
+          "reference_original_rgb_mse": 7611.820997450087
+        },
+        {
+          "presentation": 258,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 2578.25,
+          "reference_original_rgb_mse": 2578.25
+        },
+        {
+          "presentation": 259,
+          "bitmap_mismatch_bytes": 141,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 141,
+          "candidate_original_rgb_mse": 3816.6389906141494,
+          "reference_original_rgb_mse": 3713.7598673502603
+        },
+        {
+          "presentation": 260,
+          "bitmap_mismatch_bytes": 17,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 17,
+          "candidate_original_rgb_mse": 2267.4074910481772,
+          "reference_original_rgb_mse": 2264.2234632703994
+        },
+        {
+          "presentation": 261,
+          "bitmap_mismatch_bytes": 1217,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1217,
+          "candidate_original_rgb_mse": 3546.3160061306426,
+          "reference_original_rgb_mse": 3471.6397908528647
+        },
+        {
+          "presentation": 262,
+          "bitmap_mismatch_bytes": 1217,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1217,
+          "candidate_original_rgb_mse": 3552.5631510416665,
+          "reference_original_rgb_mse": 3477.5143229166665
+        },
+        {
+          "presentation": 263,
+          "bitmap_mismatch_bytes": 1258,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1258,
+          "candidate_original_rgb_mse": 3914.179050021701,
+          "reference_original_rgb_mse": 3821.788425021701
+        },
+        {
+          "presentation": 264,
+          "bitmap_mismatch_bytes": 1241,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1241,
+          "candidate_original_rgb_mse": 3547.583102756076,
+          "reference_original_rgb_mse": 3456.787746853299
+        },
+        {
+          "presentation": 265,
+          "bitmap_mismatch_bytes": 1347,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1347,
+          "candidate_original_rgb_mse": 12531.004774305555,
+          "reference_original_rgb_mse": 12077.198350694445
+        },
+        {
+          "presentation": 266,
+          "bitmap_mismatch_bytes": 795,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 795,
+          "candidate_original_rgb_mse": 3557.562221950955,
+          "reference_original_rgb_mse": 3471.6060587565103
+        },
+        {
+          "presentation": 267,
+          "bitmap_mismatch_bytes": 792,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 792,
+          "candidate_original_rgb_mse": 3538.3855726453994,
+          "reference_original_rgb_mse": 3452.7228122287324
+        },
+        {
+          "presentation": 268,
+          "bitmap_mismatch_bytes": 792,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 792,
+          "candidate_original_rgb_mse": 3538.3855726453994,
+          "reference_original_rgb_mse": 3452.7228122287324
+        },
+        {
+          "presentation": 269,
+          "bitmap_mismatch_bytes": 789,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 789,
+          "candidate_original_rgb_mse": 4327.9482421875,
+          "reference_original_rgb_mse": 4224.2490234375
+        },
+        {
+          "presentation": 270,
+          "bitmap_mismatch_bytes": 902,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 902,
+          "candidate_original_rgb_mse": 2577.90230984158,
+          "reference_original_rgb_mse": 2181.4944864908853
+        },
+        {
+          "presentation": 271,
+          "bitmap_mismatch_bytes": 932,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 932,
+          "candidate_original_rgb_mse": 2872.9893663194443,
+          "reference_original_rgb_mse": 2469.4652235243057
+        },
+        {
+          "presentation": 272,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 32141.930989583332,
+          "reference_original_rgb_mse": 32141.930989583332
+        },
+        {
+          "presentation": 273,
+          "bitmap_mismatch_bytes": 2115,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2115,
+          "candidate_original_rgb_mse": 3386.286173502604,
+          "reference_original_rgb_mse": 2980.542249891493
+        },
+        {
+          "presentation": 274,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3370.8249308268228,
+          "reference_original_rgb_mse": 2967.414340549045
+        },
+        {
+          "presentation": 275,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3370.9092068142363,
+          "reference_original_rgb_mse": 2967.4986165364585
+        },
+        {
+          "presentation": 276,
+          "bitmap_mismatch_bytes": 999,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 999,
+          "candidate_original_rgb_mse": 2471.266316731771,
+          "reference_original_rgb_mse": 2033.8919542100693
+        },
+        {
+          "presentation": 277,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3377.0868326822915,
+          "reference_original_rgb_mse": 2973.6762424045137
+        },
+        {
+          "presentation": 278,
+          "bitmap_mismatch_bytes": 2117,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2117,
+          "candidate_original_rgb_mse": 3375.897745768229,
+          "reference_original_rgb_mse": 2969.678127712674
+        },
+        {
+          "presentation": 279,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3372.838677300347,
+          "reference_original_rgb_mse": 2967.4283040364585
+        },
+        {
+          "presentation": 280,
+          "bitmap_mismatch_bytes": 999,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 999,
+          "candidate_original_rgb_mse": 2462.897515190972,
+          "reference_original_rgb_mse": 2025.5231526692708
+        },
+        {
+          "presentation": 281,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3376.69681125217,
+          "reference_original_rgb_mse": 2973.2862209743926
+        },
+        {
+          "presentation": 282,
+          "bitmap_mismatch_bytes": 2118,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2118,
+          "candidate_original_rgb_mse": 3382.104193793403,
+          "reference_original_rgb_mse": 2976.4698621961807
+        },
+        {
+          "presentation": 283,
+          "bitmap_mismatch_bytes": 2110,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2110,
+          "candidate_original_rgb_mse": 3613.508578830295,
+          "reference_original_rgb_mse": 3169.5090128580728
+        },
+        {
+          "presentation": 284,
+          "bitmap_mismatch_bytes": 1007,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 1007,
+          "candidate_original_rgb_mse": 2464.5747341579863,
+          "reference_original_rgb_mse": 2022.1567518446182
+        },
+        {
+          "presentation": 285,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3369.21780734592,
+          "reference_original_rgb_mse": 2965.8072170681426
+        },
+        {
+          "presentation": 286,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3375.938327365451,
+          "reference_original_rgb_mse": 2972.527737087674
+        },
+        {
+          "presentation": 287,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3376.3283487955728,
+          "reference_original_rgb_mse": 2972.917758517795
+        },
+        {
+          "presentation": 288,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3369.21780734592,
+          "reference_original_rgb_mse": 2965.8072170681426
+        },
+        {
+          "presentation": 289,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3369.21780734592,
+          "reference_original_rgb_mse": 2965.8072170681426
+        },
+        {
+          "presentation": 290,
+          "bitmap_mismatch_bytes": 2094,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 2094,
+          "candidate_original_rgb_mse": 3371.649359809028,
+          "reference_original_rgb_mse": 2968.88330078125
+        },
+        {
+          "presentation": 291,
+          "bitmap_mismatch_bytes": 81,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 81,
+          "candidate_original_rgb_mse": 280.462646484375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 292,
+          "bitmap_mismatch_bytes": 81,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 81,
+          "candidate_original_rgb_mse": 280.462646484375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 293,
+          "bitmap_mismatch_bytes": 81,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 81,
+          "candidate_original_rgb_mse": 280.462646484375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 294,
+          "bitmap_mismatch_bytes": 81,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 81,
+          "candidate_original_rgb_mse": 280.462646484375,
+          "reference_original_rgb_mse": 0.0
+        },
+        {
+          "presentation": 295,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 532.4251505533854,
+          "reference_original_rgb_mse": 532.4251505533854
+        },
+        {
+          "presentation": 296,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 532.4251505533854,
+          "reference_original_rgb_mse": 532.4251505533854
+        },
+        {
+          "presentation": 297,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 532.4251505533854,
+          "reference_original_rgb_mse": 532.4251505533854
+        },
+        {
+          "presentation": 298,
+          "bitmap_mismatch_bytes": 0,
+          "attribute_mismatch_bytes": 0,
+          "total_mismatch_bytes": 0,
+          "candidate_original_rgb_mse": 532.4251505533854,
+          "reference_original_rgb_mse": 532.4251505533854
+        }
+      ]
+    }
+  },
+  "resident": {
+    "snapshot_bytes": 131103,
+    "renderer_bytes": 3778,
+    "vm_bytes": 2101,
+    "bank7_payload_bytes": 8131,
+    "bank7_free_bytes": 1341,
+    "checkpoint_stream_bytes": [
+      743,
+      508,
+      551,
+      433,
+      792
+    ],
+    "page3_snapshot_stream_bytes": [
+      39,
+      777
+    ],
+    "direct_decision_bytes": 2816,
+    "layout": {
+      "ATTR_MIDDLE_CHUNK1": 56064,
+      "ATTR_FIRST": 56535,
+      "ATTR_LAST": 56734,
+      "BITMAP18": 56885,
+      "BITMAP71": 57881,
+      "CHECKPOINT0": 58352,
+      "CHECKPOINT1": 59095,
+      "CHECKPOINT2": 59603,
+      "CHECKPOINT3": 60154,
+      "CHECKPOINT4": 60587,
+      "DIRECT_DECISION_ROWS": 61379,
+      "PAGE3_SNAPSHOT0": 27776,
+      "PAGE3_SNAPSHOT1": 27815
+    }
+  },
+  "measurement_notes": [
+    "All execution measurements use real DOS shareware bytecode, shapes and palettes.",
+    "The 128K PAL frame length is 70,908 T-states.",
+    "Exact tick timings have a 512-T-state polling error bound and exclude scheduler wait/setup.",
+    "Instrumented counters were verified against the uninstrumented 298-screen hash sequence."
+  ]
+}

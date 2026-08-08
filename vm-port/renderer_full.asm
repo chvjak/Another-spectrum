@@ -151,6 +151,7 @@ ATTR_RESTART_INDEX      EQU 0x72EF
         INCLUDE "generated_full_layout.inc"
 BITMAP19                EQU 0x7400
 ATTR_CHANGE_MASK        EQU 0x5C75
+FAST_LZ_BLOCK           EQU 0x8900
 
 renderer_noop:
         ret
@@ -165,13 +166,10 @@ renderer_load_checkpoint:
         inc hl
         ld d,(hl)
         ex de,hl
-        ld a,7
-        ld c,0
-        call lz_reset
         ld de,BACKGROUND
         ld bc,0x1800
-        call lz_decode
-        call restart_middle_attributes
+        ld a,7
+        call FAST_LZ_BLOCK
         call mark_both_full
         jp restore_bytecode
 
@@ -362,13 +360,10 @@ renderer_page3_to_background:
 .snapshot1:
         ld hl,PAGE3_SNAPSHOT1
 .load_snapshot:
-        ld a,0xFF                    ; compressed snapshot is in fixed bank 5
-        ld c,0
-        call lz_reset
         ld de,BACKGROUND
         ld bc,0x1800
-        call lz_decode
-        call restart_middle_attributes
+        ld a,0xFF                    ; compressed snapshot is in fixed bank 5
+        call FAST_LZ_BLOCK
         call mark_both_full
 .replay:
         call replay_page3
@@ -398,9 +393,6 @@ renderer_page3_to_screen:
 .snapshot1:
         ld hl,PAGE3_SNAPSHOT1
 .load_snapshot:
-        ld a,0xFF
-        ld c,0
-        call lz_reset
         call map_destination
         ld a,(TARGET_SCREEN)
         or a
@@ -409,8 +401,8 @@ renderer_page3_to_screen:
         ld de,0xC000
 .destination_ready:
         ld bc,0x1800
-        call lz_decode
-        call restart_middle_attributes
+        ld a,0xFF
+        call FAST_LZ_BLOCK
         call mark_target_full
 .replay:
         call replay_page3
@@ -502,8 +494,6 @@ renderer_load_resource:
 .resource18:
         ld hl,BITMAP18
         ld a,7
-        ld c,0
-        call lz_reset
         call load_bitmap
         ld hl,ATTR_FIRST
         ld a,7
@@ -512,8 +502,6 @@ renderer_load_resource:
 .resource71:
         ld hl,BITMAP71
         ld a,7
-        ld c,0
-        call lz_reset
         call load_bitmap
         ld hl,0xEE00
         ld a,1
@@ -522,8 +510,6 @@ renderer_load_resource:
 .resource19:
         ld hl,BITMAP19
         ld a,0xFF                    ; fixed bank-5 source
-        ld c,0
-        call lz_reset
         call load_bitmap
         ld hl,ATTR_LAST
         ld a,7
@@ -538,8 +524,8 @@ renderer_load_resource:
 
 load_bitmap:
         ld de,BACKGROUND
-        ld bc,0x1B00
-        jp lz_decode
+        ld bc,0x1800
+        jp FAST_LZ_BLOCK
 
 ; Initialise the resumable 2 KiB-window LZSS reader.
 ; HL=source, A=source bank (0xFF fixed), C=transition bank1:EE00 -> bank7:DB00.

@@ -29,7 +29,10 @@ draw_shape = function(...args) {
   const top = shapeDepth === 0;
   if (top) {
     ++eventCount;
-    emit(`vid_opcd_event ${eventCount}`);
+    emit(
+      `vid_opcd_event ${eventCount} buffer=${current_page0} root=${args[1]} ` +
+      `override=${args[2]} zoom=${args[3]} x=${args[4]} y=${args[5]}`,
+    );
   }
   ++shapeDepth;
   try {
@@ -42,7 +45,10 @@ draw_shape = function(...args) {
 const originalDrawString = draw_string;
 draw_string = function(...args) {
   ++eventCount;
-  emit(`Script::op_drawString(${args[0]}, ${args[1]}, ${args[2]}, ${args[3]})`);
+  emit(
+    `Script::op_drawString(${args[0]}, ${args[1]}, ${args[2]}, ${args[3]}) ` +
+    `buffer=${current_page0}`,
+  );
   ++textDepth;
   try {
     return originalDrawString(...args);

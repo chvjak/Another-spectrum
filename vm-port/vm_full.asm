@@ -58,6 +58,10 @@ DRAW_DEST              EQU 0x932F          ; 0=screen, 1=background
 PRESENT_PAGE           EQU 0x9330
 TEMP_LEN               EQU 0x9331
 LAST_SAMPLE_BANK       EQU 0x9332
+BLOCK_LZ_END           EQU 0x9376
+BLOCK_LZ_FLAGS         EQU 0x9378
+BLOCK_LZ_BITS          EQU 0x9379
+BLOCK_LZ_SECOND        EQU 0x937A
 
 RENDERER_PRESENT       EQU 0x5D20
 RENDERER_DRAW_BG_SHAPE EQU 0x5D23
@@ -1343,6 +1347,130 @@ page_a:
         ld bc,0x7FFD
         out (c),a
         ret
+
+; ---------------------------------------------------------------------------
+; Fast independent LZSS block decoder used by prepared bitmap backgrounds.
+;
+; The resumable attribute stream needs a separate 2 KiB history ring because
+; successive 768-byte maps overwrite one another.  Independent 6 KiB bitmap
+; blocks do not: their match history is already present immediately behind DE.
+; Decoding matches straight from the output removes the per-byte ring traffic
+; and, crucially, leaves the attribute decoder state untouched.
+;
+; HL=packed source, DE=destination, BC=unpacked bytes, A=7 for bank 7 or FF for
+; a fixed-bank source.  IX, AF, BC, DE and HL are clobbered.
+        ASSERT $ <= 0x8900
+        defs 0x8900-$,0
+        ORG 0x8900
+fast_lz_block:
+        cp 0xFF
+        jr z,.source_ready
+        push bc
+        ld b,a
+        and 7
+        ld (0x7280),a                ; renderer CURRENT_BANK
+        ld a,(DISPLAY_BIT)
+        or b
+        ld bc,0x7FFD
+        out (c),a
+        pop bc
+.source_ready:
+        push hl
+        pop ix
+        ld h,d
+        ld l,e
+        add hl,bc
+        ld (BLOCK_LZ_END),hl
+        xor a
+        ld (BLOCK_LZ_BITS),a
+
+.token:
+        ld hl,(BLOCK_LZ_END)
+        or a
+        sbc hl,de
+        ret z
+        ld a,(BLOCK_LZ_BITS)
+        or a
+        jr nz,.have_flags
+        ld a,(ix+0)
+        inc ix
+        ld (BLOCK_LZ_FLAGS),a
+        ld a,8
+        ld (BLOCK_LZ_BITS),a
+.have_flags:
+        ld a,(BLOCK_LZ_FLAGS)
+        srl a
+        ld (BLOCK_LZ_FLAGS),a
+        jr c,.literal
+        ld a,(BLOCK_LZ_BITS)
+        dec a
+        ld (BLOCK_LZ_BITS),a
+
+        ld a,(ix+0)
+        inc ix
+        ld l,a
+        ld h,0
+        add hl,hl
+        add hl,hl
+        add hl,hl
+        ld a,(ix+0)
+        inc ix
+        ld (BLOCK_LZ_SECOND),a
+        rrca
+        rrca
+        rrca
+        rrca
+        rrca
+        and 7
+        ld c,a
+        ld b,0
+        add hl,bc
+        inc hl                         ; HL=match distance
+        push de
+        ex de,hl                       ; HL=output, DE=distance
+        or a
+        sbc hl,de                      ; HL=match source
+        pop de                         ; DE=output
+
+        ld a,(BLOCK_LZ_SECOND)
+        and 31
+        ld c,a
+        ld b,0
+        cp 31
+        jr nz,.length_ready
+.extension:
+        ld a,(ix+0)
+        inc ix
+        push af
+        push hl
+        ld l,a
+        ld h,0
+        add hl,bc
+        ld b,h
+        ld c,l
+        pop hl
+        pop af
+        cp 255
+        jr z,.extension
+.length_ready:
+        inc bc
+        inc bc
+        inc bc
+        ldir
+        jr .token
+
+.literal:
+        ld a,(BLOCK_LZ_BITS)
+        dec a
+        ld (BLOCK_LZ_BITS),a
+        ld a,(ix+0)
+        inc ix
+        ld (de),a
+        inc de
+        jp .token
+
+fast_lz_block_end:
+        ASSERT fast_lz_block_end < 0x8A00
 
 code_end:
         ASSERT code_end < VARS

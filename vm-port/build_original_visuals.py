@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -42,6 +43,7 @@ RENDERER_LIMIT_BANK5 = 0x2C80
 PAGE3_SNAPSHOT_OFFSET_BANK5 = 0x2C80
 PAGE3_SNAPSHOT_LIMIT_BANK5 = 0x3400
 ATTR_CHANGE_MASK_OFFSET_BANK5 = 0x1C75
+LIVE_TICK_MASK_OFFSET_BANK5 = 0x1B00
 BITMAP19_OFFSET_BANK5 = 0x3400
 ATTR_CHUNK0_OFFSET_BANK1 = 0x2E00
 ATTR_CHUNK0_BYTES = 0x1200
@@ -93,6 +95,77 @@ SPECTRUM_PALETTE = np.array(
 
 def sha256(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
+
+
+def live_visual_tick_mask(trace_path: Path) -> bytes:
+    """Derive retained dynamic draw ticks from resolved semantic page history."""
+
+    histories: list[list[int]] = [[], [], [], []]
+    event_ticks: dict[int, int] = {}
+    event_pages: dict[int, int] = {}
+    live_events: set[int] = set()
+    tick = -1
+    pending_event: int | None = None
+    lines = trace_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    for line in lines:
+        if line.startswith("TRACE_TICK "):
+            tick = int(line.split()[1])
+            continue
+        if line.startswith("vid_opcd_event "):
+            pending_event = int(line.split()[1])
+            event_ticks[pending_event] = tick
+            match = re.search(r"buffer=(\d+)", line)
+            if match:
+                page = int(match.group(1))
+                event_pages[pending_event] = page
+                histories[page].append(pending_event)
+            continue
+        if line.startswith("Script::op_drawString("):
+            # Text event numbers immediately follow the last numbered shape
+            # event in the semantic generator. Assign a stable synthetic id.
+            pending_event = max(event_ticks, default=0) + 1
+            while pending_event in event_ticks:
+                pending_event += 1
+            event_ticks[pending_event] = tick
+            match = re.search(r"buffer=(\d+)", line)
+            if match:
+                page = int(match.group(1))
+                event_pages[pending_event] = page
+                histories[page].append(pending_event)
+            continue
+        match = re.match(r"SEM (?:quadstrip|point|glyph) buffer=(\d+)", line)
+        if match and pending_event is not None:
+            page = int(match.group(1))
+            event_pages.setdefault(pending_event, page)
+            if pending_event not in histories[page]:
+                histories[page].append(pending_event)
+            continue
+        match = re.match(r"SEM clear buffer=(\d+)", line)
+        if match:
+            histories[int(match.group(1))] = []
+            pending_event = None
+            continue
+        match = re.match(r"SEM copy dst=(\d+) src=(\d+)", line)
+        if match:
+            destination, source = map(int, match.groups())
+            histories[destination] = list(histories[source])
+            pending_event = None
+            continue
+        match = re.match(r"SEM present buffer=(\d+)", line)
+        if match:
+            page = int(match.group(1))
+            if tick >= 8 and (tick - 8) % 10 == 0:
+                live_events.update(histories[page])
+            pending_event = None
+
+    mask = bytearray((2980 + 7) // 8)
+    for event in live_events:
+        if event_pages.get(event) not in (1, 2):
+            continue
+        event_tick = event_ticks[event]
+        if 0 <= event_tick < 2980:
+            mask[event_tick >> 3] |= 1 << (event_tick & 7)
+    return bytes(mask)
 
 
 def bank_offset(bank: int) -> int:
@@ -527,6 +600,7 @@ def main() -> None:
     parser.add_argument("--indexed-capture", type=Path, required=True)
     parser.add_argument("--page3-capture", type=Path, required=True)
     parser.add_argument("--palette-ids", type=Path, required=True)
+    parser.add_argument("--trace", type=Path)
     parser.add_argument("--base-sna", type=Path, required=True)
     parser.add_argument(
         "--renderer",
@@ -595,6 +669,11 @@ def main() -> None:
         bank7_payload
     )
     bank5 = bank_view(snapshot, 5)
+    if args.trace is not None:
+        live_mask = live_visual_tick_mask(args.trace.resolve())
+        bank5[
+            LIVE_TICK_MASK_OFFSET_BANK5 : LIVE_TICK_MASK_OFFSET_BANK5 + len(live_mask)
+        ] = live_mask
     bank5[PAGE3_SNAPSHOT_OFFSET_BANK5:PAGE3_SNAPSHOT_LIMIT_BANK5] = bytes(
         PAGE3_SNAPSHOT_LIMIT_BANK5 - PAGE3_SNAPSHOT_OFFSET_BANK5
     )
