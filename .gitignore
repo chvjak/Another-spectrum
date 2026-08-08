@@ -1,6 +1,7 @@
 # Locally supplied inputs
 rawgl/
 data/
+vendor/
 rom-*.bin
 *.wasm
 

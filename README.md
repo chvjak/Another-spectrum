@@ -9,6 +9,9 @@ Experimental ports of the Another World DOS-shareware intro to the ZX Spectrum
   bank-7 byte deltas.
 - `vm-port/`: intro-specific Z80 VM and polygon renderer using the original VM
   bytecode and shape resources supplied locally by the user.
+- `sprite-eval/`: ULA-constrained background and character feasibility build
+  with Lester and Buddy animation, a locally verified 128K SNA, contact sheets,
+  and an emulator-driven MP4 capture.
 
 The repository contains source code and measured results only. It intentionally
 does not include Another World data, Spectrum ROMs, generated snapshots, videos,

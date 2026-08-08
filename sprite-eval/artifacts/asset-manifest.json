@@ -1,0 +1,129 @@
+{
+  "backgrounds": [
+    {
+      "weighted_error": 6059085263.0,
+      "rgb_mse": 2383.118910047743,
+      "slug": "lab-entrance",
+      "label": "Lab entrance",
+      "source": "intro page 0 \u00b7 frame 20"
+    },
+    {
+      "weighted_error": 4950541932.0,
+      "rgb_mse": 1971.844462076823,
+      "slug": "access-corridor",
+      "label": "Access corridor",
+      "source": "intro page 0 \u00b7 frame 40"
+    },
+    {
+      "weighted_error": 3948969984.0,
+      "rgb_mse": 1348.6666666666667,
+      "slug": "empty-chamber",
+      "label": "Empty chamber",
+      "source": "intro page 0 \u00b7 frame 100"
+    },
+    {
+      "weighted_error": 3978800399.0,
+      "rgb_mse": 1389.247361924913,
+      "slug": "keypad-wall",
+      "label": "Keypad wall",
+      "source": "intro page 0 \u00b7 frame 120"
+    },
+    {
+      "weighted_error": 13049273372.0,
+      "rgb_mse": 1548.423122829861,
+      "slug": "identification",
+      "label": "Identification",
+      "source": "intro page 0 \u00b7 frame 140"
+    },
+    {
+      "weighted_error": 12949609168.0,
+      "rgb_mse": 1524.450676812066,
+      "slug": "diagnostics",
+      "label": "Diagnostics",
+      "source": "intro page 0 \u00b7 frame 180"
+    },
+    {
+      "weighted_error": 13122462329.0,
+      "rgb_mse": 1543.7725897894966,
+      "slug": "countdown",
+      "label": "Experiment countdown",
+      "source": "intro page 0 \u00b7 frame 200"
+    },
+    {
+      "weighted_error": 5524691291.0,
+      "rgb_mse": 2344.7953219943574,
+      "slug": "accelerator-ring",
+      "label": "Accelerator ring",
+      "source": "intro page 0 \u00b7 frame 260"
+    },
+    {
+      "weighted_error": 1884478273.0,
+      "rgb_mse": 506.13933648003473,
+      "slug": "flooded-cavern",
+      "label": "Flooded cavern",
+      "source": "shareware gameplay \u00b7 tick 4"
+    },
+    {
+      "weighted_error": 11931785732.0,
+      "rgb_mse": 3972.0113728841147,
+      "slug": "alien-surface",
+      "label": "Alien surface",
+      "source": "shareware gameplay \u00b7 tick 69"
+    }
+  ],
+  "runtime_backgrounds": [
+    "lab-entrance",
+    "flooded-cavern",
+    "alien-surface"
+  ],
+  "lester": {
+    "roots": [
+      1700,
+      1844,
+      1976,
+      2132,
+      2288,
+      2416,
+      2536,
+      2580
+    ],
+    "layout": {
+      "source_width": 35,
+      "source_height": 48,
+      "width": 28,
+      "height": 47,
+      "anchor_x": 19,
+      "anchor_y": 45,
+      "bytes_per_row": 5
+    },
+    "bank_bytes": 7520
+  },
+  "buddy": {
+    "roots": [
+      7544,
+      7578,
+      7612,
+      7646,
+      7680,
+      7714,
+      7748,
+      7782
+    ],
+    "layout": {
+      "source_width": 39,
+      "source_height": 57,
+      "width": 32,
+      "height": 55,
+      "anchor_x": 18,
+      "anchor_y": 54,
+      "bytes_per_row": 5
+    },
+    "bank_bytes": 8800
+  },
+  "sprite_shifts": [
+    0,
+    2,
+    4,
+    6
+  ]
+}

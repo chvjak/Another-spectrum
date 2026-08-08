@@ -1,0 +1,62 @@
+{
+  "implementation": "saved-under double buffer + pre-shifted XOR sprites",
+  "target": "ZX Spectrum 128K stock 3.5469 MHz",
+  "presentation_fps": 25,
+  "spectrum_refresh_hz": 50,
+  "backgrounds_in_contact_sheet": 10,
+  "runtime_backgrounds": [
+    "lab-entrance",
+    "flooded-cavern",
+    "alien-surface"
+  ],
+  "actor_frames": {
+    "lester": 8,
+    "buddy": 8
+  },
+  "actor_x_shifts": [
+    0,
+    2,
+    4,
+    6
+  ],
+  "status_addresses": {
+    "magic": 40704,
+    "frames": 40708,
+    "scene": 40710,
+    "missed": 40711,
+    "render_irq_max": 40712,
+    "screen_bit": 40713,
+    "irq": 40714,
+    "position": 40715,
+    "animation": 40717,
+    "transitions": 40718
+  },
+  "constants": {
+    "LESTER_HEIGHT": 47,
+    "LESTER_STRIDE": 5,
+    "LESTER_FRAME_BYTES": 235,
+    "LESTER_Y": 131,
+    "BUDDY_HEIGHT": 55,
+    "BUDDY_STRIDE": 5,
+    "BUDDY_FRAME_BYTES": 275,
+    "BUDDY_Y": 122,
+    "DIRTY_TOP": 122,
+    "DIRTY_HEIGHT": 56
+  },
+  "layout": {
+    "bank0_lester_bytes": 7520,
+    "bank1_buddy_bytes": 8800,
+    "bank2_code_bytes": 8621,
+    "background_banks": [
+      3,
+      4,
+      6
+    ],
+    "screen_banks": [
+      5,
+      7
+    ]
+  },
+  "snapshot_bytes": 131103,
+  "snapshot_sha256": "b23f10dc986ba756c0824f1c5c58e6525694127177c133b7baa7354688d312a8"
+}
