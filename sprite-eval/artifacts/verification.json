@@ -2,40 +2,40 @@
   "passed": true,
   "snapshot": {
     "bytes": 131103,
-    "sha256": "b23f10dc986ba756c0824f1c5c58e6525694127177c133b7baa7354688d312a8"
+    "sha256": "0bf11a889ed0eb1e6f42cbfb5a6762c8fa3052f83e89b12501f4630b1aa24b84"
   },
   "run": {
     "refreshes": 1800,
     "secondsAt50Hz": 36,
-    "presentations": 881,
-    "averagePresentationFps": 24.47222222222222,
+    "presentations": 884,
+    "averagePresentationFps": 24.555555555555557,
     "scenesSeen": [
       0,
       1,
       2
     ],
-    "transitions": 6,
-    "distinctRenderedFrames": 384,
-    "nonBlackFrames": 881
+    "transitions": 5,
+    "distinctRenderedFrames": 444,
+    "nonBlackFrames": 884
   },
   "timing": {
     "targetFps": 25,
     "normalRefreshInterval": 2,
     "intervalHistogram": {
-      "2": 874,
-      "8": 6
+      "2": 878,
+      "8": 5
     },
-    "normalIntervalRatio": 0.9931818181818182,
+    "normalIntervalRatio": 0.9943374858437146,
     "deadlineMisses": 0,
     "maximumInterruptsObservedDuringRender": 1,
     "interpretation": "No 40 ms deadline misses; the heaviest render spans at most one 20 ms interrupt boundary."
   },
   "finalState": {
-    "pc": 33096,
-    "scene": 0,
-    "position": 226,
-    "animation": 1,
-    "screenBit": 8,
+    "pc": 34755,
+    "scene": 2,
+    "position": 148,
+    "animation": 20,
+    "screenBit": 0,
     "irq": 7
   }
 }

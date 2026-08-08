@@ -29,7 +29,7 @@ entry:
         ld (screen_bit),a
         ld (scene_index),a
         ld (status_scene),a
-        ld (anim_frame),a
+        ld (choreography_index),a
         ld (valid5),a
         ld (valid7),a
         ld (status_missed),a
@@ -37,8 +37,8 @@ entry:
         ld (status_transitions),a
         ld (status_transitions+1),a
         ld hl,0
-        ld (position_x),hl
         ld (status_frames),hl
+        call load_choreography
         ld a,7
         call page_bank
 
@@ -69,23 +69,51 @@ main_loop:
         ld hl,(status_frames)
         inc hl
         ld (status_frames),hl
-        ld a,(anim_frame)
-        inc a
-        and 7
-        ld (anim_frame),a
-        ld (status_anim),a
-
-        ld hl,(position_x)
-        inc hl
-        inc hl
-        ld (position_x),hl
-        ld (status_position),hl
-        ld de,256
-        or a
-        sbc hl,de
-        jr c,main_loop
-        call next_scene
+        call advance_choreography
         jp main_loop
+
+
+; ---------------------------------------------------------------------------
+; Recorded run, stop, and turn choreography.  Each table row stores the two
+; already anchor-adjusted X positions and the two logical pose indexes.
+
+load_choreography:
+        ld a,(choreography_index)
+        ld l,a
+        ld h,0
+        add hl,hl
+        add hl,hl
+        ld de,choreography
+        add hl,de
+        ld a,(hl)
+        ld (lester_x),a
+        ld (status_position),a
+        xor a
+        ld (status_position+1),a
+        inc hl
+        ld a,(hl)
+        ld (buddy_x),a
+        inc hl
+        ld a,(hl)
+        ld (lester_pose),a
+        ld (status_anim),a
+        inc hl
+        ld a,(hl)
+        ld (buddy_pose),a
+        ret
+
+advance_choreography:
+        ld a,(choreography_index)
+        inc a
+        cp CHOREOGRAPHY_LENGTH
+        jr c,.store
+        xor a
+        ld (choreography_index),a
+        call next_scene
+        jp load_choreography
+.store:
+        ld (choreography_index),a
+        jp load_choreography
 
 
 ; ---------------------------------------------------------------------------
@@ -144,63 +172,39 @@ flip_screen:
 
 
 ; ---------------------------------------------------------------------------
-; Sprite preparation.  The pageable source banks are uncontended (0 and 1).
+; Sprite preparation.  Pose descriptors select the packed pageable source.
 ; Only the current pre-shifted frame is copied into fixed bank 2.
 
 prepare_sprites:
-        xor a
+        ld a,1
         ld (lester_visible),a
         ld (buddy_visible),a
 
-        ld hl,(position_x)
-        ld de,217
-        or a
-        sbc hl,de
-        jr nc,.lester_done
-        ld hl,(position_x)
-        ld a,l
-        ld (lester_x),a
+        ld a,(lester_x)
         call lester_pointer_index
         call pointer_lester
-        ld a,(screen_bit)          ; bank 0
+        ld a,(screen_bit)
+        or b
         call page_bank
         ld de,LESTER_WORK
         ld bc,LESTER_FRAME_BYTES
         ldir
-        ld a,1
-        ld (lester_visible),a
-.lester_done:
 
-        ld hl,(position_x)
-        ld de,40
-        or a
-        sbc hl,de
-        jr c,.buddy_done
-        ld de,217
-        push hl
-        or a
-        sbc hl,de
-        pop hl
-        jr nc,.buddy_done
-        ld a,l
-        ld (buddy_x),a
+        ld a,(buddy_x)
         call buddy_pointer_index
         call pointer_buddy
         ld a,(screen_bit)
-        or 1                       ; bank 1
+        or b
         call page_bank
         ld de,BUDDY_WORK
         ld bc,BUDDY_FRAME_BYTES
         ldir
-        ld a,1
-        ld (buddy_visible),a
-.buddy_done:
         ld a,(screen_bit)
         or 7                       ; keep screen 7 CPU-visible for drawing
         jp page_bank
 
 lester_pointer_index:
-        ld a,(anim_frame)
+        ld a,(lester_pose)
         add a,a
         add a,a
         ld b,a
@@ -211,9 +215,7 @@ lester_pointer_index:
         ret
 
 buddy_pointer_index:
-        ld a,(anim_frame)
-        add a,2
-        and 7
+        ld a,(buddy_pose)
         add a,a
         add a,a
         ld b,a
@@ -224,11 +226,16 @@ buddy_pointer_index:
         ret
 
 pointer_lester:
-        add a,a
         ld e,a
         ld d,0
-        ld hl,lester_pointers
+        ld l,e
+        ld h,d
+        add hl,hl
         add hl,de
+        ld de,lester_pointers
+        add hl,de
+        ld b,(hl)
+        inc hl
         ld e,(hl)
         inc hl
         ld d,(hl)
@@ -236,17 +243,21 @@ pointer_lester:
         ret
 
 pointer_buddy:
-        add a,a
         ld e,a
         ld d,0
-        ld hl,buddy_pointers
+        ld l,e
+        ld h,d
+        add hl,hl
         add hl,de
+        ld de,buddy_pointers
+        add hl,de
+        ld b,(hl)
+        inc hl
         ld e,(hl)
         inc hl
         ld d,(hl)
         ex de,hl
         ret
-
 
 ; ---------------------------------------------------------------------------
 ; Saved-under dirty rectangle
@@ -504,13 +515,6 @@ next_scene:
         inc hl
         ld (status_transitions),hl
         call load_scene
-        xor a
-        ld h,a
-        ld l,a
-        ld (position_x),hl
-        ld (status_position),hl
-        ld (anim_frame),a
-        ld (status_anim),a
         ret
 
 load_scene:
@@ -532,13 +536,22 @@ load_scene:
         ld a,(scene_index)
         ld e,a
         ld d,0
-        ld hl,scene_banks
+        ld l,e
+        ld h,d
+        add hl,hl
+        add hl,de
+        ld de,scene_sources
         add hl,de
         ld a,(hl)
         ld (scene_bank_work),a
+        inc hl
+        ld e,(hl)
+        inc hl
+        ld d,(hl)
+        ld (scene_source_work),de
         or 8
         call page_bank
-        ld hl,0xC000
+        ld hl,(scene_source_work)
         ld de,0x4000
         ld bc,SCREEN_BYTES
         ldir
@@ -561,9 +574,6 @@ load_scene:
         ld (valid7),a
         out (PORT_FE),a
         ret
-
-scene_banks:
-        db 3,4,6
 
         ASSERT $ < 0x9000
 
@@ -622,12 +632,16 @@ current_latch:
         db 0
 scene_bank_work:
         db 0
+scene_source_work:
+        dw 0
 render_start_irq:
         db 0
-anim_frame:
+choreography_index:
         db 0
-position_x:
-        dw 0
+lester_pose:
+        db 0
+buddy_pose:
+        db 0
 lester_visible:
         db 0
 buddy_visible:

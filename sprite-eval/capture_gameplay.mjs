@@ -12,16 +12,28 @@ import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 
-const [dataPath, enginePath, outputPath, ticksText = "900"] = process.argv.slice(2);
+const [
+  dataPath,
+  enginePath,
+  outputPath,
+  ticksText = "900",
+  demoJoyPath,
+  partText = "16002",
+] =
+  process.argv.slice(2);
 if (!dataPath || !enginePath || !outputPath) {
   throw new Error(
-    "usage: capture_gameplay.mjs ootwdemo.js another.min.js output-dir [ticks-per-part]",
+    "usage: capture_gameplay.mjs data.js another.min.js output-dir [ticks-per-part] [DEMO3.JOY|-] [part]",
   );
 }
 
 const ticksPerPart = Number.parseInt(ticksText, 10);
 if (!Number.isFinite(ticksPerPart) || ticksPerPart < 1) {
   throw new Error(`invalid ticks-per-part: ${ticksText}`);
+}
+const part = Number.parseInt(partText, 10);
+if (!Number.isFinite(part) || part < 16001 || part > 16008) {
+  throw new Error(`invalid part: ${partText}`);
 }
 
 globalThis.atob = (value) => Buffer.from(value, "base64").toString("binary");
@@ -35,10 +47,23 @@ vm.runInThisContext(
   { filename: enginePath },
 );
 
+// The minified demo engine normally receives ByteKiller-compressed resources.
+// Anniversary-demo extraction emits raw base64 when a resource is already
+// unpacked; handle that branch explicitly (the historical minified copy has a
+// bad charCodeAt index in this rarely used path).
+const originalLoadResource = load;
+load = function (encoded, size) {
+  const decoded = atob(encoded);
+  if (decoded.length !== size) return originalLoadResource(encoded, size);
+  return Uint8Array.from(decoded, (character) => character.charCodeAt(0) & 0xff);
+};
+
 const output = path.resolve(outputPath);
 const screenDir = path.join(output, "screens");
+const preActorDir = path.join(output, "pre-actor-screens");
 const shapeDir = path.join(output, "shapes");
 fs.mkdirSync(screenDir, { recursive: true });
+fs.mkdirSync(preActorDir, { recursive: true });
 fs.mkdirSync(shapeDir, { recursive: true });
 
 // The browser display is irrelevant. update_display still performs palette
@@ -55,7 +80,7 @@ const ppm = (width, height, rgb) =>
 const pgm = (width, height, alpha) =>
   Buffer.concat([Buffer.from(`P5\n${width} ${height}\n255\n`), alpha]);
 
-const captureScreen = (page, filename) => {
+const captureScreen = (page, filename, directory = screenDir) => {
   const rgb = Buffer.allocUnsafe(320 * 200 * 3);
   let cursor = 0;
   const base = page * PAGE_SIZE;
@@ -68,7 +93,7 @@ const captureScreen = (page, filename) => {
       rgb[cursor++] = color[2];
     }
   }
-  fs.writeFileSync(path.join(screenDir, filename), ppm(320, 200, rgb));
+  fs.writeFileSync(path.join(directory, filename), ppm(320, 200, rgb));
 };
 
 let currentPart = 0;
@@ -81,7 +106,17 @@ let originalDrawShape;
 const rootStats = new Map();
 const shapeHashes = new Set();
 const shapeRecords = [];
+const shapeOccurrences = [];
 const screenRecords = [];
+const preActorScreenRecords = [];
+const preActorTicks = new Set([45, 69, 201, 369, 717, 729, 825, 921, 1005, 1233]);
+const lesterRoots = new Set([
+  0x061c, 0x0640, 0x06a4, 0x0734, 0x07b8, 0x0854, 0x08f0,
+  0x0970, 0x0998, 0x09c0, 0x09e8, 0x0a14, 0x0ca0, 0x0e78,
+  0x1668, 0x16d0, 0x1884, 0x1928, 0x19d4, 0x1a84, 0x1b48,
+  0x1bdc, 0x1c04, 0x1c2c, 0x1c54, 0x1c80,
+]);
+const capturedPreActorTicks = new Set();
 
 const updateRootStats = (key, width, height) => {
   const item = rootStats.get(key) ?? {
@@ -169,9 +204,6 @@ const captureTopShape = (resource, offset, override, zoom, x, y) => {
     .update(alpha)
     .digest("hex")
     .slice(0, 12);
-  if (shapeHashes.has(hash)) return;
-  shapeHashes.add(hash);
-
   const stem = [
     `part-${currentPart}`,
     resourceName,
@@ -180,9 +212,7 @@ const captureTopShape = (resource, offset, override, zoom, x, y) => {
     `${width}x${height}`,
     hash,
   ].join("-");
-  fs.writeFileSync(path.join(shapeDir, `${stem}.ppm`), ppm(width, height, rgb));
-  fs.writeFileSync(path.join(shapeDir, `${stem}.pgm`), pgm(width, height, alpha));
-  shapeRecords.push({
+  const occurrence = {
     stem,
     part: currentPart,
     tick: currentTick,
@@ -197,14 +227,38 @@ const captureTopShape = (resource, offset, override, zoom, x, y) => {
     width,
     height,
     hash,
-  });
+  };
+  shapeOccurrences.push(occurrence);
+  if (shapeHashes.has(hash)) return;
+  shapeHashes.add(hash);
+
+  fs.writeFileSync(path.join(shapeDir, `${stem}.ppm`), ppm(width, height, rgb));
+  fs.writeFileSync(path.join(shapeDir, `${stem}.pgm`), pgm(width, height, alpha));
+  shapeRecords.push(occurrence);
 };
 
 originalDrawShape = draw_shape;
 draw_shape = function (...args) {
   if (capturePass) return originalDrawShape(...args);
   const top = shapeDepth === 0;
-  if (top) captureTopShape(...args);
+  if (top) {
+    const [resource, offset] = args;
+    if (
+      currentPart === 16002 &&
+      resource === polygons1 &&
+      lesterRoots.has(offset) &&
+      preActorTicks.has(currentTick) &&
+      !capturedPreActorTicks.has(currentTick)
+    ) {
+      const file = `part-${currentPart}-pre-actor-tick-${currentTick
+        .toString()
+        .padStart(4, "0")}.ppm`;
+      captureScreen(current_page0, file, preActorDir);
+      preActorScreenRecords.push({ file, part: currentPart, tick: currentTick, page: current_page0 });
+      capturedPreActorTicks.add(currentTick);
+    }
+    captureTopShape(...args);
+  }
   ++shapeDepth;
   try {
     return originalDrawShape(...args);
@@ -229,6 +283,7 @@ update_display = function (page) {
       tick: currentTick,
       display: displayCount,
       page: current_page1,
+      vars: Array.from({ length: 256 }, (_, index) => vars[index] ?? 0),
     });
   }
   return result;
@@ -238,8 +293,49 @@ const clearInput = () => {
   keyboard.fill(0);
 };
 
-const setInputForTick = (tick) => {
+const demoJoy = demoJoyPath && demoJoyPath !== "-" ? fs.readFileSync(demoJoyPath) : null;
+let demoJoyPosition = 0;
+let demoJoyMask = demoJoy?.[0] ?? 0;
+let demoJoyCounter = demoJoy?.[1] ?? 0;
+if (demoJoy) demoJoyPosition = 2;
+
+const applyMask = (mask) => {
   clearInput();
+  keyboard[KEY_RIGHT] = (mask & 1) !== 0 ? 1 : 0;
+  keyboard[KEY_LEFT] = (mask & 2) !== 0 ? 1 : 0;
+  keyboard[KEY_DOWN] = (mask & 4) !== 0 ? 1 : 0;
+  keyboard[KEY_UP] = (mask & 8) !== 0 ? 1 : 0;
+  keyboard[KEY_ACTION] = (mask & 0x80) !== 0 ? 1 : 0;
+};
+
+const nextDemoJoyMask = () => {
+  if (!demoJoy) return null;
+  if (demoJoyCounter === 0) {
+    if (demoJoyPosition + 1 >= demoJoy.length) return 0;
+    demoJoyMask = demoJoy[demoJoyPosition++];
+    demoJoyCounter = demoJoy[demoJoyPosition++];
+  } else {
+    --demoJoyCounter;
+  }
+  return demoJoyMask;
+};
+
+const setInputForTick = (tick) => {
+  const recordedMask = nextDemoJoyMask();
+  if (recordedMask !== null) {
+    applyMask(recordedMask);
+    return;
+  }
+  clearInput();
+  if (part === 16003) {
+    // Jail opens in the hanging cage.  Lean in the current swing direction
+    // (the signed cage phase is bytecode variable 1) to build momentum until
+    // the scripted break-out releases Lester and Buddy into normal play.
+    if (tick >= 125) {
+      keyboard[vars[1] < 0 ? KEY_LEFT : KEY_RIGHT] = 1;
+    }
+    return;
+  }
   // The shareware section starts underwater.  Swim straight up first; a
   // horizontal/run pattern here causes Lester to drown and returns to the
   // password screen before any gameplay backgrounds are reached.
@@ -261,25 +357,29 @@ const setInputForTick = (tick) => {
   }
 };
 
-// ootwdemo.js contains the introduction and the shareware gameplay part
-// (16002, labelled "Water" by another_js).  Later retail-game parts are
-// deliberately not bundled with the demo data.
-for (const part of [16002]) {
-  reset();
-  next_part = part;
-  currentPart = part;
-  displayCount = 0;
-  for (currentTick = 0; currentTick < ticksPerPart; ++currentTick) {
-    setInputForTick(currentTick);
-    run_tasks();
-  }
-  clearInput();
+// The public DOS data contains the introduction and Water (16002).  The
+// official Anniversary demo additionally exposes Jail (16003), which lets the
+// asset audit record Buddy as he is actually composited during gameplay.
+reset();
+next_part = part;
+currentPart = part;
+displayCount = 0;
+for (currentTick = 0; currentTick < ticksPerPart; ++currentTick) {
+  setInputForTick(currentTick);
+  run_tasks();
 }
+clearInput();
 
 const metadata = {
   ticksPerPart,
+  part,
+  input: demoJoy
+    ? { kind: "DOS DEMO3.JOY", bytes: demoJoy.length }
+    : { kind: "fallback scripted input" },
   screens: screenRecords,
+  preActorScreens: preActorScreenRecords,
   shapes: shapeRecords,
+  shapeOccurrences,
   roots: [...rootStats.values()].sort((a, b) => b.count - a.count),
 };
 fs.writeFileSync(path.join(output, "capture.json"), `${JSON.stringify(metadata, null, 2)}\n`);
@@ -288,6 +388,7 @@ process.stdout.write(
     ticksPerPart,
     screens: screenRecords.length,
     uniqueShapes: shapeRecords.length,
+    shapeOccurrences: shapeOccurrences.length,
     roots: rootStats.size,
   })}\n`,
 );

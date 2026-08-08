@@ -1,129 +1,653 @@
 {
   "backgrounds": [
     {
-      "weighted_error": 6059085263.0,
-      "rgb_mse": 2383.118910047743,
-      "slug": "lab-entrance",
-      "label": "Lab entrance",
-      "source": "intro page 0 \u00b7 frame 20"
+      "weighted_error": 1762459919.0,
+      "rgb_mse": 486.9506089952257,
+      "slug": "flooded-ascent",
+      "label": "Flooded ascent",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 45"
     },
     {
-      "weighted_error": 4950541932.0,
-      "rgb_mse": 1971.844462076823,
-      "slug": "access-corridor",
-      "label": "Access corridor",
-      "source": "intro page 0 \u00b7 frame 40"
+      "weighted_error": 11941093513.0,
+      "rgb_mse": 3974.25191921658,
+      "slug": "alien-basin",
+      "label": "Alien basin",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 69"
     },
     {
-      "weighted_error": 3948969984.0,
-      "rgb_mse": 1348.6666666666667,
-      "slug": "empty-chamber",
-      "label": "Empty chamber",
-      "source": "intro page 0 \u00b7 frame 100"
+      "weighted_error": 12931836763.0,
+      "rgb_mse": 3076.1889444986978,
+      "slug": "stone-colonnade",
+      "label": "Stone colonnade",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 201 \u00b7 before actor draw"
     },
     {
-      "weighted_error": 3978800399.0,
-      "rgb_mse": 1389.247361924913,
-      "slug": "keypad-wall",
-      "label": "Keypad wall",
-      "source": "intro page 0 \u00b7 frame 120"
+      "weighted_error": 13560702698.0,
+      "rgb_mse": 3089.8662109375,
+      "slug": "root-overhang",
+      "label": "Root overhang",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 369 \u00b7 before actor draw"
     },
     {
-      "weighted_error": 13049273372.0,
-      "rgb_mse": 1548.423122829861,
-      "slug": "identification",
-      "label": "Identification",
-      "source": "intro page 0 \u00b7 frame 140"
+      "weighted_error": 11473725312.0,
+      "rgb_mse": 3711.729973687066,
+      "slug": "giant-trunk",
+      "label": "Giant trunk",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 717 \u00b7 before actor draw"
     },
     {
-      "weighted_error": 12949609168.0,
-      "rgb_mse": 1524.450676812066,
-      "slug": "diagnostics",
-      "label": "Diagnostics",
-      "source": "intro page 0 \u00b7 frame 180"
+      "weighted_error": 12647609322.0,
+      "rgb_mse": 3797.8343098958335,
+      "slug": "predator-cave",
+      "label": "Predator cave",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 729"
     },
     {
-      "weighted_error": 13122462329.0,
-      "rgb_mse": 1543.7725897894966,
-      "slug": "countdown",
-      "label": "Experiment countdown",
-      "source": "intro page 0 \u00b7 frame 200"
+      "weighted_error": 12937159954.0,
+      "rgb_mse": 3084.0325724283853,
+      "slug": "basin-chase",
+      "label": "Basin chase",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 825 \u00b7 before actor draw"
     },
     {
-      "weighted_error": 5524691291.0,
-      "rgb_mse": 2344.7953219943574,
-      "slug": "accelerator-ring",
-      "label": "Accelerator ring",
-      "source": "intro page 0 \u00b7 frame 260"
+      "weighted_error": 6462485593.0,
+      "rgb_mse": 2531.41800265842,
+      "slug": "dark-ravine",
+      "label": "Dark ravine",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 921 \u00b7 before actor draw"
     },
     {
-      "weighted_error": 1884478273.0,
-      "rgb_mse": 506.13933648003473,
-      "slug": "flooded-cavern",
-      "label": "Flooded cavern",
-      "source": "shareware gameplay \u00b7 tick 4"
+      "weighted_error": 1556286680.0,
+      "rgb_mse": 288.845709906684,
+      "slug": "spike-pit",
+      "label": "Spike pit",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 1005"
     },
     {
-      "weighted_error": 11931785732.0,
-      "rgb_mse": 3972.0113728841147,
-      "slug": "alien-surface",
-      "label": "Alien surface",
-      "source": "shareware gameplay \u00b7 tick 69"
+      "weighted_error": 1645359798.0,
+      "rgb_mse": 301.40965440538196,
+      "slug": "capture-clearing",
+      "label": "Capture clearing",
+      "source": "DOS DEMO3.JOY gameplay \u00b7 tick 1233"
     }
   ],
   "runtime_backgrounds": [
-    "lab-entrance",
-    "flooded-cavern",
-    "alien-surface"
+    "alien-basin",
+    "root-overhang",
+    "predator-cave"
   ],
   "lester": {
-    "roots": [
+    "pose_roots": [
       1700,
       1844,
       1976,
       2132,
       2288,
       2416,
+      2456,
+      2496,
       2536,
-      2580
+      2580,
+      5840,
+      5736,
+      3232,
+      1600,
+      1564,
+      6276,
+      6440,
+      6612,
+      6788,
+      6984,
+      7132,
+      7172,
+      7212,
+      7252,
+      7296,
+      3704
     ],
+    "sequences": {
+      "run_right": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "stop_right": [
+        10,
+        11
+      ],
+      "turn_left": [
+        12,
+        13,
+        14
+      ],
+      "run_left": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "stop_left": [
+        13,
+        14
+      ],
+      "turn_right": [
+        25,
+        11
+      ]
+    },
     "layout": {
-      "source_width": 35,
-      "source_height": 48,
-      "width": 28,
-      "height": 47,
-      "anchor_x": 19,
-      "anchor_y": 45,
+      "source_width": 32,
+      "source_height": 49,
+      "width": 26,
+      "height": 48,
+      "anchor_x": 0,
+      "anchor_y": 46,
       "bytes_per_row": 5
     },
-    "bank_bytes": 7520
+    "x_offsets": [
+      -14,
+      -11,
+      -17,
+      -20,
+      -18,
+      -14,
+      -11,
+      -17,
+      -20,
+      -18,
+      -4,
+      -4,
+      -4,
+      -6,
+      -5,
+      -3,
+      -8,
+      -6,
+      -5,
+      -6,
+      -2,
+      -5,
+      -5,
+      -4,
+      -6,
+      -4
+    ],
+    "pre_shifted_bytes": 24960
   },
   "buddy": {
-    "roots": [
-      7544,
-      7578,
-      7612,
-      7646,
-      7680,
-      7714,
-      7748,
-      7782
+    "pose_ticks": [
+      429,
+      430,
+      431,
+      432,
+      433,
+      434,
+      435,
+      436,
+      437,
+      438,
+      515,
+      516,
+      517,
+      518,
+      519,
+      520,
+      521,
+      522,
+      523,
+      524,
+      425,
+      424,
+      428
     ],
+    "sequences": {
+      "run_right": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "run_left": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "idle_left": [
+        20
+      ],
+      "turn": [
+        21
+      ],
+      "idle_right": [
+        22
+      ]
+    },
     "layout": {
-      "source_width": 39,
-      "source_height": 57,
-      "width": 32,
-      "height": 55,
-      "anchor_x": 18,
-      "anchor_y": 54,
+      "source_width": 41,
+      "source_height": 61,
+      "width": 33,
+      "height": 59,
+      "anchor_x": 0,
+      "anchor_y": 57,
       "bytes_per_row": 5
     },
-    "bank_bytes": 8800
+    "x_offsets": [
+      -19,
+      -14,
+      -17,
+      -24,
+      -23,
+      -19,
+      -14,
+      -17,
+      -24,
+      -23,
+      -6,
+      -6,
+      -8,
+      -8,
+      -10,
+      -8,
+      -8,
+      -8,
+      -8,
+      -10,
+      -12,
+      -13,
+      -12
+    ],
+    "pre_shifted_bytes": 27140,
+    "components": [
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 8048
+        },
+        {
+          "resource": "p2",
+          "root": 24840
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 8164
+        },
+        {
+          "resource": "p2",
+          "root": 8616
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 8280
+        },
+        {
+          "resource": "p2",
+          "root": 8662
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9544
+        },
+        {
+          "resource": "p2",
+          "root": 8376
+        },
+        {
+          "resource": "p2",
+          "root": 8704
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9584
+        },
+        {
+          "resource": "p2",
+          "root": 8500
+        },
+        {
+          "resource": "p2",
+          "root": 8722
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9544
+        },
+        {
+          "resource": "p2",
+          "root": 8976
+        },
+        {
+          "resource": "p2",
+          "root": 8722
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9544
+        },
+        {
+          "resource": "p2",
+          "root": 9004
+        },
+        {
+          "resource": "p2",
+          "root": 8704
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9032
+        },
+        {
+          "resource": "p2",
+          "root": 8780
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9060
+        },
+        {
+          "resource": "p2",
+          "root": 8822
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 9088
+        },
+        {
+          "resource": "p2",
+          "root": 24840
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 11638
+        },
+        {
+          "resource": "p2",
+          "root": 24994
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 11786
+        },
+        {
+          "resource": "p2",
+          "root": 12566
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 11934
+        },
+        {
+          "resource": "p2",
+          "root": 12580
+        }
+      ],
+      [
+        {
+          "resource": "p2",
+          "root": 12780
+        },
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12090
+        },
+        {
+          "resource": "p2",
+          "root": 12654
+        }
+      ],
+      [
+        {
+          "resource": "p2",
+          "root": 12818
+        },
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12246
+        },
+        {
+          "resource": "p2",
+          "root": 12672
+        }
+      ],
+      [
+        {
+          "resource": "p2",
+          "root": 12780
+        },
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12362
+        },
+        {
+          "resource": "p2",
+          "root": 12672
+        }
+      ],
+      [
+        {
+          "resource": "p2",
+          "root": 12780
+        },
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12390
+        },
+        {
+          "resource": "p2",
+          "root": 12654
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12418
+        },
+        {
+          "resource": "p2",
+          "root": 12712
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12446
+        },
+        {
+          "resource": "p2",
+          "root": 12746
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 10872
+        },
+        {
+          "resource": "p2",
+          "root": 12474
+        },
+        {
+          "resource": "p2",
+          "root": 24994
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 15998
+        },
+        {
+          "resource": "p2",
+          "root": 16586
+        },
+        {
+          "resource": "p2",
+          "root": 6932
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 15998
+        },
+        {
+          "resource": "p2",
+          "root": 17222
+        },
+        {
+          "resource": "p1",
+          "root": 34108
+        }
+      ],
+      [
+        {
+          "resource": "p1",
+          "root": 5636
+        },
+        {
+          "resource": "p2",
+          "root": 16586
+        },
+        {
+          "resource": "p2",
+          "root": 6932
+        }
+      ]
+    ]
   },
   "sprite_shifts": [
     0,
     2,
     4,
     6
-  ]
+  ],
+  "provenance": {
+    "water": "DOS shareware DEMO3.JOY exact input playback \u00b7 part 16002",
+    "buddy": "official Anniversary demo Jail gameplay \u00b7 part 16003"
+  }
 }
