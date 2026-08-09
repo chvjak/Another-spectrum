@@ -2,13 +2,20 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 
-const [wasmPath, snapshotPath, reportPath, refreshText = "1800"] = process.argv.slice(2);
+const [
+  wasmPath,
+  snapshotPath,
+  reportPath,
+  refreshText = "1800",
+  expectedScenesText = "3",
+] = process.argv.slice(2);
 if (!wasmPath || !snapshotPath || !reportPath) {
   throw new Error(
-    "usage: verify_sprite_eval.mjs core.wasm snapshot.sna report.json [refreshes]",
+    "usage: verify_sprite_eval.mjs core.wasm snapshot.sna report.json [refreshes] [expected-scenes]",
   );
 }
 const refreshes = Number.parseInt(refreshText, 10);
+const expectedScenes = Number.parseInt(expectedScenesText, 10);
 const wasm = fs.readFileSync(wasmPath);
 const snapshot = fs.readFileSync(snapshotPath);
 const { instance } = await WebAssembly.instantiate(wasm);
@@ -51,7 +58,22 @@ let lastPresentationRefresh = 0;
 const intervals = [];
 const scenes = new Set();
 const hashes = new Set();
+const backgroundHashCounts = new Map();
 let nonBlackFrames = 0;
+
+const backgroundDigest = (frame) => {
+  const rows = [];
+  const screenOffset = 24 * 160;
+  const rowStride = 96;
+  for (let row = 0; row < 192; row++) {
+    // Exclude the actor/laser band so this digest proves room pixels changed.
+    if (row >= 110 && row < 190) continue;
+    rows.push(
+      frame.subarray(screenOffset + row * rowStride + 16, screenOffset + row * rowStride + 80),
+    );
+  }
+  return crypto.createHash("sha1").update(Buffer.concat(rows)).digest("hex");
+};
 for (let refresh = 1; refresh <= refreshes; ++refresh) {
   const status = core.runFrame();
   if (status !== 0) throw new Error(`emulator status ${status} at refresh ${refresh}`);
@@ -68,6 +90,11 @@ for (let refresh = 1; refresh <= refreshes; ++refresh) {
       memory.subarray(core.FRAME_BUFFER, core.FRAME_BUFFER + 0x6600),
     );
     hashes.add(crypto.createHash("sha1").update(frame).digest("hex"));
+    const scene = u8(0x9f06);
+    const digest = backgroundDigest(frame);
+    const counts = backgroundHashCounts.get(scene) ?? new Map();
+    counts.set(digest, (counts.get(digest) ?? 0) + 1);
+    backgroundHashCounts.set(scene, counts);
     if (frame.some((value) => value !== 0)) nonBlackFrames++;
   }
 }
@@ -83,13 +110,22 @@ const frames = u16(0x9f04);
 const missed = u8(0x9f07);
 const renderIrqMax = u8(0x9f08);
 const transitions = u16(0x9f0e);
+const dominantBackgroundHashes = new Map(
+  [...backgroundHashCounts.entries()].map(([scene, counts]) => [
+    scene,
+    [...counts.entries()].sort(([, a], [, b]) => b - a)[0]?.[0] ?? "",
+  ]),
+);
+const distinctDominantBackgrounds = new Set(dominantBackgroundHashes.values()).size;
 const report = {
   passed:
     magic === "SPRT" &&
     missed === 0 &&
     renderIrqMax <= 1 &&
-    scenes.size === 3 &&
-    transitions >= 3 &&
+    scenes.size === expectedScenes &&
+    transitions >= expectedScenes &&
+    dominantBackgroundHashes.size === expectedScenes &&
+    distinctDominantBackgrounds === expectedScenes &&
     nonBlackFrames === frames &&
     normalIntervals / Math.max(1, intervals.length) > 0.95,
   snapshot: {
@@ -102,6 +138,17 @@ const report = {
     presentations: frames,
     averagePresentationFps: frames / (refreshes / 50),
     scenesSeen: [...scenes].sort(),
+    expectedDistinctScenes: expectedScenes,
+    backgroundVisualVerification: {
+      distinctRenderedBackgrounds: distinctDominantBackgrounds,
+      expectedDistinctBackgrounds: expectedScenes,
+      passed:
+        dominantBackgroundHashes.size === expectedScenes &&
+        distinctDominantBackgrounds === expectedScenes,
+      sceneHashes: Object.fromEntries(
+        [...dominantBackgroundHashes.entries()].sort(([a], [b]) => a - b),
+      ),
+    },
     transitions,
     distinctRenderedFrames: hashes.size,
     nonBlackFrames,
