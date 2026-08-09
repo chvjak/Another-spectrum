@@ -80,3 +80,28 @@ The 36-second verification run must see all three scenes, report no 40 ms
 deadline miss, and observe no more than one 20 ms interrupt boundary during the
 heaviest render.  The normal presentation interval is two refreshes; the only
 long intervals are deliberate, tear-free background transitions.
+
+## Published gameplay-room reference
+
+The corrected published room build is retained as a reproducible reference:
+
+- `artifacts/another-world-gameplay-rooms-v4.2-25fps.sna`: 128K snapshot with
+  twelve packed gameplay rooms and the monochrome actor/laser test.
+- `artifacts/another-world-all-gameplay-screens-contact-sheet.png`: the full
+  forty-screen gameplay catalog after ZX Spectrum quantisation.
+- `artifacts/gameplay-rooms-v4.2-runtime-manifest.json`: packed-room layout,
+  actor sequences, status addresses, and snapshot hash.
+
+Verify the twelve-room snapshot locally with the same JSSpeccy core used by the
+site:
+
+```sh
+node sprite-eval/verify_sprite_eval.mjs \
+  /path/to/jsspeccy-core.wasm \
+  sprite-eval/artifacts/another-world-gameplay-rooms-v4.2-25fps.sna \
+  /tmp/gameplay-rooms-v4.2-verification.json \
+  2600 12
+```
+
+The site uses a new v4.2 snapshot filename rather than reusing the v4.1 URL;
+this avoids a stale browser cache selecting the earlier underwater-only copy.
