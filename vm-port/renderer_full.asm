@@ -33,6 +33,11 @@ TEXT_X                 EQU 0x932A
 TEXT_Y                 EQU 0x932B
 TEXT_COLOR             EQU 0x932C
 DRAW_DEST              EQU 0x932F
+DIRTY5_COUNT           EQU 0x9333
+DIRTY7_COUNT           EQU 0x9335
+ATTR_GENERATION        EQU 0x9337
+ATTR_BANK5_GENERATION  EQU 0x9339
+ATTR_BANK7_GENERATION  EQU 0x933B
 
 DIRTY5                 EQU 0x9000
 DIRTY7                 EQU 0x9060
@@ -148,6 +153,10 @@ DIRTY_RECT_Y            EQU 0x72ED
 DIRTY_RECT_Y1           EQU 0x72EE
 ATTR_RESTART_INDEX      EQU 0x72EF
 
+; Conservative initial threshold for the sparse/dense restore split.  It is
+; counted in stale 8x8 cells, so overlapping primitives do not inflate it.
+DENSE_RESTORE_THRESHOLD EQU 512
+
         INCLUDE "generated_full_layout.inc"
 BITMAP19                EQU 0x7400
 ATTR_CHANGE_MASK        EQU 0x5C75
@@ -179,6 +188,14 @@ checkpoint_ptrs:
 renderer_init:
         ld a,1
         ld (CURRENT_BANK),a
+        xor a
+        ld (ATTR_GENERATION),a
+        ld (ATTR_GENERATION+1),a
+        ; Force the first presentation to publish the initialized stage even
+        ; when no resource command has advanced the stream yet.
+        ld hl,0xFFFF
+        ld (ATTR_BANK5_GENERATION),hl
+        ld (ATTR_BANK7_GENERATION),hl
         call mark_both_full
         xor a
         ld hl,ATTR_STAGE
@@ -188,20 +205,10 @@ renderer_init:
         ldir
         ret
 
-; A sampled presentation: publish the staged attributes to both physical
+; A sampled presentation: publish only stale staged attributes to the physical
 ; screens, advance the compact stream, and leave bytecode bank 1 mapped.
 renderer_present:
-        ld hl,ATTR_STAGE
-        ld de,0x5800
-        ld bc,0x0300
-        ldir
-        ld a,(DISPLAY_BIT)
-        or 7
-        call page_a
-        ld hl,ATTR_STAGE
-        ld de,0xD800
-        ld bc,0x0300
-        ldir
+        call sync_attributes
         ld hl,(FRAME_COUNT)
         inc hl
         ld (FRAME_COUNT),hl
@@ -216,7 +223,46 @@ renderer_present:
         ld de,ATTR_STAGE
         ld bc,0x0300
         call lz_decode
+        call bump_attribute_generation
         jp restore_bytecode
+
+; Copy the staged attribute map only to physical screens whose cached
+; generation is stale. Bitmap restoration remains independently dirty-tracked.
+sync_attributes:
+        ld hl,(ATTR_BANK5_GENERATION)
+        ld de,(ATTR_GENERATION)
+        or a
+        sbc hl,de
+        jr z,.bank5_ready
+        ld hl,ATTR_STAGE
+        ld de,0x5800
+        ld bc,0x0300
+        ldir
+        ld hl,(ATTR_GENERATION)
+        ld (ATTR_BANK5_GENERATION),hl
+.bank5_ready:
+        ld hl,(ATTR_BANK7_GENERATION)
+        ld de,(ATTR_GENERATION)
+        or a
+        sbc hl,de
+        jr z,.bank7_ready
+        ld a,(DISPLAY_BIT)
+        or 7
+        call page_a
+        ld hl,ATTR_STAGE
+        ld de,0xD800
+        ld bc,0x0300
+        ldir
+        ld hl,(ATTR_GENERATION)
+        ld (ATTR_BANK7_GENERATION),hl
+.bank7_ready:
+        ret
+
+bump_attribute_generation:
+        ld hl,(ATTR_GENERATION)
+        inc hl
+        ld (ATTR_GENERATION),hl
+        ret
 
 attribute_changes_next:
         ld a,l
@@ -519,6 +565,7 @@ renderer_load_resource:
         ld de,ATTR_STAGE
         ld bc,0x0300
         call lz_decode
+        call bump_attribute_generation
         call mark_both_full
         jp restore_bytecode
 
@@ -716,11 +763,15 @@ mark_both_full:
         ld bc,95
         ld (hl),a
         ldir
+        ld hl,768
+        ld (DIRTY5_COUNT),hl
         ld hl,DIRTY7
         ld de,DIRTY7+1
         ld bc,95
         ld (hl),a
         ldir
+        ld hl,768
+        ld (DIRTY7_COUNT),hl
         ret
 
 mark_target_full:
@@ -737,6 +788,14 @@ mark_target_full:
         ld bc,95
         ld (hl),a
         ldir
+        ld hl,768
+        ld a,(TARGET_SCREEN)
+        or a
+        jr nz,.bank7_count
+        ld (DIRTY5_COUNT),hl
+        ret
+.bank7_count:
+        ld (DIRTY7_COUNT),hl
         ret
 
 ; Mark SPAN_CELL for restoration the next time its physical screen is reused.
@@ -781,8 +840,21 @@ mark_one_dirty:
         ld hl,(DIRTY_BYTE_INDEX)
         add hl,de
         ld a,(DIRTY_BIT_MASK)
+        ld c,a
+        and (hl)
+        ret nz
+        ld a,c
         or (hl)
         ld (hl),a
+        ld a,e
+        cp 0x60
+        ld hl,DIRTY5_COUNT
+        jr nz,.count_ready
+        ld hl,DIRTY7_COUNT
+.count_ready:
+        ld de,(hl)
+        inc de
+        ld (hl),de
         ret
 
 mark_polygon_dirty:
@@ -846,6 +918,22 @@ mark_polygon_dirty:
         jr .row
 
 restore_dirty_cells:
+        ; Sparse cell copies win for small dirty regions. Once the dirty
+        ; coverage is dense, one linear copy avoids the 768-cell mask walk and
+        ; repeated Spectrum address reconstruction.
+        ld a,(TARGET_SCREEN)
+        or a
+        ld hl,(DIRTY5_COUNT)
+        jr z,.count_ready
+        ld hl,(DIRTY7_COUNT)
+.count_ready:
+        ld de,DENSE_RESTORE_THRESHOLD
+        or a
+        sbc hl,de
+        jr c,.sparse
+        call restore_full_bitmap
+        ret
+.sparse:
         call map_destination
         ld a,(TARGET_SCREEN)
         or a
@@ -894,6 +982,48 @@ restore_dirty_cells:
         ld (RESTORE_GROUP),a
         cp 96
         jr nz,.group_loop
+        call clear_target_dirty_count
+        ret
+
+restore_full_bitmap:
+        call map_destination
+        ld hl,BACKGROUND
+        ld a,(TARGET_SCREEN)
+        or a
+        ld de,0x4000
+        jr z,.destination_ready
+        ld de,0xC000
+.destination_ready:
+        ld bc,0x1800
+        ldir
+        ; The mask is no longer needed after a full copy; clear it so a later
+        ; sparse restore cannot pay for stale work that has already been done.
+        ld a,(TARGET_SCREEN)
+        or a
+        ld hl,DIRTY5
+        jr z,.mask_ready
+        ld hl,DIRTY7
+.mask_ready:
+        xor a
+        ld (hl),a
+        push hl
+        pop de
+        inc de
+        ld bc,95
+        ldir
+        call clear_target_dirty_count
+        ret
+
+clear_target_dirty_count:
+        xor a
+        ld (DIRTY5_COUNT),a
+        ld (DIRTY5_COUNT+1),a
+        ld a,(TARGET_SCREEN)
+        or a
+        ret z
+        xor a
+        ld (DIRTY7_COUNT),a
+        ld (DIRTY7_COUNT+1),a
         ret
 
 copy_background_cell:
