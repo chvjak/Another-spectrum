@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "snapshot": {
+    "bytes": 131103,
+    "sha256": "75f533ddbbc4e30122159819528eea616cab0ed912a56b4a1579f84a664a7541"
+  },
+  "controls": {
+    "left": "O",
+    "right": "P",
+    "fire": "SPACE",
+    "initialPosition": 96,
+    "rightPosition": 176,
+    "initialBuddy": 64,
+    "rightBuddy": 144,
+    "fireAction": 1,
+    "fireDirection": 0,
+    "firePosition": 176,
+    "releasedAction": 0
+  },
+  "timing": {
+    "deadlineMisses": 0,
+    "renderInterruptMax": 1,
+    "presentations": 75
+  }
+}

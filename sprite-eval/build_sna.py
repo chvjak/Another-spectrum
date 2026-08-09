@@ -27,6 +27,9 @@ STATUS = {
     "position": 0x9F0B,
     "animation": 0x9F0D,
     "transitions": 0x9F0E,
+    "action": 0x9F10,
+    "laser_direction": 0x9F11,
+    "buddy_position": 0x9F12,
 }
 
 
@@ -298,15 +301,21 @@ def main() -> None:
         raise RuntimeError(f"fixed code image is {len(code)} bytes")
     snapshot = make_snapshot(code, pages)
     layout["bank2_code_bytes"] = len(code)
-    sna = args.out / "another-world-gameplay-gaits-25fps.sna"
+    sna = args.out / "another-world-gameplay-controls-25fps.sna"
     sna.write_bytes(snapshot)
     names: list[str] = assets["BACKGROUND_NAMES"]
     runtime_indexes: list[int] = assets["RUNTIME_BACKGROUND_INDICES"]
     manifest = {
-        "implementation": "saved-under double buffer + pre-shifted XOR sprites",
+        "implementation": "interactive saved-under double buffer + pre-shifted XOR sprites + short XOR laser",
         "target": "ZX Spectrum 128K stock 3.5469 MHz",
         "presentation_fps": 25,
         "spectrum_refresh_hz": 50,
+        "controls": {
+            "left": "O",
+            "right": "P",
+            "fire": "SPACE",
+            "buddy": "follows Lester at a trailing actor-width offset",
+        },
         "backgrounds_in_contact_sheet": len(names),
         "runtime_backgrounds": [names[index] for index in runtime_indexes],
         "actor_frames": {
@@ -326,7 +335,7 @@ def main() -> None:
         "snapshot_sha256": hashlib.sha256(snapshot).hexdigest(),
     }
     (args.out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    (HERE / "artifacts" / "runtime-manifest.json").write_text(
+    (HERE / "artifacts" / "controls-runtime-manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
     print(

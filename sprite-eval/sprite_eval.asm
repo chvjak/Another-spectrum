@@ -18,9 +18,14 @@
 
 PORT_7FFD               EQU 0x7FFD
 PORT_FE                 EQU 0x00FE
+KEY_LEFT_PORT           EQU 0xDFFE       ; O
+KEY_RIGHT_PORT          EQU 0xDFFE       ; P
+KEY_FIRE_PORT           EQU 0x7FFE       ; SPACE
 SCREEN_BYTES            EQU 6912
 DIRTY_MAX_WIDTH         EQU 10
 DIRTY_BYTES             EQU DIRTY_HEIGHT * DIRTY_MAX_WIDTH
+SCENE_HOLD_FRAMES       EQU 96
+LASER_Y                 EQU 139
 
 entry:
         di
@@ -36,9 +41,24 @@ entry:
         ld (status_render_irq_max),a
         ld (status_transitions),a
         ld (status_transitions+1),a
+        ld (status_action),a
+        ld (status_laser_direction),a
         ld hl,0
         ld (status_frames),hl
-        call load_choreography
+        ld a,96
+        ld (lester_x),a
+        ld a,64
+        ld (buddy_x),a
+        ld a,11
+        ld (lester_pose),a
+        ld a,22
+        ld (buddy_pose),a
+        xor a
+        ld (facing),a
+        ld (anim_phase),a
+        ld (scene_timer),a
+        ld (fire_timer),a
+        ld (laser_active),a
         ld a,7
         call page_bank
 
@@ -54,6 +74,7 @@ main_loop:
         ld a,(status_irq)
         ld (render_start_irq),a
 
+        call update_player
         call prepare_sprites
         call restore_hidden
         call calculate_new_rectangle
@@ -103,17 +124,234 @@ load_choreography:
         ret
 
 advance_choreography:
-        ld a,(choreography_index)
+        ld a,(scene_timer)
         inc a
-        cp CHOREOGRAPHY_LENGTH
-        jr c,.store
+        ld (scene_timer),a
+        cp SCENE_HOLD_FRAMES
+        ret c
         xor a
-        ld (choreography_index),a
-        call next_scene
-        jp load_choreography
+        ld (scene_timer),a
+        jp next_scene
+
+
+; ---------------------------------------------------------------------------
+; Interactive player controls.  The SNA uses the standard Spectrum matrix:
+; O/P for left/right and SPACE for fire.  Buddy follows one actor-width
+; behind Lester and uses the same run phase when he has to catch up.
+
+update_player:
+        call read_controls
+        ld a,(input_state)
+        and 3
+        cp 1
+        jp z,player_left
+        cp 2
+        jp z,player_right
+        jp player_idle
+
+read_controls:
+        xor a
+        ld (input_state),a
+        ld bc,KEY_LEFT_PORT
+        in a,(c)
+        bit 1,a
+        jr nz,.no_left
+        ld a,1
+        ld (input_state),a
+.no_left:
+        ld bc,KEY_RIGHT_PORT
+        in a,(c)
+        bit 0,a
+        jr nz,.no_right
+        ld a,(input_state)
+        or 2
+        ld (input_state),a
+.no_right:
+        ld bc,KEY_FIRE_PORT
+        in a,(c)
+        bit 0,a
+        ret nz
+        ld a,(input_state)
+        or 4
+        ld (input_state),a
+        ret
+
+player_right:
+        xor a
+        ld (facing),a
+        ld a,(lester_x)
+        cp 216
+        jr nc,.no_move
+        add a,2
+        ld (lester_x),a
+        call advance_run_phase
+.no_move:
+        call follow_buddy_right
+        jp handle_fire
+
+player_left:
+        ld a,1
+        ld (facing),a
+        ld a,(lester_x)
+        or a
+        jr z,.no_move
+        sub 2
+        ld (lester_x),a
+        call advance_run_phase
+.no_move:
+        call follow_buddy_left
+        jp handle_fire
+
+player_idle:
+        call follow_buddy_idle
+        ld a,(facing)
+        or a
+        jr nz,.left_pose
+        ld a,11
+        ld (lester_pose),a
+        jp handle_fire
+.left_pose:
+        ld a,13
+        ld (lester_pose),a
+
+advance_run_phase:
+        ld a,(anim_phase)
+        inc a
+        cp 10
+        jr c,.phase_ok
+        xor a
+.phase_ok:
+        ld (anim_phase),a
+        ld e,a
+        ld d,0
+        ld hl,run_right_poses
+        ld a,(facing)
+        or a
+        jr z,.table
+        ld hl,run_left_poses
+.table:
+        add hl,de
+        ld a,(hl)
+        ld (lester_pose),a
+        ret
+
+follow_buddy_right:
+        ld a,(lester_x)
+        sub 32
+        jr nc,.target_ok
+        xor a
+.target_ok:
+        ld (buddy_target),a
+        ld b,a
+        ld a,(buddy_x)
+        cp b
+        jr nc,.idle
+        add a,2
+        cp b
+        jr c,.store
+        ld a,b
 .store:
-        ld (choreography_index),a
-        jp load_choreography
+        ld (buddy_x),a
+        ld a,(anim_phase)
+        ld e,a
+        ld d,0
+        ld hl,buddy_run_right_poses
+        add hl,de
+        ld a,(hl)
+        ld (buddy_pose),a
+        ret
+.idle:
+        ld a,22
+        ld (buddy_pose),a
+        ret
+
+follow_buddy_left:
+        ld a,(lester_x)
+        add a,32
+        jr c,.target_clip
+        cp 216
+        jr c,.target_ok
+.target_clip:
+        ld a,216
+.target_ok:
+        ld (buddy_target),a
+        ld b,a
+        ld a,(buddy_x)
+        cp b
+        jr c,.idle
+        or a
+        jr z,.idle
+        sub 2
+        cp b
+        jr nc,.store
+        ld a,b
+.store:
+        ld (buddy_x),a
+        ld a,(anim_phase)
+        ld e,a
+        ld d,0
+        ld hl,buddy_run_left_poses
+        add hl,de
+        ld a,(hl)
+        ld (buddy_pose),a
+        ret
+.idle:
+        ld a,20
+        ld (buddy_pose),a
+        ret
+
+follow_buddy_idle:
+        ld a,(facing)
+        or a
+        jp nz,follow_buddy_left
+        jp follow_buddy_right
+
+handle_fire:
+        ld a,(fire_timer)
+        or a
+        jr z,.new_fire
+        dec a
+        ld (fire_timer),a
+        jr nz,.active
+        xor a
+        ld (laser_active),a
+        jr .new_fire
+.active:
+        ld a,1
+        ld (laser_active),a
+        jr .fire_pose
+.new_fire:
+        ld a,(input_state)
+        and 4
+        jr z,.done
+        ld a,10
+        ld (fire_timer),a
+        ld a,1
+        ld (laser_active),a
+        ld a,(facing)
+        ld (status_laser_direction),a
+.fire_pose:
+        ld a,(facing)
+        or a
+        jr nz,.fire_left
+        ld a,11
+        ld (lester_pose),a
+        jr .done
+.fire_left:
+        ld a,13
+        ld (lester_pose),a
+.done:
+        ld a,(laser_active)
+        ld (status_action),a
+        ld a,(lester_x)
+        ld (status_position),a
+        xor a
+        ld (status_position+1),a
+        ld a,(lester_pose)
+        ld (status_anim),a
+        ld a,(buddy_x)
+        ld (status_buddy_position),a
+        ret
 
 
 ; ---------------------------------------------------------------------------
@@ -329,39 +567,74 @@ restore_block:
         ret
 
 calculate_new_rectangle:
-        ld a,(buddy_visible)
-        or a
-        jr z,.lester_only
-        ld a,(buddy_x)
-        srl a
-        srl a
-        srl a
-        ld (new_x),a
-        ld a,(lester_visible)
-        or a
-        ld a,5
-        jr z,.clip_width
-        ld a,10
-        jr .clip_width
-.lester_only:
         ld a,(lester_x)
         srl a
         srl a
         srl a
         ld (new_x),a
-        ld a,5
-.clip_width:
+        add a,5
+        ld (max_x_work),a
+
+        ld a,(buddy_x)
+        srl a
+        srl a
+        srl a
         ld b,a
-        ld a,(new_x)
-        add a,b
-        cp 33
-        jr c,.store_width
-        ld a,32
+        ld hl,new_x
+        cp (hl)
+        jr nc,.buddy_min_done
+        ld (hl),a
+.buddy_min_done:
+        ld a,b
+        add a,5
+        ld b,a
+        ld a,(max_x_work)
+        cp b
+        jr nc,.buddy_max_done
+        ld a,b
+        ld (max_x_work),a
+.buddy_max_done:
+
+        ld a,(laser_active)
+        or a
+        jr z,.store
+        ld a,(lester_x)
+        srl a
+        srl a
+        srl a
+        ld b,a
+        ld a,(status_laser_direction)
+        or a
+        jr nz,.laser_left
+        ld a,b
+        add a,6
+        jr .laser_max
+.laser_left:
+        ld a,b
+        sub 3
+        jr nc,.laser_min
+        xor a
+.laser_min:
+        ld hl,new_x
+        cp (hl)
+        jr nc,.store
+        ld (hl),a
+        jr .store
+.laser_max:
+        ld b,a
+        ld a,(max_x_work)
+        cp b
+        jr nc,.store
+        ld a,b
+        ld (max_x_work),a
+.store:
+        ld a,(max_x_work)
         ld hl,new_x
         sub (hl)
-        ld b,a
-.store_width:
-        ld a,b
+        cp DIRTY_MAX_WIDTH + 1
+        jr c,.width_ok
+        ld a,DIRTY_MAX_WIDTH
+.width_ok:
         ld (new_width),a
         ret
 
@@ -457,7 +730,8 @@ draw_actors:
         srl a
         ld c,a
         ld b,BUDDY_HEIGHT
-        jp xor_mask
+        call xor_mask
+        jp draw_laser
 
 xor_mask:
         ld a,c
@@ -495,6 +769,55 @@ xor_mask:
         inc ix
         inc ix
         djnz .row
+        ret
+
+draw_laser:
+        ld a,(laser_active)
+        or a
+        ret z
+        ld a,(screen_bit)
+        or a
+        jr nz,.screen5
+        ld ix,ROW_TABLE7
+        jr .table_ready
+.screen5:
+        ld ix,ROW_TABLE5
+.table_ready:
+        ld de,LASER_Y * 2
+        add ix,de
+        ld l,(ix+0)
+        ld h,(ix+1)
+        ld a,(lester_x)
+        srl a
+        srl a
+        srl a
+        ld b,a
+        ld a,(status_laser_direction)
+        or a
+        jr nz,.left
+        ld a,b
+        add a,3
+        jr .offset
+.left:
+        ld a,b
+        sub 3
+        jr nc,.offset
+        xor a
+.offset:
+        ld e,a
+        ld d,0
+        add hl,de
+        ld a,(hl)
+        xor 0xFF
+        ld (hl),a
+        inc hl
+        ld a,(hl)
+        xor 0xFF
+        ld (hl),a
+        inc hl
+        ld a,(hl)
+        xor 0xFF
+        ld (hl),a
         ret
 
 
@@ -623,6 +946,12 @@ status_anim:
         db 0
 status_transitions:
         dw 0
+status_action:
+        db 0
+status_laser_direction:
+        db 0
+status_buddy_position:
+        db 0
 
 screen_bit:
         db 0
@@ -650,6 +979,22 @@ lester_x:
         db 0
 buddy_x:
         db 0
+facing:
+        db 0
+anim_phase:
+        db 0
+scene_timer:
+        db 0
+fire_timer:
+        db 0
+laser_active:
+        db 0
+input_state:
+        db 0
+buddy_target:
+        db 0
+max_x_work:
+        db 0
 valid5:
         db 0
 valid7:
@@ -674,6 +1019,15 @@ sprite_x_byte:
         db 0
 
         ASSERT $ < 0xA000
+
+run_right_poses:
+        db 0,1,2,3,4,5,6,7,8,9
+run_left_poses:
+        db 15,16,17,18,19,20,21,22,23,24
+buddy_run_right_poses:
+        db 0,1,2,3,4,5,6,7,8,9
+buddy_run_left_poses:
+        db 10,11,12,13,14,15,16,17,18,19
 
 
 ; 257 identical bytes make every IM2 vector resolve to 0xA1A1.

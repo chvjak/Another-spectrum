@@ -80,3 +80,17 @@ The 36-second verification run must see all three scenes, report no 40 ms
 deadline miss, and observe no more than one 20 ms interrupt boundary during the
 heaviest render.  The normal presentation interval is two refreshes; the only
 long intervals are deliberate, tear-free background transitions.
+
+## Interactive controls experiment
+
+`build_sna.py` also produces
+`build/gameplay-controls/another-world-gameplay-controls-25fps.sna`. This is
+based on the earlier monochrome saved-under compositor. Focus the emulator and
+use **O** to move left, **P** to move right, and **SPACE** to fire. Lester moves
+in two-pixel steps; Buddy follows at a trailing actor-width offset and switches
+between the packed run and idle poses. Fire draws a short XOR laser and restores
+the underlying room through the same dirty-rectangle path.
+
+`verify_gameplay_controls.mjs` drives the emulator's actual Spectrum keyboard
+matrix and checks player movement, Buddy following, fire/release state, and
+render timing.
