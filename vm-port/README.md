@@ -39,17 +39,20 @@ Including the two screens, page-0 background, VM state, decompression buffers
 and renderer scratch, estimated resident use is about 126.3 KB. Approximately
 4.8 KB remains in aggregate, but it is fragmented across banks.
 
-## Current performance boundary
+## Historical size-first baseline
 
-Control flow is exact, but the general polygon path is not real-time yet. The
-full emulator run consumes about 30,900 Spectrum refresh intervals. Capture
-records the 298 VM-selected presentations and repeats each for ten output
-frames, producing the intended 59.8-second, 5 fps visual timeline.
+The initial control-flow milestone consumes about 30,900 Spectrum refresh
+intervals. Its capture records the 298 VM-selected presentations and repeats
+each for ten output frames. That historical 59.8-second capture predates the
+corrected 164.52-second intro timing and must not be treated as the final
+timeline.
 
-The next optimization should precompile only the few repeatedly expensive
-compound roots into compact spans. Broad dirty-zone lists or rendered-frame
-streams are deliberately excluded unless profiling proves they save more than
-they cost.
+Later branches measured row-oriented fill, final-pixel ownership, a 4.5 fps
+drop schedule, proper-EGA visual repair, and dense restore/attribute-generation
+fast paths. The CPU-only 4.5 fps benchmark meets the timing target, while the
+corresponding JSSpeccy-loaded snapshot is black. Conversely, the fixed
+proper-EGA snapshot is byte-exact for all retained screens but not real-time.
+See `../docs/PROJECT-WRAP-UP.md` for the non-combinable final results.
 
 ## Build and test
 
