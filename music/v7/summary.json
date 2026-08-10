@@ -1,0 +1,14 @@
+{
+  "duration_seconds": 170.0,
+  "ticks_50hz": 8500,
+  "integrated_ay50_bytes": 24090,
+  "compressed_payload_bytes": 4691,
+  "sfx_changed_ticks": 353,
+  "effects": [
+    "six different keypad tones",
+    "noise+synth tyre brake squeal",
+    "ten alternating noise+synth steps",
+    "multi-channel noise+synth lightning strike"
+  ],
+  "integration": "Native three-channel AY register stream; SFX temporarily steal channels by priority and the same payload is consumed by the diff-stream player."
+}

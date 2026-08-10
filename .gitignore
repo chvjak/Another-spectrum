@@ -1,6 +1,7 @@
 # Locally supplied inputs
 rawgl/
 data/
+vendor/
 rom-*.bin
 *.wasm
 
@@ -15,6 +16,7 @@ frames-*/
 *.wav
 *.bin
 reels.csv
+music/*/generated/
 
 # Tool caches
 __pycache__/

@@ -1,0 +1,137 @@
+    a.emit(0x3E, 0x0F, 0xFD, 0x21, 0x00, 0x40)  # show bank 7, draw bank 5
+    a.label("flip")
+    a.emit(0x01, 0xFD, 0x7F, 0xED, 0x79)  # ld bc,$7ffd; out (c),a
+    a.absolute(0x3A, "target")
+    a.emit(0xEE, 0x01)
+    a.absolute(0x32, "target")
+
+    a.emit(0xFB, 0x06, WAIT_FRAMES)  # ei; ld b,wait frames
+    a.label("wait")
+    a.emit(0x76)                     # halt: one 50 Hz tick
+    a.absolute(0xCD, "ay_tick")      # call ay_tick
+    a.emit(0x10, 0xFA)               # djnz wait (-6 bytes)
+
+    a.absolute(0x3A, "remaining")
+    a.emit(0x3D)
+    a.absolute(0x32, "remaining")
+    a.jr(0x20, "frame")
+
+    a.label("tail")
+    a.absolute(0x2A, "tail_remaining")
+    a.emit(0x7C, 0xB5)               # ld a,h; or l
+    a.jr(0x28, "hold")
+    a.emit(0xFB, 0x76)               # ei; halt
+    a.absolute(0xCD, "ay_tick")
+    a.absolute(0x2A, "tail_remaining")
+    a.emit(0x2B)                     # dec hl
+    a.absolute(0x22, "tail_remaining")
+    a.jr(0x18, "tail")
+
+    a.label("hold")
+    a.emit(0xFB, 0x76)               # ei; halt forever after silent final AY row
+    a.jr(0x18, "hold")
+
+    emit_ay_tick(a)
+
+    a.label("target")
+    a.emit(0)
+    a.label("remaining")
+    a.emit(0)
+    a.label("ay_ptr")
+    a.word(AY_DATA_ADDRESS)
+    a.label("tail_remaining")
+    a.word(tail_ticks)
+
+    code = a.finish()
+    if PLAYER_ORIGIN + len(code) > IM2_VECTOR_LOW_ADDRESS:
+        raise RuntimeError(
+            f"player overlaps IM2 vector: end=${PLAYER_ORIGIN + len(code):04x}, "
+            f"vector=${IM2_VECTOR_LOW_ADDRESS:04x}"
+        )
+    return code
+
+
+def encode(frames: Sequence[bytes]) -> bytes:
+    states = [bytes(6912), bytes(6912)]
+    encoded = bytearray()
+    for index, frame in enumerate(frames):
+        target = index & 1
+        for offset, data in spans(states[target], frame):
+            encoded += struct.pack("<HB", offset, len(data)) + data
+        encoded += b"\xff\xff"
+        states[target] = frame
+    return bytes(encoded)
+
+
+def load_ay50(path: Path) -> list[bytes]:
+    blob = path.read_bytes()
+    if path.suffix == ".b64":
+        blob = base64.b64decode(blob.strip(), validate=True)
+        if path.name.endswith(".zlib.b64"):
+            blob = zlib.decompress(blob)
+    if len(blob) < 6 or blob[:4] != b"AY50":
+        raise ValueError(f"not an AY50 stream: {path}")
+    tick_count = struct.unpack_from("<H", blob, 4)[0]
+    position = 6
+    state = bytearray(14)
+    state[7] = 0x3F
+    frames: list[bytes] = []
+    for tick in range(tick_count):
+        if position + 2 > len(blob):
+            raise ValueError(f"truncated AY50 mask at tick {tick}")
+        mask = struct.unpack_from("<H", blob, position)[0]
+        position += 2
+        for register in range(14):
+            if mask & (1 << register):
+                if position >= len(blob):
+                    raise ValueError(f"truncated AY50 value at tick {tick}, R{register}")
+                state[register] = blob[position]
+                position += 1
+        frames.append(bytes(state))
+    if position != len(blob):
+        raise ValueError(f"trailing AY50 bytes: {len(blob) - position}")
+    return frames
+
+
+def silence_ay_frame() -> bytes:
+    state = bytearray(14)
+    state[7] = 0x3F
+    return bytes(state)
+
+
+def ay_slice(frames: Sequence[bytes], start: int, end: int) -> list[bytes]:
+    silence = silence_ay_frame()
+    return [frames[tick] if tick < len(frames) else silence for tick in range(start, end)]
+
+
+def encode_ay_segment(frames: Sequence[bytes]) -> bytes:
+    if not frames:
+        return b""
+    previous = bytearray(14)
+    previous[7] = 0x3F
+    output = bytearray()
+    for tick, frame in enumerate(frames):
+        mask = 0x3FFF if tick == 0 else 0
+        if tick != 0:
+            for register, value in enumerate(frame):
+                if value != previous[register]:
+                    mask |= 1 << register
+        output += struct.pack("<H", mask)
+        for register, value in enumerate(frame):
+            if mask & (1 << register):
+                output.append(value)
+        previous[:] = frame
+    return bytes(output)
+
+
+def decode_ay_segment(blob: bytes, tick_count: int) -> list[bytes]:
+    position = 0
+    state = bytearray(14)
+    state[7] = 0x3F
+    result: list[bytes] = []
+    for tick in range(tick_count):
+        if position + 2 > len(blob):
+            raise ValueError(f"truncated reel AY mask at tick {tick}")
+        mask = struct.unpack_from("<H", blob, position)[0]
+        position += 2
+        for register in range(14):

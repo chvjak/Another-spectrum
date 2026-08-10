@@ -1,0 +1,65 @@
+{
+  "target": {
+    "refreshes": 8226,
+    "seconds_at_50hz": 164.52
+  },
+  "baseline": {
+    "label": "row-fill-baseline",
+    "refreshes": 9154,
+    "seconds_at_50hz": 183.08,
+    "presentations": 298
+  },
+  "variants": {
+    "uniform-4p5": {
+      "nominal_fps": 4.496644295302013,
+      "presentations": 268,
+      "refreshes": 8183,
+      "seconds_at_50hz": 163.66,
+      "saved_refreshes": 971,
+      "saved_percent": 10.607384749836136,
+      "target_margin_refreshes": 43,
+      "real_time": true
+    },
+    "cost-4p5": {
+      "nominal_fps": 4.496644295302013,
+      "presentations": 268,
+      "refreshes": 7866,
+      "seconds_at_50hz": 157.32,
+      "saved_refreshes": 1288,
+      "saved_percent": 14.070351758793976,
+      "target_margin_refreshes": 360,
+      "real_time": true,
+      "drop_slots": [6, 20, 31, 41, 91, 106, 111, 114, 118, 122, 124, 128, 141, 146, 155, 160, 163, 172, 183, 193, 202, 206, 214, 222, 233, 261, 265, 270, 273, 295],
+      "drop_ticks": [58, 198, 308, 408, 908, 1058, 1108, 1138, 1178, 1218, 1238, 1278, 1408, 1458, 1548, 1598, 1628, 1718, 1828, 1928, 2018, 2058, 2138, 2218, 2328, 2608, 2648, 2698, 2728, 2948],
+      "live_draw_events": 1020,
+      "total_draw_events": 9648,
+      "event_runs_bytes": 752
+    },
+    "balanced-4p5": {
+      "nominal_fps": 4.496644295302013,
+      "presentations": 268,
+      "refreshes": 7866,
+      "seconds_at_50hz": 157.32,
+      "saved_refreshes": 1288,
+      "saved_percent": 14.070351758793976,
+      "target_margin_refreshes": 360,
+      "real_time": true
+    }
+  },
+  "winner": "cost-4p5",
+  "validation": {
+    "vm_ticks": 2980,
+    "bytecode_instructions": 56075,
+    "trace_hash": 40691,
+    "original_sample_slots_consumed": 298,
+    "retained_frames_byte_identical": true,
+    "retained_slots_exact": true,
+    "vm_errors": 0,
+    "renderer_errors": 0
+  },
+  "size": {
+    "snapshot_bytes": 131103,
+    "vm_bytes": 4807,
+    "vm_gap_remaining": 57
+  }
+}

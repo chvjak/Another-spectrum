@@ -6,9 +6,13 @@ Experimental ports of the Another World DOS-shareware intro to the ZX Spectrum
 ## Implementations
 
 - `diff-stream/`: pre-rendered Spectrum screens encoded as alternating bank-5 /
-  bank-7 byte deltas.
+  bank-7 byte deltas, including a build-time hybrid that replaces recognized
+  text with 6x6 glyphs derived from RawGL's original font.
 - `vm-port/`: intro-specific Z80 VM and polygon renderer using the original VM
   bytecode and shape resources supplied locally by the user.
+- `sprite-eval/`: ULA-constrained background and character feasibility build
+  with Lester and Buddy animation, a locally verified 128K SNA, contact sheets,
+  and an emulator-driven MP4 capture.
 
 The repository contains source code and measured results only. It intentionally
 does not include Another World data, Spectrum ROMs, generated snapshots, videos,
@@ -26,3 +30,5 @@ Later testing established that the intro script lasts about 164.52 seconds; the
 timestamp-aware correction must be reapplied to the recovered source.
 
 See the README in each implementation directory for details and prerequisites.
+The hybrid font workflow is documented in
+[`diff-stream/HYBRID-AW-FONT.md`](diff-stream/HYBRID-AW-FONT.md).

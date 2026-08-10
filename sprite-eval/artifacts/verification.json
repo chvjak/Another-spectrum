@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "snapshot": {
+    "bytes": 131103,
+    "sha256": "0bf11a889ed0eb1e6f42cbfb5a6762c8fa3052f83e89b12501f4630b1aa24b84"
+  },
+  "run": {
+    "refreshes": 1800,
+    "secondsAt50Hz": 36,
+    "presentations": 884,
+    "averagePresentationFps": 24.555555555555557,
+    "scenesSeen": [
+      0,
+      1,
+      2
+    ],
+    "transitions": 5,
+    "distinctRenderedFrames": 444,
+    "nonBlackFrames": 884
+  },
+  "timing": {
+    "targetFps": 25,
+    "normalRefreshInterval": 2,
+    "intervalHistogram": {
+      "2": 878,
+      "8": 5
+    },
+    "normalIntervalRatio": 0.9943374858437146,
+    "deadlineMisses": 0,
+    "maximumInterruptsObservedDuringRender": 1,
+    "interpretation": "No 40 ms deadline misses; the heaviest render spans at most one 20 ms interrupt boundary."
+  },
+  "finalState": {
+    "pc": 34755,
+    "scene": 2,
+    "position": 148,
+    "animation": 20,
+    "screenBit": 0,
+    "irq": 7
+  }
+}

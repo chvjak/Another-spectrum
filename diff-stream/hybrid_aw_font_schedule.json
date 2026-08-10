@@ -1,0 +1,285 @@
+{
+  "version": 1,
+  "coordinates": "RawGL 320x200 text coordinates; frame ranges are inclusive",
+  "overlays": [
+    {
+      "name": "making",
+      "table": "demo",
+      "id": "0x1f4",
+      "x": 6,
+      "y": 80,
+      "colour": 15,
+      "ranges": [[152, 248]]
+    },
+    {
+      "name": "new_polygon_system",
+      "table": "demo",
+      "id": "0x1f5",
+      "x": 0,
+      "y": 60,
+      "colour": 13,
+      "ranges": [[1132, 1255]]
+    },
+    {
+      "name": "full_screen_graphics",
+      "table": "demo",
+      "id": "0x1f6",
+      "x": 21,
+      "y": 110,
+      "colour": 13,
+      "ranges": [[1256, 1380]]
+    },
+    {
+      "name": "identification",
+      "table": "eng",
+      "id": "0x192",
+      "x": 22,
+      "y": 16,
+      "colour": 4,
+      "ranges": [[1822, 2015]]
+    },
+    {
+      "name": "good_evening",
+      "table": "eng",
+      "id": "0x190",
+      "x": 3,
+      "y": 168,
+      "colour": 4,
+      "ranges": [[1891, 1946]]
+    },
+    {
+      "name": "ferrari",
+      "table": "eng",
+      "id": "0x191",
+      "x": 3,
+      "y": 168,
+      "colour": 4,
+      "ranges": [[1947, 2015]]
+    },
+    {
+      "name": "fission",
+      "table": "demo",
+      "id": "0x1f7",
+      "x": 1,
+      "y": 10,
+      "colour": 14,
+      "ranges": [[2016, 2111]]
+    },
+    {
+      "name": "terminal_copyright",
+      "table": "eng",
+      "id": "0x002",
+      "x": 1,
+      "y": 24,
+      "colour": 4,
+      "ranges": [[2223, 2332]]
+    },
+    {
+      "name": "terminal_prompt",
+      "text": "> ",
+      "x": 1,
+      "y": 150,
+      "colour": 4,
+      "ranges": [[2250, 2263]]
+    },
+    {
+      "name": "terminal_prompt_partial",
+      "text": "> RUN PRO",
+      "x": 1,
+      "y": 150,
+      "colour": 4,
+      "ranges": [[2264, 2277]]
+    },
+    {
+      "name": "terminal_prompt_complete",
+      "text": "> RUN PROJECT 23",
+      "x": 1,
+      "y": 150,
+      "colour": 4,
+      "ranges": [[2278, 2332]]
+    },
+    {
+      "name": "parameter_heading",
+      "table": "eng",
+      "id": "0x038",
+      "x": 5,
+      "y": 20,
+      "colour": 4,
+      "ranges": [[2374, 2553]]
+    },
+    {
+      "name": "synchrotron",
+      "table": "eng",
+      "id": "0x019",
+      "x": 18,
+      "y": 36,
+      "colour": 4,
+      "ranges": [[2374, 2553]]
+    },
+    {
+      "name": "parameters",
+      "table": "eng",
+      "id": "0x01a",
+      "x": 20,
+      "y": 60,
+      "colour": 4,
+      "ranges": [[2374, 2553]]
+    },
+    {
+      "name": "run_experiment",
+      "table": "eng",
+      "id": "0x039",
+      "x": 5,
+      "y": 170,
+      "colour": 4,
+      "ranges": [[2471, 2484], [2499, 2539]]
+    },
+    {
+      "name": "run_experiment_yes",
+      "text": "Y",
+      "x": 36,
+      "y": 170,
+      "colour": 4,
+      "ranges": [[2526, 2553]]
+    },
+    {
+      "name": "theoretical_study",
+      "table": "eng",
+      "id": "0x022",
+      "x": 8,
+      "y": 2,
+      "colour": 4,
+      "ranges": [[2554, 2746]]
+    },
+    {
+      "name": "phase_one",
+      "table": "eng",
+      "id": "0x032",
+      "x": 2,
+      "y": 156,
+      "colour": 4,
+      "ranges": [[2554, 2663]]
+    },
+    {
+      "name": "analysis",
+      "table": "eng",
+      "id": "0x034",
+      "x": 8,
+      "y": 152,
+      "colour": 4,
+      "ranges": [[2664, 2691]]
+    },
+    {
+      "name": "result",
+      "table": "eng",
+      "id": "0x035",
+      "x": 2,
+      "y": 140,
+      "colour": 4,
+      "ranges": [[2692, 2732]]
+    },
+    {
+      "name": "practical_verification",
+      "table": "eng",
+      "id": "0x036",
+      "x": 2,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2733, 2746]]
+    },
+    {
+      "name": "countdown_label",
+      "table": "eng",
+      "id": "0x023",
+      "x": 0,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2747, 2788], [2844, 2926]]
+    },
+    {
+      "name": "countdown_20",
+      "table": "eng",
+      "id": "0x024",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2747, 2760]]
+    },
+    {
+      "name": "countdown_19",
+      "table": "eng",
+      "id": "0x025",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2761, 2788]]
+    },
+    {
+      "name": "countdown_5",
+      "text": "  5",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2844, 2857]]
+    },
+    {
+      "name": "countdown_4",
+      "text": "  4",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2858, 2870]]
+    },
+    {
+      "name": "countdown_3",
+      "text": "  3",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2871, 2884]]
+    },
+    {
+      "name": "countdown_2",
+      "text": "  2",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2885, 2898]]
+    },
+    {
+      "name": "countdown_1",
+      "text": "  1",
+      "x": 28,
+      "y": 80,
+      "colour": 4,
+      "ranges": [[2899, 2926]]
+    },
+    {
+      "name": "cdi_vector",
+      "table": "eng",
+      "id": "0x016",
+      "x": 9,
+      "y": 150,
+      "colour": 4,
+      "ranges": [[2844, 2926]]
+    },
+    {
+      "name": "nature",
+      "table": "demo",
+      "id": "0x1f8",
+      "x": 5,
+      "y": 80,
+      "colour": 13,
+      "ranges": [[2982, 3064]]
+    },
+    {
+      "name": "sends_you",
+      "table": "demo",
+      "id": "0x1f9",
+      "x": 11,
+      "y": 80,
+      "colour": 15,
+      "ranges": [[4003, 4071]]
+    }
+  ]
+}

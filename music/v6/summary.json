@@ -1,0 +1,17 @@
+{
+  "duration_seconds": 170.0,
+  "ticks_50hz": 8500,
+  "delta_stream_bytes": 23141,
+  "vgm_bytes": 44064,
+  "changes": [
+    "removed all repeating bass noise gates",
+    "removed repeating bass pitch and volume modulation",
+    "removed periodic metallic machine tick",
+    "kept rounded melody attacks and existing peak shape",
+    "kept noisy melody onsets and body-plus-noise gentle snares",
+    "matched v5 long-term listening level within 0.05 dB"
+  ],
+  "melody_events": 46,
+  "bass_events": 25,
+  "drum_events": 172
+}

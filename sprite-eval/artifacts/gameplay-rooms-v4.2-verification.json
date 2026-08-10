@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "snapshot": {
+    "bytes": 131103,
+    "sha256": "66cd9acfc084f883cc781f7659ac23f5b711bebac8f905f7bf86c7657f16dfe9"
+  },
+  "run": {
+    "refreshes": 2600,
+    "secondsAt50Hz": 52,
+    "presentations": 1227,
+    "averagePresentationFps": 23.596153846153847,
+    "scenesSeen": [
+      0,
+      1,
+      10,
+      11,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "expectedDistinctScenes": 12,
+    "backgroundVisualVerification": {
+      "distinctRenderedBackgrounds": 12,
+      "expectedDistinctBackgrounds": 12,
+      "passed": true,
+      "sceneHashes": {
+        "0": "6fa4c3932517efb3dde189684d8fc2ab9eec6fe4",
+        "1": "8015fa36a2501cdaa209b1060e3f7c4ee9c45be2",
+        "2": "e19d2f5b3d1509920638480fde79a5d022c398d1",
+        "3": "f24a363cbda646f5a14300c8eb649be62eebc542",
+        "4": "52837f0fab47a70ce3fee8c94240f116e5553191",
+        "5": "779102965323434e96024526a9c40795ef2ab38b",
+        "6": "7a319e78a9645e8cb0a2ebe61e8e710299de9878",
+        "7": "139aae532cfcbb05b4a51a79c80c455b4ba71f6c",
+        "8": "622b2963d6e7a6c328d1b2f4bb0e80989d6ea85a",
+        "9": "4983b2c5b3f9f180ad7d448935705628d6641b09",
+        "10": "50a38e80c8cd45e917191c49411a2a2f37eea7fe",
+        "11": "07b5cb353bc2db9280631bee60ecee128e56f58d"
+      }
+    },
+    "transitions": 12,
+    "distinctRenderedFrames": 1062,
+    "nonBlackFrames": 1227
+  },
+  "timing": {
+    "targetFps": 25,
+    "normalRefreshInterval": 2,
+    "intervalHistogram": {
+      "2": 1214,
+      "12": 2,
+      "13": 2,
+      "14": 5,
+      "15": 2,
+      "17": 1
+    },
+    "normalIntervalRatio": 0.9902120717781403,
+    "deadlineMisses": 0,
+    "maximumInterruptsObservedDuringRender": 1,
+    "interpretation": "No 40 ms deadline misses; the heaviest render spans at most one 20 ms interrupt boundary."
+  },
+  "finalState": {
+    "pc": 35468,
+    "scene": 0,
+    "position": 97,
+    "animation": 8,
+    "screenBit": 8,
+    "irq": 39
+  }
+}

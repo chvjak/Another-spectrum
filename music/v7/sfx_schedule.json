@@ -1,0 +1,24 @@
+{
+  "timing_note": "Audition placements; frame-accurate visual sync can be adjusted by editing these values.",
+  "tire_brake_squeal": {
+    "seconds": 25.2,
+    "duration_seconds": 1.64
+  },
+  "keypad_beeps": [
+    {"seconds": 35.2, "note_midi": 84, "label": "1"},
+    {"seconds": 35.44, "note_midi": 88, "label": "2"},
+    {"seconds": 35.68, "note_midi": 91, "label": "3"},
+    {"seconds": 35.96, "note_midi": 86, "label": "4"},
+    {"seconds": 36.2, "note_midi": 89, "label": "5"},
+    {"seconds": 36.48, "note_midi": 93, "label": "enter"}
+  ],
+  "steps": {
+    "seconds": 42.3,
+    "count": 10,
+    "spacing_seconds": 0.56
+  },
+  "lightning_strike": {
+    "seconds": 118.0,
+    "duration_seconds": 2.46
+  }
+}

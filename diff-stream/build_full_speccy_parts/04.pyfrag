@@ -1,0 +1,46 @@
+        "start_ay_tick", "end_ay_tick", "ay_ticks", "ay_bytes", "tail_ticks",
+    ]
+    lines = [",".join(columns)]
+    for reel in reels:
+        lines.append(",".join(str(reel[column]) for column in columns))
+    (output_directory / "reels.csv").write_text("\n".join(lines) + "\n")
+
+
+def main() -> None:
+    OUT.mkdir(parents=True, exist_ok=True)
+    source = sorted(CAPTURE.glob("frame-*.ppm"))
+    work = [(int(path.stem.split("-")[1]), path) for path in source]
+    if not work:
+        raise RuntimeError(f"no captured frames in {CAPTURE}")
+
+    missing = [(number, path) for number, path in work if not (OUT / f"frame-{number:04}.scr").exists()]
+    if missing:
+        with ProcessPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as pool:
+            for done, number in enumerate(pool.map(convert, missing), 1):
+                if done % 20 == 0:
+                    print(f"converted {done}/{len(missing)}", flush=True)
+
+    all_frames = [
+        (number, (OUT / f"frame-{number:04}.scr").read_bytes())
+        for number, _ in work
+    ]
+    ay_frames = load_ay50(AY_SOURCE)
+    reels = build_reels(all_frames, ay_frames, OUT)
+    write_manifest(reels, OUT)
+    print(
+        f"built {len(all_frames)} visual frames in {len(reels)} reels; "
+        f"AY={len(ay_frames)} ticks ({len(ay_frames) / 50:.2f}s)"
+    )
+    for reel in reels:
+        print(
+            reel["reel"],
+            f"frames={reel['frames']}",
+            f"video={reel['video_bytes']}",
+            f"ay_ticks={reel['ay_ticks']}",
+            f"ay={reel['ay_bytes']}",
+            f"tail={reel['tail_ticks']}",
+        )
+
+
+if __name__ == "__main__":
+    main()
